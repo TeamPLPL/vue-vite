@@ -5,14 +5,14 @@ import vue from '@vitejs/plugin-vue'
 export default defineConfig({
   plugins: [vue()],
   build: {
-    outDir: '../TeamPLPL/src/main/resources/static' // 빌드 결과물 저장 디렉토리
+    outDir: '../backend/src/main/resources/static' // 빌드 결과물 저장 디렉토리
   },
   server: {
     proxy: {
-      // '/': {
-      //   target: 'http://localhost:8080', // 백엔드 프로젝트에서 지정한 주소
-      //   changeOrigin: true
-      // }
+      '/': {
+        target: 'http://localhost:8080', // 백엔드 프로젝트에서 지정한 주소
+        changeOrigin: true
+      }
       // '/login': {
       //   target: 'http://localhost:8080',  // 스프링 부트 백엔드 주소
       //   changeOrigin: true,
