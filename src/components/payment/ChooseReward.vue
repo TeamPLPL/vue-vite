@@ -56,7 +56,7 @@
 
 <script setup>
 import { ref, computed } from 'vue';
-import { usePurchaseStore } from '../util/store/purchaseStore';
+import { usePurchaseStore } from '../../util/store/purchaseStore';
 
 const steps = ref(["리워드 선택", "결제 예약", "소문내기"]);
 const isChecked = ref(false); // 체크박스 상태를 관리하는 변수

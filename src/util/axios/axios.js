@@ -58,7 +58,7 @@ const apiWrapper = {
     // 로그인
     login: async (credentials) => {
       try {
-        const response = await axios.post('/login', credentials);  // 프록시된 경로 사용
+        const response = await apiClient.post('/login', credentials);  // 프록시된 경로 사용
         return response.data;
       } catch (error) {
         console.error('로그인 에러:', error);
@@ -69,7 +69,7 @@ const apiWrapper = {
     // 로그아웃
     logout: async () => {
       try {
-        const response = await axios.get('/logout');  // 로그아웃은 GET 요청
+        const response = await apiClient.get('/logout');  // 로그아웃은 GET 요청
         return response.data;
       } catch (error) {
         console.error('로그아웃 에러:', error);
@@ -80,7 +80,7 @@ const apiWrapper = {
     // 회원가입
     signup: async (userData) => {
       try {
-        const response = await axios.post('/signup', userData);
+        const response = await apiClient.post('/signup', userData);
         return response.data;
       } catch (error) {
         console.error('회원가입 에러:', error);

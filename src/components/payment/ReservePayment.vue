@@ -48,7 +48,8 @@
         <input type="radio" class="btn-check" name="btnradio" id="btnradio3" autocomplete="off">
         <label class="btn btn-outline-primary" for="btnradio3">신용/체크카드</label>
     </div>
-    
+
+    <button @click="testFunction">연결테스트</button>    
 
     <RouterLink to="/web/wpurchase/reward/step10">
         <button type="button" class="btn btn-primary w-100 my-1">이전 단계</button>
@@ -60,8 +61,9 @@
 
 <script setup>
 import { ref, computed, onMounted } from 'vue';
-import { usePurchaseStore } from '../util/store/purchaseStore'; // Pinia 스토어 import
+import { usePurchaseStore } from '../../util/store/purchaseStore'; // Pinia 스토어 import
 import { RouterLink } from 'vue-router';
+import apiWrapper from '../../util/axios/axios';
 
 const steps = ref(["리워드 선택", "결제 예약", "소문내기"]);
 
@@ -73,26 +75,39 @@ const donationAmount = purchaseStore.donationAmount;
 
 const wholePrice = computed(() => purchaseStore.totalPrice + purchaseStore.donationAmount);
 
-
-
+const testFunction = async () => {
+    try {
+        // POST 요청 테스트
+        const postDataResult = await apiWrapper.postData('/api/payment/register', { key: 'value' });
+        console.log('POST 요청 결과:', postDataResult);
+    } catch (error) {
+        console.error('API 호출 에러:', error);
+    }
+}
 function clientAuth() {
     AUTHNICE.requestPay({
-        clientId: '{my-client-id}', 
+        clientId: 'S1_d50c06bbe87447dfa7ab25b7b08fdb19', 
         method: 'card',
-        orderId: 'test_1031_0000',
-        amount: 1004,
+        orderId: 'test_1031_0004',
+        amount: wholePrice.value,
         goodsName: '나이스페이-상품',
-        returnUrl: 'http://localhost:5173/web/wpurchase/reward/step20'
+        returnUrl: 'http://localhost:5173/web/wpurchase/reward/complete',
+        fnError: function (result) {
+            alert('개발자확인용 : ' + result.errorMsg + '')
+        }
     },
 
     // 결제 성공 콜백 함수
     function onSuccess(response) {
         console.log("결제 성공:", response);
-    },
+        // Vue Router를 통한 리디렉션
+        this.$router.push("/web/wpurchase/reward/complete");
+    }.bind(this),
 
     // 결제 실패 콜백 함수
     function onFailure(error) {
         console.log("결제 실패:", error);
+        alert("결제가 실패했습니다. 다시 시도해주세요.");
     },
 
     function fnError(error) { // 필수 에러 핸들링 콜백
