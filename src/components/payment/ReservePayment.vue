@@ -86,7 +86,7 @@ const testFunction = async () => {
 }
 function clientAuth() {
     AUTHNICE.requestPay({
-        clientId: 'S1_d50c06bbe87447dfa7ab25b7b08fdb19', 
+        clientId: 'my-id', 
         method: 'card',
         orderId: 'test_1031_0004',
         amount: wholePrice.value,
