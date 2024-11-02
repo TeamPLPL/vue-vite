@@ -24,7 +24,7 @@
             <br />
             <h5 class="text-start">제품구성 : 로봇 본체 + 먼지동 + USB 케이블</h5>
             <div class="d-flex">
-                <img src="../assets/truck.svg">
+                <img src="../../assets/truck.svg">
                 &nbsp;&nbsp;
                 <h6 class="mb-0">무료배송 - 2024년 12월 15~25일 중으로 리워드 제공 예정</h6>
             </div>

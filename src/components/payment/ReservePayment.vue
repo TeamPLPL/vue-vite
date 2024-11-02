@@ -49,7 +49,7 @@
         <label class="btn btn-outline-primary" for="btnradio3">신용/체크카드</label>
     </div>
 
-    <button @click="testFunction">연결테스트</button>    
+    <!-- <button @click="testFunction">연결테스트</button>     -->
 
     <RouterLink to="/web/wpurchase/reward/step10">
         <button type="button" class="btn btn-primary w-100 my-1">이전 단계</button>
@@ -64,6 +64,7 @@ import { ref, computed, onMounted } from 'vue';
 import { usePurchaseStore } from '../../util/store/purchaseStore'; // Pinia 스토어 import
 import { RouterLink } from 'vue-router';
 import apiWrapper from '../../util/axios/axios';
+import { usePaymentStore } from '../../util/store/paymentStore';
 
 const steps = ref(["리워드 선택", "결제 예약", "소문내기"]);
 
@@ -72,9 +73,11 @@ const purchaseStore = usePurchaseStore();
 const quantity = purchaseStore.quantity;
 const totalPrice = purchaseStore.totalPrice;
 const donationAmount = purchaseStore.donationAmount;
+const paymentStore = usePaymentStore();
 
 const wholePrice = computed(() => purchaseStore.totalPrice + purchaseStore.donationAmount);
 
+// 서버로 가는지 테스트
 const testFunction = async () => {
     try {
         // POST 요청 테스트
@@ -84,14 +87,16 @@ const testFunction = async () => {
         console.error('API 호출 에러:', error);
     }
 }
+
+
 function clientAuth() {
     AUTHNICE.requestPay({
-        clientId: 'my-id', 
+        clientId: import.meta.env.VITE_NICEPAY_KEY, 
         method: 'card',
-        orderId: 'test_1031_0004',
+        orderId: 'test_1031_0023', // 한번 거래 끝나면 변경해야 함, 추후 거래할때마다 다른 번호가 나오도록 업데이트 예정
         amount: wholePrice.value,
         goodsName: '나이스페이-상품',
-        returnUrl: 'http://localhost:5173/web/wpurchase/reward/complete',
+        returnUrl: 'http://localhost:8080/api/payment/complete', // 임시로 백엔드 서버를 우회해서 
         fnError: function (result) {
             alert('개발자확인용 : ' + result.errorMsg + '')
         }
@@ -101,7 +106,8 @@ function clientAuth() {
     function onSuccess(response) {
         console.log("결제 성공:", response);
         // Vue Router를 통한 리디렉션
-        this.$router.push("/web/wpurchase/reward/complete");
+        // this.$router.push("/web/wpurchase/reward/complete");
+        paymentStore.setPaymentSuccess(true);
     }.bind(this),
 
     // 결제 실패 콜백 함수

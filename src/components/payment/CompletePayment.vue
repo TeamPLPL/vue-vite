@@ -5,3 +5,22 @@
         <RouterLink to="/">홈으로 돌아가기</RouterLink>
     </div>
 </template>
+
+<script setup>
+import { onMounted } from 'vue';
+import { useRouter } from 'vue-router';
+import { usePaymentStore } from '../../util/store/paymentStore';
+
+const router = useRouter();
+const paymentStore = usePaymentStore();
+
+onMounted(() => {
+    // 결제 성공 상태 확인
+    if (paymentStore.isPaymentSuccessful) {
+        // 리디렉션 수행 후 상태 초기화
+        router.push('/web/wpurchase/reward/complete');
+        paymentStore.resetPaymentStatus();
+    }
+});
+
+</script>
