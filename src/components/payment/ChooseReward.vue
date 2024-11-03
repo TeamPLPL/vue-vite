@@ -8,8 +8,8 @@
         </div>
     </div>
 
-    <h2 class="text-start">리워드 선택</h2>
-    <div class="card">
+    <h5 class="text-start fw-bold">리워드 선택</h5>
+    <div class="card my-4">
         <div class="card-body">
             <div class="d-flex align-items-center mb-2">
                 <input v-model="isChecked" class="form-check-input custom-checkbox" type="checkbox" id="checkboxNoLabel" value="" aria-label="...">
@@ -43,10 +43,13 @@
         </div>
     </div>
 
-    <h2 class="text-start">후원금 더하기 (선택)</h2>
-    <div class="d-flex">
-        <input type="number" placeholder="0" v-model.number="donationAmount">
-        <h6 class="mb-0">원을 추가로 후원합니다.</h6>
+    <h5 class="text-start fw-bold">후원금 더하기 (선택)</h5>
+    <div class="donation-section">
+        <p>후원금을 더하여 참여할 수 있습니다. 추가 후원금을 입력하시겠습니까?</p>
+        <div class="d-flex align-items-center">
+            <input type="number" placeholder="0" v-model.number="donationAmount" class="form-control me-2" />
+            <span>원을 추가로 후원합니다.</span>
+        </div>
     </div>
 
     <RouterLink to="/web/wpurchase/reward/step20">
@@ -97,7 +100,9 @@ function saveToStore() {
 .progress-steps {
     display: flex;
     align-items: center;
-    justify-content: space-between;
+    justify-content: center;
+    white-space: normal; /* 일반적인 줄바꿈 허용 */
+    word-break: keep-all; /* 단어 단위로 줄바꿈 */
 }
 .step-container {
     display: flex;
@@ -112,7 +117,6 @@ function saveToStore() {
     justify-content: center;
     font-weight: bold;
     color: white;
-    margin-right: 10px;
 }
 .step-completed {
     background-color: #4db4d7; /* Example color for completed step */
@@ -121,8 +125,28 @@ function saveToStore() {
     background-color: #e9ecef;
 }
 .dashed-line {
-    width: 130px; /* 원하는 길이로 설정 */
     border-top: 2px dashed #000000;
-    margin-right: 10px;
+    width: 80px;
+    margin: 0 10px; /* 필요시 약간의 여백을 추가 */
+}
+
+.donation-section {
+    text-align: left;
+    margin-top: 10px;
+}
+
+.donation-section p {
+    margin-bottom: 8px;
+    color: #333;
+    font-size: 0.9rem;
+}
+
+.donation-section input {
+    width: 80px;
+    text-align: left;
+}
+
+.donation-section span {
+    font-size: 0.9rem;
 }
 </style>
