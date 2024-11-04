@@ -26,10 +26,21 @@ onMounted(() => {
       <img src="./assets/vue.svg" class="logo vue" alt="Vue logo" />
     </a>
   </div>
-  <RouterView />
+  <div class="app-container">
+    <!-- RouterView만 렌더링 -->
+    <RouterView />
+  </div>
 </template>
 
 <style scoped>
+.app-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
 .logo {
   height: 6em;
   padding: 1.5em;

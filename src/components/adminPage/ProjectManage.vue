@@ -13,7 +13,7 @@
                 </tr>
             </thead>
             <tbody>
-                <tr v-for="project in projects" :key="project.name">
+                <tr v-for="project in projects" :key="project.id">
                     <td>{{ project.name }}</td>
                     <td>{{ project.startDate || "NULL" }}</td>
                     <td>{{ project.endDate }}</td>
@@ -30,29 +30,36 @@
                 </tr>
             </tbody>
         </table>
+        <div class="pagination">
+            <button v-for="page in pages" :key="page" class="page-link">{{ page }}</button>
+        </div>
     </div>
 </template>
 
-<script>
-export default {
-    name: "ProjectTable",
-    data() {
-        return {
-            projects: [
-                { name: "아르피아 복원", startDate: null, endDate: "2026.01.24", isApproved: false },
-                { name: "비건 사료", startDate: "2023.07.03", endDate: "2024.03.28", isApproved: true },
-                { name: "무알콜 와인", startDate: null, endDate: "2025.11.18", isApproved: false },
-                { name: "다이어리 케이스", startDate: null, endDate: "2025.08.18", isApproved: false },
-            ],
-        };
-    },
-};
+<script setup>
+import { ref } from 'vue';
+
+const projects = ref([
+    { id: 1, name: "아르피아 복원", startDate: null, endDate: "2026.01.24", isApproved: false },
+    { id: 2, name: "비건 사료", startDate: "2023.07.03", endDate: "2024.03.28", isApproved: true },
+    { id: 3, name: "무알콜 와인", startDate: null, endDate: "2025.11.18", isApproved: false },
+    { id: 4, name: "다이어리 케이스", startDate: null, endDate: "2025.08.18", isApproved: false },
+    { id: 5, },
+    { id: 6, },
+    { id: 7, },
+    { id: 8, },
+    { id: 9, },
+    { id: 10, },
+]);
+
+const pages = ref([1, 2, 3, 4, 5]); // 페이지 네이션
 </script>
 
 <style scoped>
 .table th,
 .table td {
     vertical-align: middle;
+    background-color: #00ff48 !important;
 }
 
 .btn-success {
@@ -68,5 +75,24 @@ export default {
 .btn-danger {
     background-color: #e74c3c;
     color: white;
+}
+
+.pagination {
+    display: flex;
+    justify-content: center;
+    margin-top: 1rem;
+}
+
+.page-link {
+    margin: 0 5px;
+    padding: 5px 10px;
+    background-color: transparent;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.page-link:hover {
+    background-color: #ddd;
 }
 </style>

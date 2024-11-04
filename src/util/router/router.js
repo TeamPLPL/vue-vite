@@ -34,10 +34,10 @@ const routes = [
         component: CompletePayment,
     },
     {
-        path: "/web/admin",
+        path: "/admin",
         name: "AdminPage",
         component: AdminPage,
-        redirect: "/web/admin/dashboard",
+        redirect: "/admin/dashboard",
         children: [
             {
                 path: "dashboard",

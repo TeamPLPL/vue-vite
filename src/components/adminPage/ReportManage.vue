@@ -36,45 +36,102 @@
                 </tr>
             </tbody>
         </table>
+        <div class="pagination">
+            <button v-for="page in pages" :key="page" class="page-link">{{ page }}</button>
+        </div>
     </div>
 </template>
 
-<script>
-export default {
-    name: "ReportBoard",
-    data() {
-        return {
-            reports: [
-                {
-                    id: 1,
-                    title: "[펀딩] 밤버터 시리즈 05, 이번엔 버터밤",
-                    category: "사용자",
-                    date: "2024-10-25",
-                    time: "13:27",
-                    reporter: "12nickname12",
-                },
-                {
-                    id: 2,
-                    title: "[펀딩] 밤버터 시리즈 05, 이번엔 버터밤",
-                    category: "댓글",
-                    date: "2024-10-25",
-                    time: "13:27",
-                    reporter: "12nickname12",
-                },
-                {
-                    id: 3,
-                    title: "[펀딩] 밤버터 시리즈 05, 이번엔 버터밤",
-                    category: "펀딩",
-                    date: "2024-10-25",
-                    time: "13:27",
-                    reporter: "12nickname12",
-                },
-                // 필요한 만큼의 데이터 추가
-            ],
-        };
+<script setup>
+import { ref } from 'vue';
+
+const pages = ref([1, 2, 3, 4, 5]); // 페이지 네이션
+
+const reports = ref([
+    {
+        id: 1,
+        title: "[펀딩] 밤버터 시리즈 05, 이번엔 버터밤",
+        category: "사용자",
+        date: "2024-10-25",
+        time: "13:27",
+        reporter: "12nickname12",
     },
-};
+    {
+        id: 2,
+        title: "[펀딩] 밤버터 시리즈 05, 이번엔 버터밤",
+        category: "댓글",
+        date: "2024-10-25",
+        time: "13:27",
+        reporter: "12nickname12",
+    },
+    {
+        id: 3,
+        title: "[펀딩] 밤버터 시리즈 05, 이번엔 버터밤",
+        category: "펀딩",
+        date: "2024-10-25",
+        time: "13:27",
+        reporter: "12nickname12",
+    },
+    {
+        id: 4,
+        title: "[펀딩] 밤버터 시리즈 05, 이번엔 버터밤",
+        category: "펀딩",
+        date: "2024-10-25",
+        time: "13:27",
+        reporter: "12nickname12",
+    },
+    {
+        id: 5,
+        title: "[펀딩] 밤버터 시리즈 05, 이번엔 버터밤",
+        category: "펀딩",
+        date: "2024-10-25",
+        time: "13:27",
+        reporter: "12nickname12",
+    },
+    {
+        id: 6,
+        title: "[펀딩] 밤버터 시리즈 05, 이번엔 버터밤",
+        category: "펀딩",
+        date: "2024-10-25",
+        time: "13:27",
+        reporter: "12nickname12",
+    },
+    {
+        id: 7,
+        title: "[펀딩] 밤버터 시리즈 05, 이번엔 버터밤",
+        category: "펀딩",
+        date: "2024-10-25",
+        time: "13:27",
+        reporter: "12nickname12",
+    },
+    {
+        id: 8,
+        title: "[펀딩] 밤버터 시리즈 05, 이번엔 버터밤",
+        category: "펀딩",
+        date: "2024-10-25",
+        time: "13:27",
+        reporter: "12nickname12",
+    },
+    {
+        id: 9,
+        title: "[펀딩] 밤버터 시리즈 05, 이번엔 버터밤",
+        category: "펀딩",
+        date: "2024-10-25",
+        time: "13:27",
+        reporter: "12nickname12",
+    },
+    {
+        id: 10,
+        title: "[펀딩] 밤버터 시리즈 05, 이번엔 버터밤",
+        category: "펀딩",
+        date: "2024-10-25",
+        time: "13:27",
+        reporter: "12nickname12",
+    },
+    // 필요한 만큼의 데이터 추가
+]);
 </script>
+
 
 <style scoped>
 .table {
@@ -104,5 +161,24 @@ h4 {
 
 .text-dark:hover {
     color: #0056b3;
+}
+
+.pagination {
+    display: flex;
+    justify-content: center;
+    margin-top: 1rem;
+}
+
+.page-link {
+    margin: 0 5px;
+    padding: 5px 10px;
+    background-color: transparent;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.page-link:hover {
+    background-color: #ddd;
 }
 </style>

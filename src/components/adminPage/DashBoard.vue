@@ -59,19 +59,19 @@
   </div>
 </template>
 
-<script>
-export default {
-  name: "DashBoard",
-  methods: {
-    goToPage(path) {
-      this.$router.push(path); // 클릭 시 해당 경로로 라우팅
-    },
-  },
-};
+<script setup>
+import { useRouter } from 'vue-router';
+
+const router = useRouter();
+
+function goToPage(path) {
+  router.push(path); // 클릭 시 해당 경로로 라우팅
+}
 </script>
 
 <style scoped>
 .card {
+  height: 300px;
   border: 1px solid #e0e0e0;
   border-radius: 8px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
