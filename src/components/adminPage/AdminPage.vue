@@ -77,7 +77,7 @@ function setActiveTab(tab) {
 <style scoped>
 .navigation {
     position: absolute;
-    top: 22%;
+    top: 10%;
 }
 
 /* 고정된 네비게이션 바와 서브 네비게이션 바 아래에 컨텐츠 위치 */

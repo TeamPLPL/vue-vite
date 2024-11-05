@@ -11,6 +11,8 @@ import ReportManage from "../../components/adminPage/ReportManage.vue";
 import ProjectManage from "../../components/adminPage/ProjectManage.vue";
 import CommentManage from "../../components/adminPage/CommentManage.vue";
 import MemberDetail from "../../components/adminPage/MemberDetail.vue";
+import Participation from "../../components/participation/Participation.vue";
+import ParticipationDetail from "../../components/participation/ParticipationDetail.vue"
 
 const routes = [
     {
@@ -19,17 +21,17 @@ const routes = [
         component: App,
     },
     {
-        path: "/web/wpurchase/reward/step10",
+        path: "/purchase/step10/:id",
         name: "ChooseReward",
         component: ChooseReward,
     },
     {
-        path: "/web/wpurchase/reward/step20",
+        path: "/purchase/step20/:id",
         name: "ReservePayment",
         component: ReservePayment,
     },
     {
-        path: "/web/wpurchase/reward/complete",
+        path: "/purchase/step30/:id",
         name: "CompletePayment",
         component: CompletePayment,
     },
@@ -70,6 +72,17 @@ const routes = [
                 component: CommentManage,
             },
         ]
+    },
+    {
+        path: '/participation',
+        name: 'Participation',
+        component: Participation,
+    },
+    {
+        path: '/participation/:id',
+        name: 'ParticipationDetail',
+        component: ParticipationDetail,
+        meta: { grayBackground: true }, // Add this meta field
     }
 ]
 
