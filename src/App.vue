@@ -20,23 +20,28 @@ onMounted(() => {
 </script>
 
 <template>
-    <div :class="['app-container', { 'gray-background': isGrayBackground }]">
+    <div class="app-container">
         <RouterView />
     </div>
 </template>
 
 <style>
+/* html, body, #app에 글로벌 스타일 적용 */
+html, body, #app {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    height: 100%;
+    box-sizing: border-box;
+}
+
 .app-container {
     display: flex;
     justify-content: center;
     align-items: center;
     flex-direction: column;
     min-height: 100vh;
-}
-
-/* Apply gray background when isGrayBackground is true */
-.gray-background {
-    background-color: #f3f4f6;
-    /* light gray color */
+    width: 100%; /* 화면 가로를 전부 차지 */
+    background-color: white;
 }
 </style>

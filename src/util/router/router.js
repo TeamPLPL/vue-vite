@@ -24,16 +24,19 @@ const routes = [
         path: "/purchase/step10/:id",
         name: "ChooseReward",
         component: ChooseReward,
+        props: true,
     },
     {
         path: "/purchase/step20/:id",
         name: "ReservePayment",
         component: ReservePayment,
+        props: true,
     },
     {
         path: "/purchase/step30/:id",
         name: "CompletePayment",
         component: CompletePayment,
+        props: true,
     },
     {
         path: "/admin",
@@ -82,7 +85,6 @@ const routes = [
         path: '/participation/:id',
         name: 'ParticipationDetail',
         component: ParticipationDetail,
-        meta: { grayBackground: true }, // Add this meta field
     }
 ]
 
