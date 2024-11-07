@@ -14,6 +14,9 @@ import MemberDetail from "../../components/adminPage/MemberDetail.vue";
 import Participation from "../../components/participation/Participation.vue";
 import ParticipationDetail from "../../components/participation/ParticipationDetail.vue"
 
+import Login from "../../components/user/Login.vue"
+import Signup from "../../components/user/Signup.vue"
+
 const routes = [
     {
         path: "/",
@@ -85,6 +88,16 @@ const routes = [
         path: '/participation/:id',
         name: 'ParticipationDetail',
         component: ParticipationDetail,
+    },
+    {
+        path: '/login',
+        name :'login',
+        component : Login,   
+    },
+    {
+        path: '/signup',
+        name :'signup',
+        component : Signup,   
     }
 ]
 
