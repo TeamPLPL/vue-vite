@@ -262,15 +262,17 @@ const testFunction = async () => {
 
 
 function clientAuth() {
+    console.log('Current Order ID:', purchaseStore.orderId);
     AUTHNICE.requestPay({
         clientId: import.meta.env.VITE_NICEPAY_KEY,
         method: paymentMethod.value,
-        orderId: `test_1107_${purchaseStore.orderId}`, // Pinia 스토어에서 orderId 사용
+        orderId: `test_1108_${purchaseStore.orderId}`, // Pinia 스토어에서 orderId 사용
         amount: wholePrice.value,
         goodsName: '나이스페이-상품',
         returnUrl: `http://localhost:8080/api/payment/complete?id=${props.id}`,
         fnError: function (result) {
-            alert('개발자확인용 : ' + result.errorMsg + '')
+            alert('개발자확인용 : ' + result.errorMsg + '');
+            purchaseStore.incrementOrderId(); // 에러 시에도 호출
         }
     },
 
@@ -309,9 +311,12 @@ function loadScript(url, id) {
 }
 
 onMounted(async () => {
+    console.log('Initial Order ID:', purchaseStore.orderId); // 초기 Order ID 확인
     try {
         await loadScript("https://pay.nicepay.co.kr/v1/js/", "nicepay-script");
         // 추가적인 스크립트를 로드하려면 같은 방식으로 호출
+
+        console.log('NicePay script loaded successfully.');
     } catch (error) {
         console.error("Script loading failed:", error);
     }

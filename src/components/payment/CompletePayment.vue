@@ -69,6 +69,8 @@ import { onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import { usePaymentStore } from '../../util/store/paymentStore';
 
+defineProps(['id']); // id를 명시적으로 props로 정의
+
 const router = useRouter();
 const paymentStore = usePaymentStore();
 
