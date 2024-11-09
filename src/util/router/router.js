@@ -16,6 +16,7 @@ import ParticipationDetail from "../../components/participation/ParticipationDet
 
 import Login from "../../components/user/Login.vue"
 import Signup from "../../components/user/Signup.vue"
+import CookieToHeader from "../../components/user/CookieToHeader.vue"
 
 const routes = [
     {
@@ -98,6 +99,11 @@ const routes = [
         path: '/signup',
         name :'signup',
         component : Signup,   
+    },
+    {
+        path: '/cookie-to-header',
+        name :'cookie-to-header',
+        component : CookieToHeader,   
     }
 ]
 
