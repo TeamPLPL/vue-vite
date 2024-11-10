@@ -4,6 +4,9 @@ import { useRouter, useRoute } from 'vue-router';
 import { useAuthStore } from './util/store/authStore'; // authStore import
 import { usePaymentStore } from './util/store/paymentStore';
 import axios from 'axios'; // axios import for handling headers
+import Header from './components/common/Header.vue'
+import Topbar from './components/common/Topbar.vue'
+import Footer from './components/common/Footer.vue'
 
 const router = useRouter();
 const route = useRoute();
@@ -12,13 +15,6 @@ const paymentStore = usePaymentStore();
 
 // Detect if the current route requires a gray background
 const isGrayBackground = computed(() => route.meta.grayBackground);
-
-// 로그아웃 메소드
-function logout() {
-    authStore.setJwtToken(null); // jwtToken을 null로 설정
-    axios.defaults.headers.common['Authorization'] = ''; // Authorization 헤더 초기화
-    router.push('/login'); // 로그아웃 후 로그인 페이지로 이동
-}
 
 onMounted(() => {
     // Check if payment is successful and redirect if needed
@@ -30,11 +26,12 @@ onMounted(() => {
 </script>
 
 <template>
+  <Topbar />
+  <Header />
     <div class="app-container">
-        <RouterView />
-        <!-- 로그아웃 버튼 -->
-        <button @click="logout" class="btn btn-primary mt-4">로그아웃</button>
+        <RouterView/>
     </div>
+  <Footer />
 </template>
 
 <style>

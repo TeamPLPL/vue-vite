@@ -15,13 +15,13 @@
               <div class="row gy-3 overflow-hidden">
                 <div class="col-12">
                     <div class="form-floating mb-3">
-                        <input type="email" class="form-control" name="email" id="email" v-model="email" placeholder="name@example.com" required>
+                        <input type="email" class="form-control" name="email" id="email" v-model="state.email" placeholder="name@example.com" required>
                         <label for="email" class="form-label">이메일</label>
                     </div>
                     </div>
                     <div class="col-12">
                     <div class="form-floating mb-3">
-                        <input type="password" class="form-control" name="password" id="password" v-model="password" placeholder="비밀번호" required>
+                        <input type="password" class="form-control" name="password" id="password" v-model="state.password" placeholder="비밀번호" required>
                         <label for="password" class="form-label">비밀번호</label>
                     </div>
                     </div>
@@ -35,7 +35,7 @@
                 </div> -->
                 <div class="col-12">
                   <div class="d-grid">
-                    <button class="btn btn-info btn-lg" @click="login">로그인</button>
+                    <button class="btn btn-info btn-lg" @click.prevent="login">로그인</button>
                   </div>
                 </div>
               </div>
@@ -94,21 +94,20 @@ export default {
     // 서버로 이메일과 비밀번호 데이터를 전달하는 함수
     const login = async () => {
       try {
-        // axios로 POST 요청을 보내고 응답을 받습니다.
-        const response = await axios.post('/api/login', {
+        const response = await axios.post('http://localhost:8080/api/login', {
           email: state.email,
-          password: state.password
+          password: state.password,
         });
 
-        console.log('POST 요청 결과:', response);
-
-        // JWT 토큰이 응답 헤더에 있을 경우 이를 Pinia 스토어에 저장
-        const token = response.headers['authorization'].split(" ")[1];
-        authStore.setJwtToken(token); // JWT를 Pinia에 저장
-
-        // 로그인 후 "/" 경로로 이동
-        router.push('/');
-
+        // Authorization 헤더가 정상적으로 오는지 체크
+        if (response.headers['authorization']) {
+          const token = response.headers['authorization'].split(' ')[1];
+          console.log(token);
+          authStore.setJwtToken(token);
+          router.push('/');
+        } else {
+          console.error('JWT 토큰을 찾을 수 없습니다.');
+        }
       } catch (error) {
         console.error('API 호출 에러:', error);
       }
@@ -139,7 +138,7 @@ export default {
     };
 
     return {
-      ...state,
+      state,
       login,
       googleLogin,
       naverLogin,

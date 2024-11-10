@@ -15,7 +15,7 @@
                             <div class="row gy-3 overflow-hidden">
                                 <div class="col-12">
                                     <div class="form-floating mb-3">
-                                        <input type="email" class="form-control" name="email" id="email" v-model="email"
+                                        <input type="email" class="form-control" name="email" id="email" v-model="state.email"
                                             placeholder="name@example.com" required>
                                         <label for="email" class="form-label">이메일</label>
                                     </div>
@@ -23,14 +23,14 @@
                                 <div class="col-12">
                                     <div class="form-floating mb-3">
                                         <input type="password" class="form-control" name="password" id="password"
-                                            v-model="password" placeholder="비밀번호" required>
+                                            v-model="state.password" placeholder="비밀번호" required>
                                         <label for="password" class="form-label">비밀번호</label>
                                     </div>
                                 </div>
                                 <div class="col-12">
                                     <div class="form-floating mb-3">
                                         <input type="text" class="form-control" name="usernick" id="usernick"
-                                            v-model="userNick" placeholder="닉네임" required>
+                                            v-model="state.userNick" placeholder="닉네임" required>
                                         <label for="usernick" class="form-label">닉네임</label>
                                     </div>
                                 </div>
@@ -65,7 +65,7 @@
 
 <script>
 import { useRouter } from 'vue-router';
-import { reactive, toRefs } from 'vue';
+import { reactive } from 'vue';
 import apiWrapper from '../../util/axios/axios';
 
 export default {
@@ -107,7 +107,7 @@ export default {
         const googleSignup = async () => {
             try {
                 // 구글 OAuth 인증 URL로 리디렉션
-                window.location.href = "http://localhost:8080/oauth2/authorization/google";
+              window.location.href = "http://localhost:8080/oauth2/authorization/google?prompt=consent";
             } catch (error) {
                 console.error('Google signup error:', error);
             }
@@ -125,7 +125,7 @@ export default {
 
         // `toRefs`를 사용하여 개별 필드를 템플릿에 바인딩할 수 있도록 반환합니다.
         return {
-            ...toRefs(state),
+            state,
             signup,
             googleSignup,
             naverSignup

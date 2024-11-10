@@ -8,7 +8,7 @@ export default defineConfig({
     outDir: '../backend/src/main/resources/static' // 빌드 결과물 저장 디렉토리
   },
   server: {
-    port: 5173,
+    port: 3000,
     proxy: {
       '/api': {
         target: 'http://localhost:8080', // 백엔드 프로젝트에서 지정한 주소

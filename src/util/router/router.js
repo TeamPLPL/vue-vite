@@ -19,11 +19,12 @@ import Signup from "../../components/user/Signup.vue"
 import CookieToHeader from "../../components/user/CookieToHeader.vue"
 
 const routes = [
-    {
-        path: "/",
-        name: "App",
-        component: App,
-    },
+    // 작성자 : 신은호, 내용 : App 등로기 중복 렌더링 됨.
+    // {
+    //     path: "/",
+    //     name: "App",
+    //     component: App,
+    // },
     {
         path: "/purchase/step10/:id",
         name: "ChooseReward",
