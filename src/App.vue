@@ -26,11 +26,17 @@ onMounted(() => {
 </script>
 
 <template>
-  <div class="app-container">
-    <Topbar class="topbar" />
+  <div>
+    <div class=".container-fluid">
+      <Topbar class="topbar" />
+    </div>
     <Header />
-    <RouterView />
-    <Footer class="footer" />
+    <div class="app-container">
+      <RouterView />
+    </div>
+    <div class="">
+      <Footer class="footer" />
+    </div>  
   </div>
 </template>
 
@@ -50,7 +56,11 @@ onMounted(() => {
   position: sticky;
   bottom: 0;
   z-index: 1000;
-  width: 100%;
+  /* width: 100%; */
+  width: 100vw;
   margin-top: auto;
+  margin: 0;
 }
+
+
 </style>

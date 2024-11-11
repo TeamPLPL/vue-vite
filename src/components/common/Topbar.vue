@@ -1,25 +1,33 @@
 <template>
-  <nav class="navbar navbar-expand-lg">
-    <div class="container-fluid">
-      <div class="collapse navbar-collapse" id="navbarText">
+  <nav class="navbar navbar-expand-sm">
+    <div class="container-sm">
+      <div class="navbar-collapse" id="navbarText">
         <span class="navbar-text">
           <img src="../../assets/wadiz.png" @click="main" style="width: 100px; height: auto; cursor: pointer; margin-left: 19.2px;">
         </span>
         <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
+          <!-- 로그인 상태일 때 표시 -->
+          <template v-if="isLoggedIn">
+            <li class="nav-item">
+              <img src="https://static.wadiz.kr/assets/icon/profile-icon-5.png" class="profile" @click="profile">
+            </li>
+            <li class="nav-item">
+              <button type="button" class="btn btn-light" @click="logout">로그아웃</button>
+            </li>
+          </template>
+
+          <!-- 로그아웃 상태일 때 표시 -->
+          <template v-else>
+            <li class="nav-item">
+              <button type="button" class="btn btn-light" @click="login">로그인</button>
+            </li>
+            <li class="nav-item">
+              <button type="button" class="btn btn-light" @click="signup">회원가입</button>
+            </li>
+          </template>
+
           <li class="nav-item">
-            <img src="https://static.wadiz.kr/assets/icon/profile-icon-5.png" class="profile">
-          </li>
-          <li class="nav-item">
-            <button type="button" class="btn btn-light" @click="login">로그인</button>
-          </li>
-          <li class="nav-item">
-            <button type="button" class="btn btn-light" @click="logout">로그아웃</button>
-          </li>
-          <li class="nav-item">
-            <button type="button" class="btn btn-light" @click="signup">회원가입</button>
-          </li>
-          <li class="nav-item">
-            <button type="button" class="btn btn-primary">프로젝트 생성</button>
+            <button type="button" class="btn btn-primary" @click="createProject">프로젝트 생성</button>
           </li>
         </ul>
       </div>
@@ -36,6 +44,8 @@ export default {
   setup() {
     const router = useRouter();
     const authStore = useAuthStore();
+
+    const isLoggedIn = authStore.jwtToken !== null;
 
     // 라우터를 통해 '/login' 경로로 이동
     const main = () => {
@@ -59,11 +69,21 @@ export default {
       router.push('/login'); // 로그아웃 후 로그인 페이지로 이동
     };
 
+    const createProject = () => {
+      if (isLoggedIn) {
+        router.push('/project/create'); // 로그인된 상태에서의 경로
+      } else {
+        router.push('/login'); // 로그아웃 상태에서는 로그인 페이지로
+      }
+    };
+
     return {
+      isLoggedIn,
       login,
       signup,
       logout,
-      main
+      main,
+      createProject,
     };
   }
 };
