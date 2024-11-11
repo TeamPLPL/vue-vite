@@ -26,7 +26,7 @@ const apiWrapper = {
     postData: async (url, data) => {
       try {
         const response = await apiClient.post(url, data);
-        return response.data;
+        return response;
       } catch (error) {
         console.error('POST 요청 에러:', error);
         throw error;
