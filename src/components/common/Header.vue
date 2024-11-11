@@ -39,13 +39,15 @@
       @mouseenter="handleSubCategoryMouseEnter" 
       @mouseleave="handleSubCategoryMouseLeave" 
     >
-      <ul class="sub-category-list">
-        <li v-for="(subCategory, index) in subCategoryList" :key="index">
-          <a href="#" @click.prevent="handleSubCategoryClick(subCategory.subCategoryId)">
-            {{ subCategory.subCategoryName }}
-          </a>
-        </li>
-      </ul>
+      <div class="container-sm">
+        <ul class="sub-category-list">
+          <li v-for="(subCategory, index) in subCategoryList" :key="index">
+            <a href="#" @click.prevent="handleSubCategoryClick(subCategory.subCategoryId)">
+              {{ subCategory.subCategoryName }}
+            </a>
+          </li>
+        </ul>
+      </div>
     </div>
   </nav>
 </template>
