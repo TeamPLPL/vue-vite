@@ -26,12 +26,31 @@ onMounted(() => {
 </script>
 
 <template>
-  <Topbar />
-  <Header />
-  <RouterView/>
-  <Footer />
+  <div class="app-container">
+    <Topbar class="topbar" />
+    <Header />
+    <RouterView />
+    <Footer class="footer" />
+  </div>
 </template>
 
 <style>
-
+.app-container {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+.topbar {
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  width: 100%;
+}
+.footer {
+  position: sticky;
+  bottom: 0;
+  z-index: 1000;
+  width: 100%;
+  margin-top: auto;
+}
 </style>

@@ -1,105 +1,20 @@
 import {createRouter, createWebHistory} from "vue-router"
+import paymentRouter from "./payment-router.js";
+import loginRouter from "./login-router.js";
 
-import App from "../../App.vue"
-import ChooseReward from "../../components/payment/ChooseReward.vue";
-import ReservePayment from "../../components/payment/ReservePayment.vue";
-import CompletePayment from "../../components/payment/CompletePayment.vue";
-import AdminPage from "../../components/adminPage/AdminPage.vue";
-import DashBoard from "../../components/adminPage/DashBoard.vue";
-import MemberManage from "../../components/adminPage/MemberManage.vue";
-import ReportManage from "../../components/adminPage/ReportManage.vue";
-import ProjectManage from "../../components/adminPage/ProjectManage.vue";
-import CommentManage from "../../components/adminPage/CommentManage.vue";
-import MemberDetail from "../../components/adminPage/MemberDetail.vue";
-import Participation from "../../components/participation/Participation.vue";
-import ParticipationDetail from "../../components/participation/ParticipationDetail.vue"
-
-import Login from "../../components/user/Login.vue"
-import Signup from "../../components/user/Signup.vue"
-import CookieToHeader from "../../components/user/CookieToHeader.vue"
-
+/*
+*   작성자 : 신은호, 작성 날짜 : 24년 11월 11일
+*   0. 메인 라우터(router.js)에 { path, name, componet }직접 사용은 금지한다.
+*   1. 라우터 파일명은 케밥 스타일로 작성한다. ex) loginRouter(x), login-router(o)
+*   2. 작성한 라우터는 routes에 등록한다. ex) ...loginRouter
+*   3. 모르면 보고 따라하자^^;;
+*
+*   [참고 사항] : 앞에 붙은 ...은 **스프레드 연산자(spread operator)**로,
+*   배열이나 객체를 펼쳐서 개별 요소나 프로퍼티로 나열하는 역할을 한다.
+*/
 const routes = [
-    {
-        path: "/purchase/step10/:id",
-        name: "ChooseReward",
-        component: ChooseReward,
-        props: true,
-    },
-    {
-        path: "/purchase/step20/:id",
-        name: "ReservePayment",
-        component: ReservePayment,
-        props: true,
-    },
-    {
-        path: "/purchase/step30/:id",
-        name: "CompletePayment",
-        component: CompletePayment,
-        props: true,
-    },
-    {
-        path: "/admin",
-        name: "AdminPage",
-        component: AdminPage,
-        redirect: "/admin/dashboard",
-        children: [
-            {
-                path: "dashboard",
-                name: "DashBoard",
-                component: DashBoard,
-            },
-            {
-                path: "member",
-                name: "MemberManage",
-                component: MemberManage,
-            },
-            {
-                path: "member/:id",
-                name: "MemberDetail",
-                component: MemberDetail,
-            },
-            {
-                path: "report",
-                name: "ReportManage",
-                component: ReportManage,
-            },
-            {
-                path: "project",
-                name: "ProjectManage",
-                component: ProjectManage,
-            },
-            {
-                path: "comment",
-                name: "CommentManage",
-                component: CommentManage,
-            },
-        ]
-    },
-    {
-        path: '/participation',
-        name: 'Participation',
-        component: Participation,
-    },
-    {
-        path: '/participation/:id',
-        name: 'ParticipationDetail',
-        component: ParticipationDetail,
-    },
-    {
-        path: '/login',
-        name :'login',
-        component : Login,   
-    },
-    {
-        path: '/signup',
-        name :'signup',
-        component : Signup,   
-    },
-    {
-        path: '/cookie-to-header',
-        name :'cookie-to-header',
-        component : CookieToHeader,   
-    }
+    ...paymentRouter,
+    ...loginRouter,
 ]
 
 const router = createRouter({
