@@ -2,6 +2,7 @@ import {createRouter, createWebHistory} from "vue-router"
 import paymentRouter from "./payment-router.js";
 import loginRouter from "./login-router.js";
 import mainpageRouter from "./mainpage-router.js";
+import projectRouter from "./project-router.js";
 
 /*
 *   작성자 : 신은호, 작성 날짜 : 24년 11월 11일
@@ -17,6 +18,7 @@ const routes = [
     ...paymentRouter,
     ...loginRouter,
     ...mainpageRouter,
+    ...projectRouter
 ]
 
 const router = createRouter({
