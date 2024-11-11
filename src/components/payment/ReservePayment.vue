@@ -202,10 +202,10 @@
 
     <!-- <button @click="testFunction">연결테스트</button>     -->
 
-    <RouterLink to="/web/wpurchase/reward/step10">
+    <RouterLink :to="`/purchase/step10/${id}`">
         <button type="button" class="btn btn-primary w-100 my-1">이전 단계</button>
     </RouterLink>
-    <RouterLink to="/web/wpurchase/reward/step20">
+    <RouterLink :to="`/purchase/step20/${id}`">
         <button @click="clientAuth" class="btn btn-primary w-100 my-1">clientAuth 결제하기</button>
     </RouterLink>
 </template>
@@ -217,9 +217,11 @@ import { RouterLink } from 'vue-router';
 import apiWrapper from '../../util/axios/axios';
 import { usePaymentStore } from '../../util/store/paymentStore';
 
+const props = defineProps(['id']); // props로 id 값을 받음
+
 const steps = ref(["리워드 선택", "결제 예약", "소문내기"]);
 const paymentMethod = ref("card"); // 초기값 설정
-const orderId = ref(getOrderId()); // 순차적으로 증가하는 orderId
+//const orderId = ref(getOrderId()); // 순차적으로 증가하는 orderId
 
 // Pinia 스토어 사용
 const purchaseStore = usePurchaseStore();
@@ -231,21 +233,21 @@ const paymentStore = usePaymentStore();
 const wholePrice = computed(() => purchaseStore.totalPrice + purchaseStore.donationAmount);
 
 // 순차적인 orderId 생성 및 저장
-function getOrderId() {
-    // 로컬 스토리지에서 기존 orderId를 가져옵니다.
-    const storedOrderId = localStorage.getItem('orderId');
-    if (storedOrderId) {
-        return parseInt(storedOrderId);
-    } else {
-        localStorage.setItem('orderId', '1000'); // 초기값 설정
-        return 1000;
-    }
-}
+// function getOrderId() {
+//     // 로컬 스토리지에서 기존 orderId를 가져옵니다.
+//     const storedOrderId = localStorage.getItem('orderId');
+//     if (storedOrderId) {
+//         return parseInt(storedOrderId);
+//     } else {
+//         localStorage.setItem('orderId', '1000'); // 초기값 설정
+//         return 1000;
+//     }
+// }
 
-function incrementOrderId() {
-    orderId.value += 1;
-    localStorage.setItem('orderId', orderId.value.toString());
-}
+// function incrementOrderId() {
+//     orderId.value += 1;
+//     localStorage.setItem('orderId', orderId.value.toString());
+// }
 
 // 서버로 가는지 테스트
 const testFunction = async () => {
@@ -260,35 +262,33 @@ const testFunction = async () => {
 
 
 function clientAuth() {
+    console.log('Current Order ID:', purchaseStore.orderId);
     AUTHNICE.requestPay({
         clientId: import.meta.env.VITE_NICEPAY_KEY,
         method: paymentMethod.value,
-        orderId: `test_1104_${orderId.value}`, // 한번 거래 끝나면 변경해야 함, 추후 거래할때마다 다른 번호가 나오도록 업데이트 예정
+        orderId: `test_1108_${purchaseStore.orderId}`, // Pinia 스토어에서 orderId 사용
         amount: wholePrice.value,
         goodsName: '나이스페이-상품',
-        returnUrl: 'http://localhost:8080/api/payment/complete', // 임시로 백엔드 서버를 우회해서 
+        returnUrl: `http://localhost:8080/api/payment/complete?id=${props.id}`,
         fnError: function (result) {
-            alert('개발자확인용 : ' + result.errorMsg + '')
+            alert('개발자확인용 : ' + result.errorMsg + '');
+            purchaseStore.incrementOrderId(); // 에러 시에도 호출
         }
     },
 
-        // 결제 성공 콜백 함수
-        function onSuccess(response) {
-            console.log("결제 성공:", response);
-            // Vue Router를 통한 리디렉션
-            // this.$router.push("/web/wpurchase/reward/complete");
-            paymentStore.setPaymentSuccess(true);
-        }.bind(this),
+    // 결제 성공 콜백 함수
+    function onSuccess(response) {
+        console.log("결제 성공:", response);
+        paymentStore.setPaymentSuccess(true);
+        purchaseStore.incrementOrderId(); // 결제 성공 후 orderId 증가
+    },
 
-        // 결제 실패 콜백 함수
-        function onFailure(error) {
-            console.log("결제 실패:", error);
-            alert("결제가 실패했습니다. 다시 시도해주세요.");
-        },
-
-        function fnError(error) { // 필수 에러 핸들링 콜백
-            console.error("결제 중 에러 발생:", error);
-        });
+    // 결제 실패 콜백 함수
+    function onFailure(error) {
+        console.log("결제 실패:", error);
+        alert("결제가 실패했습니다. 다시 시도해주세요.");
+        purchaseStore.incrementOrderId(); // 결제 실패 후 orderId 증가
+    });
 }
 
 // 스크립트를 동적으로 로드하는 함수
@@ -311,9 +311,12 @@ function loadScript(url, id) {
 }
 
 onMounted(async () => {
+    console.log('Initial Order ID:', purchaseStore.orderId); // 초기 Order ID 확인
     try {
         await loadScript("https://pay.nicepay.co.kr/v1/js/", "nicepay-script");
         // 추가적인 스크립트를 로드하려면 같은 방식으로 호출
+
+        console.log('NicePay script loaded successfully.');
     } catch (error) {
         console.error("Script loading failed:", error);
     }

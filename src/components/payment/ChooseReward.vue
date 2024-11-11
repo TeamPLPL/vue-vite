@@ -52,7 +52,7 @@
         </div>
     </div>
 
-    <RouterLink to="/web/wpurchase/reward/step20">
+    <RouterLink :to="`/purchase/step20/${id}`">
         <button type="button" class="btn btn-primary w-100 my-1" @click="saveToStore">다음 단계</button>
     </RouterLink>
 </template>
@@ -61,10 +61,12 @@
 import { ref, computed } from 'vue';
 import { usePurchaseStore } from '../../util/store/purchaseStore';
 
+const props = defineProps(['id']); // props로 id 값을 받음
+
 const steps = ref(["리워드 선택", "결제 예약", "소문내기"]);
 const isChecked = ref(false); // 체크박스 상태를 관리하는 변수
 const quantity = ref(1); // 초기 수량 설정
-const unitPrice = ref(248000); // 단가 설정
+const unitPrice = ref(200); // 단가 설정
 const donationAmount = ref(0); // 후원금 입력값
 
 // Pinia 스토어 인스턴스 (Setup Store 형태로 사용)
