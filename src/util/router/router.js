@@ -16,11 +16,6 @@ import ParticipationDetail from "../../components/participation/ParticipationDet
 
 const routes = [
     {
-        path: "/",
-        name: "App",
-        component: App,
-    },
-    {
         path: "/purchase/step10/:id",
         name: "ChooseReward",
         component: ChooseReward,
