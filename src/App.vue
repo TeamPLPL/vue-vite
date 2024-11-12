@@ -1,5 +1,5 @@
 <script setup>
-import { onMounted, computed } from 'vue';
+import { ref, onMounted, onUnmounted, computed } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
 import { useAuthStore } from './util/store/authStore'; // authStore import
 import { usePaymentStore } from './util/store/paymentStore';
@@ -16,13 +16,31 @@ const paymentStore = usePaymentStore();
 // Detect if the current route requires a gray background
 const isGrayBackground = computed(() => route.meta.grayBackground);
 
+const showTopButton = ref(false)
+
+const scrollToTop = () => {
+  window.scrollTo({
+    top: 0,
+    behavior: 'smooth'
+  })
+}
+
+const checkScroll = () => {
+  showTopButton.value = window.scrollY > 300
+}
+
 onMounted(() => {
     // Check if payment is successful and redirect if needed
     if (paymentStore.isPaymentSuccessful) {
         router.push('/purchase/step30/:id');
         paymentStore.resetPaymentStatus();
     }
+    window.addEventListener('scroll', checkScroll)
 });
+
+onUnmounted(() => {
+  window.removeEventListener('scroll', checkScroll)
+})
 </script>
 
 <template>
@@ -40,6 +58,9 @@ onMounted(() => {
       <Footer class="footer" />
     </div>  
   </div>
+  <button @click="scrollToTop" id="top-btn" class="top-button" :class="{ 'show': showTopButton }">
+    Top
+  </button>
 </template>
 
 <style>
@@ -64,5 +85,35 @@ onMounted(() => {
   margin: 0;
 }
 
+.top-button {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 50%;
+  width: 50px;
+  height: 50px;
+  font-size: 16px;
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity 0.3s, visibility 0.3s;
+  visibility: hidden;
+  z-index: 2000; /* Footer보다 높은 z-index 설정 */
+}
+
+.top-button.show {
+  opacity: 1;
+  visibility: visible;
+}
+
+.top-button:hover {
+  background-color: #0056b3;
+}
+
+#top-btn {
+  padding: 0;
+}
 
 </style>
