@@ -35,9 +35,9 @@ a:hover {
 .app-container {
   margin: 0;
   padding: 0;
+  padding-top: 30px;
   place-items: center;
-  min-width: 320px;
-  min-height: 100vh;
+  min-height: 75vh;
   width: 100%; /* 뷰포트의 전체 너비를 차지 */
   box-sizing: border-box; /* 패딩과 보더를 width 계산에 포함 */
 }
