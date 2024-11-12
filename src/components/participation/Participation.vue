@@ -63,13 +63,9 @@ function filterList() {
 
 <style scoped>
 .participation-container {
-    width: 90%;
-    padding: 20px;
-    margin: 100px 5%;
-    text-align: left;
-    position: absolute;
-    left: 0;
-    top: 0;
+    width: 100%;
+    margin: 0;
+    text-align: start;
 }
 
 .title {
