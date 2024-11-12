@@ -27,12 +27,14 @@ onMounted(() => {
 
 <template>
   <div>
-    <div class=".container-fluid">
+    <div class="container-fluid">
       <Topbar class="topbar" />
     </div>
     <Header />
-    <div class="app-container">
-      <RouterView />
+    <div class="container-sm">
+      <div class="app-container">
+        <RouterView />
+      </div>
     </div>
     <div class="">
       <Footer class="footer" />
@@ -41,11 +43,11 @@ onMounted(() => {
 </template>
 
 <style>
-.app-container {
+/* .app-container {
   display: flex;
   flex-direction: column;
   min-height: 100vh;
-}
+} */
 .topbar {
   position: sticky;
   top: 0;
