@@ -1,7 +1,6 @@
 <template>
-  <!-- Remove the container if you want to extend the Footer to full width. -->
-  <div class="container-fluid my-5">
     <footer class="text-black text-center text-lg-start bg-light">
+      <!-- <div class="container-fluid my-5"></div> -->
       <!-- Grid container -->
       <div class="container p-4">
         <!--Grid row-->
@@ -59,9 +58,7 @@
         <a class="text-white" href="https://mdbootstrap.com/">MDBootstrap.com</a>
       </div>
       <!-- Copyright -->
-    </footer>
-  </div>
-  <!-- End of .container -->
+  </footer>
 </template>
 
 <script setup>
