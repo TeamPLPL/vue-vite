@@ -3,10 +3,10 @@
     <div class="row justify-content-center">
       <div class="col-12 col-md-9 col-lg-7 col-xl-6 col-xxl-5">
         <div class="card border-2 rounded-4 border-light">
-          <div class="card-body p-3 p-md-4 p-xl-5">
+          <div class="card-body p-3 p-md-4 p-xl-4" >
             <div class="row">
               <div class="col-12">
-                <div class="mb-5">
+                <div class="mb-3">
                   <img src="../../assets/wadiz.png" style="width: 50%;">
                 </div>
               </div>
@@ -14,35 +14,29 @@
             <form action="#!">
               <div class="row gy-3 overflow-hidden">
                 <div class="col-12">
-                    <div class="form-floating mb-3">
-                        <input type="email" class="form-control" name="email" id="email" v-model="state.email" placeholder="name@example.com" required>
-                        <label for="email" class="form-label">이메일</label>
-                    </div>
-                    </div>
-                    <div class="col-12">
-                    <div class="form-floating mb-3">
-                        <input type="password" class="form-control" name="password" id="password" v-model="state.password" placeholder="비밀번호" required>
-                        <label for="password" class="form-label">비밀번호</label>
-                    </div>
-                    </div>
-                <!-- <div class="col-12">
-                  <div class="form-check">
-                    <input class="form-check-input" type="checkbox" value="" name="remember_me" id="remember_me">
-                    <label class="form-check-label text-secondary" for="remember_me">
-                      Keep me logged in
-                    </label>
+                  <div class="form-floating mb-3">
+                    <input type="email" class="form-control" name="email" id="email" v-model="state.email"
+                           placeholder="name@example.com" required>
+                    <label for="email" class="form-label">이메일</label>
                   </div>
-                </div> -->
+                </div>
+                <div class="col-12">
+                  <div class="form-floating mb-3">
+                    <input type="password" class="form-control" name="password" id="password" v-model="state.password"
+                           placeholder="비밀번호" required>
+                    <label for="password" class="form-label">비밀번호</label>
+                  </div>
+                </div>
                 <div class="col-12">
                   <div class="d-grid">
-                    <button class="btn btn-info btn-lg" @click.prevent="login">로그인</button>
+                    <button class="btn btn-primary btn-lg" @click.prevent="login">로그인</button>
                   </div>
                 </div>
               </div>
             </form>
             <div class="row">
               <div class="col-12">
-                <hr class="mt-5 mb-4 border-secondary-subtle">
+                <hr class="mt-4 mb-4 border-secondary-subtle">
                 <div class="d-flex gap-2 gap-md-4 flex-column flex-md-row justify-content-md-end">
                   <a href="#!" class="link-secondary text-decoration-none" @click="emailSignup">이메일 회원가입</a>
                   <a href="#!" class="link-secondary text-decoration-none">Forgot password</a>
@@ -50,21 +44,20 @@
               </div>
             </div>
             <div class="row">
-                <div class="col-12">
-                    <p class="mt-5 mb-4">소셜 로그인</p>
-                    <!-- 소셜 로그인 버튼 (구글, 네이버) -->
-                    <div class="d-flex gap-3 flex-column">
-                        <a href="#!" class="btn btn-secondary btn-lg" @click="googleLogin">
-                            <span class="ms-2 fs-6 text-uppercase">구글 로그인</span>
-                        </a>
-                        <a href="#!" class="btn btn-success btn-lg" @click="naverLogin">
-                            <span class="ms-2 fs-6 text-uppercase">네이버 로그인</span>
-                        </a>
-                        <!-- <a href="#!" class="btn btn-warning btn-lg">
-                            <span class="ms-2 fs-6 text-uppercase">카카오 로그인</span>
-                        </a> -->
-                    </div>
+              <div class="col-12">
+                <!-- 소셜 로그인 버튼 (구글, 네이버) -->
+                <div class="mt-4 d-flex gap-3 flex-column">
+                  <a href="#!" class="btn btn-secondary btn-lg" @click="googleLogin">
+                    <span class="ms-2 fs-6 text-uppercase">구글 로그인</span>
+                  </a>
+                  <a href="#!" class="btn btn-success btn-lg" @click="naverLogin">
+                    <span class="ms-2 fs-6 text-uppercase">네이버 로그인</span>
+                  </a>
+                  <!-- <a href="#!" class="btn btn-warning btn-lg">
+                      <span class="ms-2 fs-6 text-uppercase">카카오 로그인</span>
+                  </a> -->
                 </div>
+              </div>
             </div>
           </div>
         </div>
@@ -74,10 +67,10 @@
 </template>
 
 <script>
-import { useRouter } from 'vue-router';
-import { reactive } from 'vue';
+import {useRouter} from 'vue-router';
+import {reactive} from 'vue';
 import axios from 'axios'; // axios를 직접 임포트합니다.
-import { useAuthStore } from '../../util/store/authStore';
+import {useAuthStore} from '../../util/store/authStore';
 
 export default {
   setup() {
@@ -151,9 +144,10 @@ export default {
 
 <style scoped>
 .btn-info {
-    color: #ffffff; /* 텍스트를 흰색으로 설정 */
+  color: #ffffff; /* 텍스트를 흰색으로 설정 */
 }
+
 .btn-warning {
-    color: #ffffff !important;
+  color: #ffffff !important;
 }
 </style>
