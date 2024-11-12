@@ -1,145 +1,145 @@
 <template>
-    <div class="container">
-        <div class="row justify-content-center">
-            <div class="col-12 col-md-9 col-lg-7 col-xl-6 col-xxl-5">
-                <div class="card border-2 rounded-4 border-light">
-                    <div class="card-body p-3 p-md-4 p-xl-5">
-                        <div class="row">
-                            <div class="col-12">
-                                <div class="mb-5">
-                                    <img src="../../assets/wadiz.png" style="width: 50%;">
-                                </div>
-                            </div>
-                        </div>
-                        <form action="#!">
-                            <div class="row gy-3 overflow-hidden">
-                                <div class="col-12">
-                                    <div class="form-floating mb-3">
-                                        <input type="email" class="form-control" name="email" id="email" v-model="state.email"
-                                            placeholder="name@example.com" required>
-                                        <label for="email" class="form-label">이메일</label>
-                                    </div>
-                                </div>
-                                <div class="col-12">
-                                    <div class="form-floating mb-3">
-                                        <input type="password" class="form-control" name="password" id="password"
-                                            v-model="state.password" placeholder="비밀번호" required>
-                                        <label for="password" class="form-label">비밀번호</label>
-                                    </div>
-                                </div>
-                                <div class="col-12">
-                                    <div class="form-floating mb-3">
-                                        <input type="text" class="form-control" name="usernick" id="usernick"
-                                            v-model="state.userNick" placeholder="닉네임" required>
-                                        <label for="usernick" class="form-label">닉네임</label>
-                                    </div>
-                                </div>
-                                <div class="col-12">
-                                    <div class="d-grid">
-                                        <!-- prevent 새로고침 방지 -->
-                                        <button class="btn btn-info btn-lg" @click.prevent="signup">회원가입</button>
-                                    </div>
-                                </div>
-                            </div>
-                        </form>
-                        <div class="row">
-                            <div class="col-12">
-                                <p class="mt-5 mb-4">소셜 회원가입</p>
-                                <!-- 소셜 회원가입 버튼 (구글, 네이버) -->
-                                <div class="d-flex gap-3 flex-column">
-                                    <a href="#!" class="btn btn-secondary btn-lg" @click="googleSignup">
-                                        <span class="ms-2 fs-6 text-uppercase">구글 회원가입</span>
-                                    </a>
-                                    <a href="#!" class="btn btn-success btn-lg" @click="naverSignup">
-                                        <span class="ms-2 fs-6 text-uppercase">네이버 회원가입</span>
-                                    </a>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+  <div class="container">
+    <div class="row justify-content-center">
+      <div class="col-12 col-md-9 col-lg-7 col-xl-6 col-xxl-5">
+        <div class="card border-2 rounded-4 border-light">
+          <div class="card-body p-3 p-md-4 p-xl-4">
+            <div class="row">
+              <div class="col-12">
+                <div class="mb-3">
+                  <img src="../../assets/wadiz.png" style="width: 50%;">
                 </div>
+              </div>
             </div>
+            <form action="#!">
+              <div class="row gy-3 overflow-hidden">
+                <div class="col-12">
+                  <div class="form-floating mb-3">
+                    <input type="email" class="form-control" name="email" id="email" v-model="state.email"
+                           placeholder="name@example.com" required>
+                    <label for="email" class="form-label">이메일</label>
+                  </div>
+                </div>
+                <div class="col-12">
+                  <div class="form-floating mb-3">
+                    <input type="password" class="form-control" name="password" id="password"
+                           v-model="state.password" placeholder="비밀번호" required>
+                    <label for="password" class="form-label">비밀번호</label>
+                  </div>
+                </div>
+                <div class="col-12">
+                  <div class="form-floating mb-3">
+                    <input type="text" class="form-control" name="usernick" id="usernick"
+                           v-model="state.userNick" placeholder="닉네임" required>
+                    <label for="usernick" class="form-label">닉네임</label>
+                  </div>
+                </div>
+                <div class="col-12">
+                  <div class="d-grid">
+                    <!-- prevent 새로고침 방지 -->
+                    <button class="btn btn-primary btn-lg" @click.prevent="signup">회원가입</button>
+                  </div>
+                </div>
+              </div>
+            </form>
+            <div class="row">
+              <div class="col-12">
+                <!-- 소셜 회원가입 버튼 (구글, 네이버) -->
+                <div class="mt-3 d-flex gap-3 flex-column">
+                  <a href="#!" class="btn btn-secondary btn-lg" @click="googleSignup">
+                    <span class="ms-2 fs-6 text-uppercase">구글 회원가입</span>
+                  </a>
+                  <a href="#!" class="btn btn-success btn-lg" @click="naverSignup">
+                    <span class="ms-2 fs-6 text-uppercase">네이버 회원가입</span>
+                  </a>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
+      </div>
     </div>
+  </div>
 </template>
 
 <script>
-import { useRouter } from 'vue-router';
-import { reactive } from 'vue';
+import {useRouter} from 'vue-router';
+import {reactive} from 'vue';
 import apiWrapper from '../../util/axios/axios';
 
 export default {
-    setup() {
-        // Vue Router 사용 설정
-        const router = useRouter();
+  setup() {
+    // Vue Router 사용 설정
+    const router = useRouter();
 
-        // 반응형 상태로 이메일, 비밀번호, 닉네임을 선언합니다.
-        const state = reactive({
-            email: '',
-            password: '',
-            userNick: '',
+    // 반응형 상태로 이메일, 비밀번호, 닉네임을 선언합니다.
+    const state = reactive({
+      email: '',
+      password: '',
+      userNick: '',
+    });
+
+    // 로컬 회원가입 함수
+    const signup = async () => {
+      console.log("이메일:", state.email);
+      console.log("비밀번호:", state.password);
+      console.log("닉네임:", state.userNick);
+
+      try {
+        const postDataResult = await apiWrapper.postData('/api/signup', {
+          email: state.email,
+          password: state.password,
+          userNick: state.userNick,
         });
 
-        // 로컬 회원가입 함수
-        const signup = async () => {
-            console.log("이메일:", state.email);
-            console.log("비밀번호:", state.password);
-            console.log("닉네임:", state.userNick);
+        console.log('회원가입 요청 결과:', postDataResult);
 
-            try {
-                const postDataResult = await apiWrapper.postData('/api/signup', {
-                    email: state.email,
-                    password: state.password,
-                    userNick: state.userNick,
-                });
+        // 회원가입 성공 후 로그인 페이지로 이동
+        router.push('/login');
 
-                console.log('회원가입 요청 결과:', postDataResult);
+      } catch (error) {
+        console.error('API 호출 에러:', error);
+      }
+    };
 
-                // 회원가입 성공 후 로그인 페이지로 이동
-                router.push('/login');
+    // 구글 회원가입
+    const googleSignup = async () => {
+      try {
+        // 구글 OAuth 인증 URL로 리디렉션
+        window.location.href = "http://localhost:8080/oauth2/authorization/google?prompt=consent";
+      } catch (error) {
+        console.error('Google signup error:', error);
+      }
+    };
 
-            } catch (error) {
-                console.error('API 호출 에러:', error);
-            }
-        };
+    // 네이버 회원가입
+    const naverSignup = async () => {
+      try {
+        // 네이버 OAuth 인증 URL로 리디렉션
+        window.location.href = "http://localhost:8080/oauth2/authorization/naver";
+      } catch (error) {
+        console.error('Naver signup error:', error);
+      }
+    };
 
-        // 구글 회원가입
-        const googleSignup = async () => {
-            try {
-                // 구글 OAuth 인증 URL로 리디렉션
-              window.location.href = "http://localhost:8080/oauth2/authorization/google?prompt=consent";
-            } catch (error) {
-                console.error('Google signup error:', error);
-            }
-        };
-
-        // 네이버 회원가입
-        const naverSignup = async () => {
-            try {
-                // 네이버 OAuth 인증 URL로 리디렉션
-                window.location.href = "http://localhost:8080/oauth2/authorization/naver";
-            } catch (error) {
-                console.error('Naver signup error:', error);
-            }
-        };
-
-        // `toRefs`를 사용하여 개별 필드를 템플릿에 바인딩할 수 있도록 반환합니다.
-        return {
-            state,
-            signup,
-            googleSignup,
-            naverSignup
-        };
-    }
+    // `toRefs`를 사용하여 개별 필드를 템플릿에 바인딩할 수 있도록 반환합니다.
+    return {
+      state,
+      signup,
+      googleSignup,
+      naverSignup
+    };
+  }
 };
 </script>
 
 
 <style scoped>
 .btn-info {
-    color: #ffffff; /* 텍스트를 흰색으로 설정 */
+  color: #ffffff; /* 텍스트를 흰색으로 설정 */
 }
+
 .btn-warning {
-    color: #ffffff !important;
+  color: #ffffff !important;
 }
 </style>
