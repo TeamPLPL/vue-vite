@@ -11,8 +11,8 @@ const apiClient = axios.create({
 
 // 작성자 : 신은호, 작성 날짜 : 24-11-13
 /*
-작성 내용 : 모든 페이지에서 JWT 토큰 header에 추가,
-요청 인터셉터를 사용하여 각 요청에 토큰을 추가
+    작성 내용 : 모든 페이지에서 JWT 토큰 header에 추가,
+    요청 인터셉터를 사용하여 각 요청에 토큰을 추가
 */
 apiClient.interceptors.request.use(
     (config) => {
