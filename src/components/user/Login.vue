@@ -96,7 +96,14 @@ export default {
         if (response.headers['authorization']) {
           const token = response.headers['authorization'].split(' ')[1];
           console.log(token);
+
+          // 로컬 스토리지에 토큰 저장
+          localStorage.setItem('jwtToken', token);
+
+          // Pinia 스토어에도 토큰 저장
           authStore.setJwtToken(token);
+
+          // 로그인 후 메인 페이지로 이동
           router.push('/');
         } else {
           console.error('JWT 토큰을 찾을 수 없습니다.');
