@@ -5,7 +5,9 @@ export default [
         path: '/funding/detail/:id',
         name : 'FundingDetail',
         component: FundingDetail,
-        meta: {hideHeader: true}
+        meta: {
+            hideHeader: true,
+        }
     },
 
 ]
