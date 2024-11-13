@@ -7,6 +7,7 @@ import axios from 'axios'; // axios import for handling headers
 import Header from './components/common/Header.vue'
 import Topbar from './components/common/Topbar.vue'
 import Footer from './components/common/Footer.vue'
+import Example from "./components/Example.vue";
 
 const router = useRouter();
 const route = useRoute();

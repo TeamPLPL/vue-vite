@@ -37,20 +37,22 @@
 
 <script>
 import { useRouter } from 'vue-router';
-import { useAuthStore } from '../../util/store/authStore';
 import axios from 'axios';
+import { ref, computed, onMounted } from 'vue';
 
 export default {
   setup() {
     const router = useRouter();
-    const authStore = useAuthStore();
+    const isLoggedIn = ref(!!localStorage.getItem('jwtToken'));
 
-    const isLoggedIn = authStore.jwtToken !== null;
+    // 로그인 상태를 확인하는 함수
+    const checkLoginStatus = () => {
+      isLoggedIn.value = !!localStorage.getItem('jwtToken');
+    };
 
-    // 라우터를 통해 '/login' 경로로 이동
+    // 라우터를 통해 '/' 경로로 이동
     const main = () => {
       router.push('/');
-      window.location.reload();
     };
 
     // 라우터를 통해 '/login' 경로로 이동
@@ -63,14 +65,21 @@ export default {
       router.push('/signup');
     };
 
-    // logout,
+    // 로그아웃 함수
     const logout = () => {
-      authStore.setJwtToken(null); // jwtToken을 null로 설정
-      axios.defaults.headers.common['Authorization'] = ''; // Authorization 헤더 초기화
       localStorage.removeItem('jwtToken'); // 로컬 스토리지에서 jwtToken 삭제
-      router.push('/'); // 로그아웃 후 로그인 페이지로 이동
-      window.location.reload();
+      isLoggedIn.value = false; // 반응형 상태 업데이트
+      router.push('/'); // 로그아웃 후 메인 페이지로 이동
     };
+
+    // 다른 탭이나 창에서 localStorage가 변경될 때 이를 감지하여 상태를 업데이트
+    onMounted(() => {
+      window.addEventListener('storage', (event) => {
+        if (event.key === 'jwtToken') {
+          checkLoginStatus();
+        }
+      });
+    });
 
     const createProject = () => {
       if (isLoggedIn) {
@@ -90,9 +99,6 @@ export default {
     };
   }
 };
-
-
-
 </script>
 
 

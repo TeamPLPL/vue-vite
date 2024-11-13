@@ -70,13 +70,11 @@
 import {useRouter} from 'vue-router';
 import {reactive} from 'vue';
 import axios from 'axios'; // axios를 직접 임포트합니다.
-import {useAuthStore} from '../../util/store/authStore';
 
 export default {
   setup() {
     // Vue Router와 Pinia Auth 스토어 사용 설정
     const router = useRouter();
-    const authStore = useAuthStore();
 
     // 반응형 상태로 이메일과 비밀번호를 선언합니다.
     const state = reactive({
@@ -99,9 +97,6 @@ export default {
 
           // 로컬 스토리지에 토큰 저장
           localStorage.setItem('jwtToken', token);
-
-          // Pinia 스토어에도 토큰 저장
-          authStore.setJwtToken(token);
 
           // 로그인 후 메인 페이지로 이동
           router.push('/');
