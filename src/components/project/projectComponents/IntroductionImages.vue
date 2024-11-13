@@ -1,38 +1,39 @@
 <template>
-  <div class="introduction-images">
+  <div class="introduction-images mt-5">
     <h4 class="fw-bold text-start">소개 사진 등록</h4>
-    <p class="description text-start">프로젝트 상세페이지 최상단에 노출할 사진을 등록해 주세요.</p>
+    <p class="text-muted small text-start">프로젝트 상세페이지 최상단에 노출할 사진을 등록해 주세요.</p>
 
     <!-- 가이드 박스 -->
-    <div class="guide-box">
-      <div class="guide-title">
-        <i class="icon-info"></i> 소개 사진 등록 가이드
+    <div class="bg-light p-3 rounded-3 mb-4">
+      <div class="d-flex align-items-center text-primary fw-bold mb-2">
+        <i class="bi bi-info-circle-fill me-2"></i> 소개 사진 등록 가이드
       </div>
-      <ul class="guide-list">
+      <ul class="list-unstyled small text-muted ms-3 text-start">
         <li>이미지 용량 제한</li>
-        <ul>
+        <ul class="ms-4">
           <li>GIF: 2MB 이하, 해상도 760x480 픽셀 이상 ~ 1440x864 픽셀 이하</li>
           <li>JPG, JPEG, PNG: 10MB 이하, 해상도 760x480 픽셀 이상</li>
         </ul>
         <li>최대 10장까지 등록 가능</li>
-        <li>사진을 선택하면 이미지를 자르거나 회전할 수 있어요. (GIF 편집 불가)</li>
-        <li>사진을 길게 누르고 이동하면 사진 순서를 변경할 수 있어요.</li>
       </ul>
     </div>
 
     <!-- 이미지 업로드 리스트 -->
-    <div class="image-upload-list">
+    <div class="d-flex flex-wrap gap-2">
       <div
           v-for="(image, index) in images"
           :key="index"
-          class="image-item"
+          class="position-relative rounded overflow-hidden"
+          style="width: 80px; height: 80px;"
       >
-        <img :src="image.url" alt="이미지 미리보기" />
+        <img :src="image.url" alt="이미지 미리보기" class="img-fluid w-100 h-100 object-fit-cover" />
       </div>
-      <div class="upload-btn" v-if="images.length < 10">
-        <input type="file" @change="uploadImage" class="file-input" />
-        <i class="icon-camera"></i>
-        <p>{{ images.length }}/10</p>
+
+      <!-- 업로드 버튼 -->
+      <div v-if="images.length < 10" class="d-flex flex-column align-items-center justify-content-center position-relative border border-secondary border-dashed rounded" style="width: 80px; height: 80px; cursor: pointer;">
+        <input type="file" @change="uploadImage" class="file-input position-absolute w-100 h-100 opacity-0" />
+        <i class="bi bi-camera fs-3 text-muted"></i>
+        <p class="small text-muted">{{ images.length }}/10</p>
       </div>
     </div>
   </div>
@@ -78,95 +79,11 @@ export default {
 </script>
 
 <style scoped>
-.introduction-images {
-  text-align: left;
-  font-family: Arial, sans-serif;
-}
-
-.description {
-  font-size: 14px;
-  color: #666;
-  margin-bottom: 16px;
-}
-
-.guide-box {
-  background-color: #e8f8f8;
-  border-radius: 8px;
-  padding: 16px;
-  margin-bottom: 20px;
-}
-
-.guide-title {
-  font-weight: bold;
-  color: #00848c;
-  display: flex;
-  align-items: center;
-}
-
-.icon-info {
-  background-color: #00848c;
-  color: white;
-  border-radius: 50%;
-  padding: 4px;
-  margin-right: 8px;
-}
-
-.guide-list {
-  font-size: 14px;
-  color: #333;
-  list-style: none;
-  padding-left: 0;
-}
-
-.image-upload-list {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-}
-
-.image-item {
-  width: 80px;
-  height: 80px;
-  border-radius: 8px;
-  overflow: hidden;
-  position: relative;
-}
-
-.image-item img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-
-.upload-btn {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 80px;
-  height: 80px;
-  background-color: #f4f4f4;
-  border: 2px dashed #ccc;
-  border-radius: 8px;
-  cursor: pointer;
-  position: relative;
-}
-
 .file-input {
-  position: absolute;
-  opacity: 0;
   cursor: pointer;
-  width: 100%;
-  height: 100%;
 }
 
-.icon-camera {
-  font-size: 24px;
-  color: #aaa;
-}
-
-.upload-btn p {
-  font-size: 12px;
-  color: #333;
-  margin-top: 4px;
+.object-fit-cover {
+  object-fit: cover;
 }
 </style>

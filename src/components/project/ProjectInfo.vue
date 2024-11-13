@@ -16,6 +16,8 @@
 
         <MyEditor :data="editorData" @update-content="handleEditorContent" />
 
+        <SearchTag/>
+
       </div>
     </div>
   </div>

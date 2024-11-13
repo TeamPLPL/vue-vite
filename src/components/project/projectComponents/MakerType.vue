@@ -60,7 +60,7 @@
 
     <!-- 사업자 유형 내용 -->
     <div v-if="state.makerType === 'business'">
-      <div class="alert alert-info text-start">
+      <div class="alert bg-light text-start">
         <i class="bi bi-info-circle-fill"></i> 사업자등록증의 상단의 사업자 종류에 맞게 메이커 유형을 선택해 주세요.<br/>
         국세청에 등록된 사업자 정보를 기준으로 인증을 진행하고 있어요. 사업자등록증의 정보가 국세청에 등록된 정보와 다르다면, 국세청에서 등록된 사업자정보로 수정 후 인증해 주세요.
       </div>

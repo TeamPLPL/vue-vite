@@ -19,11 +19,13 @@ export default [
     {
         path : '/studio/:id/project/schedule',
         name : 'Schedule',
-        component: Schedule
+        component: Schedule,
+        meta: {hideHeader: true}
     },
     {
         path : '/studio/:id/project/info',
         name : 'projectInfo',
-        component: ProjectInfo
+        component: ProjectInfo,
+        meta: {hideHeader: true}
     }
 ]

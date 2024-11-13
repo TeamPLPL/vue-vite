@@ -1,16 +1,17 @@
 <template>
   <!-- 대표 이미지 -->
-  <div class="mt-5 mb-5">
+  <div class="mt-5 mb-5 clearfix"> <!-- clearfix 추가 -->
     <h5 class="fw-bold text-start">대표 이미지 <span class="text-danger">*</span></h5>
     <p class="text-muted text-start">와디즈 및 포털 검색 결과, SNS 타겟 광고 등에 노출할 대표 이미지를 등록해 주세요.</p>
 
     <!-- 가이드 안내 -->
-    <div class="alert alert-info text-start">
-      <strong><i class="bi bi-info-circle"></i> 대표 이미지 등록 가이드</strong><br/>
-      <ul class="mb-0">
+    <div class="bg-light p-3 rounded-3">
+      <div class="d-flex align-items-center text-primary fw-bold mb-2">
+        <i class="bi bi-info-circle-fill me-2"></i> 대표 이미지 등록 가이드
+      </div>
+      <ul class="list-unstyled small text-muted ms-3 text-start">
         <li>10MB 이하의 JPG, JPEG, PNG 파일</li>
         <li>해상도 1200x675 픽셀 이상</li>
-        <li>사진을 선택하면 이미지를 자르거나 회전할 수 있어요.</li>
       </ul>
     </div>
 
@@ -19,11 +20,10 @@
       <input type="file" class="form-control w-50" @change="onImageUpload" accept="image/*"/>
     </div>
 
-    <!-- 이미지 썸네일 왼쪽 정렬 -->
-    <div v-if="thumbnail" class="thumbnail-container mt-3 position-relative float-start">
+    <!-- 이미지 썸네일 -->
+    <div v-if="thumbnail" class="thumbnail-container mt-3"> <!-- float-start 제거 -->
       <img :src="thumbnail" alt="Uploaded Thumbnail" class="img-thumbnail" style="width: 150px; height: auto;"/>
-      <button type="button" class="btn-close position-absolute top-0 end-0" @click="removeImage"
-              aria-label="Close"></button>
+      <button type="button" class="btn-close position-absolute top-0 end-0" @click="removeImage" aria-label="Close"></button>
     </div>
   </div>
 </template>
@@ -55,10 +55,9 @@ export default {
 </script>
 
 <style scoped>
-/* 썸네일 이미지 스타일 */
 .thumbnail-container {
   display: inline-block;
-  position: relative;
   text-align: left; /* 왼쪽 정렬 */
+  margin-top: 10px; /* 제목과 간격 조정 */
 }
 </style>
