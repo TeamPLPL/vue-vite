@@ -50,6 +50,7 @@ export default {
     // 라우터를 통해 '/login' 경로로 이동
     const main = () => {
       router.push('/');
+      window.location.reload();
     };
 
     // 라우터를 통해 '/login' 경로로 이동
@@ -66,7 +67,9 @@ export default {
     const logout = () => {
       authStore.setJwtToken(null); // jwtToken을 null로 설정
       axios.defaults.headers.common['Authorization'] = ''; // Authorization 헤더 초기화
-      router.push('/login'); // 로그아웃 후 로그인 페이지로 이동
+      localStorage.removeItem('jwtToken'); // 로컬 스토리지에서 jwtToken 삭제
+      router.push('/'); // 로그아웃 후 로그인 페이지로 이동
+      window.location.reload();
     };
 
     const createProject = () => {

@@ -40,7 +40,11 @@ export default [
         path: '/cookie-to-header',
         name :'cookie-to-header',
         component : CookieToHeader,
-        meta: {hideHeader: true}
+        meta: {
+            hideHeader: true,
+            hideTopbar: true,
+            hideFooter: true,
+        }
     },
     {
         path: '/mywadiz/maker',
