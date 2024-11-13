@@ -14,51 +14,61 @@ export default [
         path: '/login',
         name :'login',
         component : Login,
+        meta: {hideHeader: true}
     },
     {
         path: '/signup',
         name :'signup',
         component : Signup,
+        meta: {hideHeader: true}
     },
     {
         path: '/find/idpwd',
         name : 'find-id',
-        component: FindIdPwd
+        component: FindIdPwd,
+        meta: {hideHeader: true}
     },
     {
         path: '/cookie-to-header',
         name :'cookie-to-header',
         component : CookieToHeader,
+        meta: {hideHeader: true}
     },
     {
         path: '/mywadiz/maker',
         name: 'mywadiz-maker',
-        component: MyMaker
+        component: MyMaker,
+        meta: {hideHeader: true}
     },
     {
         path: '/mywadiz/supporter',
         name: 'mywadiz-supporter',
-        component: MySupporter
+        component: MySupporter,
+        meta: {hideHeader: true}
     },
     {
         path: '/mywadiz/info',
         name: 'mywadiz-info',
-        component: Info
+        component: Info,
+        meta: {hideHeader: true}
     },
     {
         path: '/mywadiz/info/modifyprofile',
         name: 'modifyprofile',
-        component: ModifyProfile
+        component: ModifyProfile,
+        meta: {hideHeader: true}
     },
     {
         path: '/mywadiz/info/updatepwd',
         name: 'updatepwd',
-        component: UpdatePwd
+        component: UpdatePwd,
+        meta: {hideHeader: true}
     },
     {
         path: '/mywadiz/info/dropoutuser',
         name: 'dropoutuser',
-        component: DropoutUser
+        component: DropoutUser,
+        meta: {hideHeader: true}
     }
 
 ]

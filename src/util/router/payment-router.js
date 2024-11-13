@@ -40,31 +40,37 @@ export default [
                 path: "dashboard",
                 name: "DashBoard",
                 component: DashBoard,
+                meta: {hideHeader: true}
             },
             {
                 path: "member",
                 name: "MemberManage",
                 component: MemberManage,
+                meta: {hideHeader: true}
             },
             {
                 path: "member/:id",
                 name: "MemberDetail",
                 component: MemberDetail,
+                meta: {hideHeader: true}
             },
             {
                 path: "report",
                 name: "ReportManage",
                 component: ReportManage,
+                meta: {hideHeader: true}
             },
             {
                 path: "project",
                 name: "ProjectManage",
                 component: ProjectManage,
+                meta: {hideHeader: true}
             },
             {
                 path: "comment",
                 name: "CommentManage",
                 component: CommentManage,
+                meta: {hideHeader: true}
             },
         ]
     },

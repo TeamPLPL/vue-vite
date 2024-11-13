@@ -16,6 +16,9 @@ const paymentStore = usePaymentStore();
 // Detect if the current route requires a gray background
 const isGrayBackground = computed(() => route.meta.grayBackground);
 
+// Detect if the current route requires hiding the header
+const shouldHideHeader = computed(() => route.meta.hideHeader);
+
 const showTopButton = ref(false)
 
 const scrollToTop = () => {
@@ -48,7 +51,7 @@ onUnmounted(() => {
     <div class="container-fluid">
       <Topbar class="topbar" />
     </div>
-    <Header />
+    <Header v-if="!shouldHideHeader" />
     <div class="container-sm">
       <div class="app-container">
         <RouterView />

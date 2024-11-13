@@ -6,17 +6,20 @@ export default [
     {
         path: '/studio/:id/funding',
         name : 'Funding',
-        component: Funding
+        component: Funding,
+        meta: {hideHeader: true}
     },
     {
         path: '/studio/:id/intro',
         name : 'Intro',
-        component: Intro
+        component: Intro,
+        meta: {hideHeader: true}
     },
     {
         path : '/studio/:id/schedule',
         name : 'Schedule',
-        component: Schedule
+        component: Schedule,
+        meta: {hideHeader: true}
     }
 
 ]
