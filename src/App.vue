@@ -19,6 +19,10 @@ const isGrayBackground = computed(() => route.meta.grayBackground);
 // Detect if the current route requires hiding the header
 const shouldHideHeader = computed(() => route.meta.hideHeader);
 
+const shouldHideTopbar = computed(() => route.meta.hideTopbar);
+
+const shouldHideFooter = computed(() => route.meta.hideFooter);
+
 const showTopButton = ref(false)
 
 const scrollToTop = () => {
@@ -49,7 +53,7 @@ onUnmounted(() => {
 <template>
   <div>
     <div class="container-fluid">
-      <Topbar class="topbar" />
+      <Topbar class="topbar" v-if="!shouldHideTopbar" />
     </div>
     <Header v-if="!shouldHideHeader" />
     <div class="container-sm">
@@ -58,7 +62,7 @@ onUnmounted(() => {
       </div>
     </div>
     <div class="">
-      <Footer class="footer" />
+      <Footer class="footer" v-if="!shouldHideFooter" />
     </div>  
   </div>
   <button @click="scrollToTop" id="top-btn" class="top-button" :class="{ 'show': showTopButton }">
