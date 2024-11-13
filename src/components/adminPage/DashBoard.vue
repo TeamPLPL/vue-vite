@@ -1,6 +1,6 @@
 <template>
   <!-- Persistent Cards Section -->
-  <div class="container mt-4">
+  <div class="container">
     <div class="row">
       <!-- 회원 현황 -->
       <div class="col-md-6 mb-4">
@@ -10,7 +10,7 @@
             <p class="card-text">총 회원 수 : 576명</p>
             <p class="card-text">오늘 가입자 수 : 25명</p>
             <p class="card-text">오늘 탈퇴자 수 : 4명</p>
-            <button class="btn btn-outline-secondary" @click="goToPage('/admin/member')">회원관리</button>
+            <button class="btn btn-outline-secondary" @click="handleClick('회원관리', '/admin/member')">회원관리</button>
           </div>
         </div>
       </div>
@@ -24,7 +24,7 @@
             <p class="card-text">오늘 신고 건수 : 1건</p>
             <p class="card-text">오늘 정지 건수 : 0건</p>
             <p class="card-text">오늘 강제탈퇴 건수 : 0건</p>
-            <button class="btn btn-outline-secondary" @click="goToPage('/admin/report')">신고게시판</button>
+            <button class="btn btn-outline-secondary" @click="handleClick('신고게시판', '/admin/report')">신고게시판</button>
           </div>
         </div>
       </div>
@@ -38,7 +38,7 @@
             <p class="card-text">검토중인 프로젝트 수 : 7개</p>
             <p class="card-text">승인된 프로젝트 수 : 9개</p>
             <p class="card-text">반려된 프로젝트 수 : 8개</p>
-            <button class="btn btn-outline-secondary" @click="goToPage('/admin/project')">프로젝트관리</button>
+            <button class="btn btn-outline-secondary" @click="handleClick('프로젝트관리', '/admin/project')">프로젝트관리</button>
           </div>
         </div>
       </div>
@@ -51,7 +51,7 @@
             <p class="card-text">총 댓글 수 : 128개</p>
             <p class="card-text">오늘 작성된 댓글 수 : 18개</p>
             <p class="card-text">오늘 삭제된 댓글 수 : 0개</p>
-            <button class="btn btn-outline-secondary" @click="goToPage('/admin/comment')">댓글관리</button>
+            <button class="btn btn-outline-secondary" @click="handleClick('댓글관리', '/admin/comment')">댓글관리</button>
           </div>
         </div>
       </div>
@@ -60,12 +60,15 @@
 </template>
 
 <script setup>
+import { useAdminStore } from '../../util/store/adminStore';
 import { useRouter } from 'vue-router';
 
+const { setActiveTab } = useAdminStore();
 const router = useRouter();
 
-function goToPage(path) {
-  router.push(path); // 클릭 시 해당 경로로 라우팅
+function handleClick(tab, path) {
+  setActiveTab(tab); // Pinia 상태 업데이트
+  router.push(path); // 라우트 이동
 }
 </script>
 

@@ -30,7 +30,17 @@
                     <p>{{ paymentStatus }}</p>
                 </div>
             </div>
-            <button class="change-button">결제 예약 취소</button>
+            <button class="change-button" @click="showCancelModal = true">결제 예약 취소</button>
+
+            <!-- 모달 컴포넌트 -->
+            <ModalConfirm 
+                v-show="showCancelModal" 
+                :show="showCancelModal" 
+                title="결제를 취소하시겠어요?"
+                message="리워드 옵션 변경을 원한다면 결제를 취소하지 않고 참여 내역에서 변경 가능해요." 
+                @close="closeCancelModal"
+                @confirm="cancelReservation"
+            />
 
             <div class="notice">
                 <h6 class="fw-bold text-start">결제 예약 유의 사항</h6>
@@ -149,6 +159,11 @@
 
 <script setup>
 import { ref } from 'vue';
+import ModalConfirm from './participationComponents/ModalConfirm.vue';
+import { useRouter } from 'vue-router';
+
+const router = useRouter();
+const showCancelModal = ref(false);
 
 // 기본 데이터
 const category = ref("프리오더");
@@ -161,9 +176,88 @@ const author = ref("디에이치알");
 const paymentId = ref("13344846");
 const endDate = ref("2024.11.23");
 const paymentStatus = ref("결제 예약");
+
+function closeCancelModal() {
+    showCancelModal.value = false;
+}
+
+function cancelReservation() {
+    // 결제 예약 취소 로직 추가
+    console.log("결제 예약 취소됨");
+    showCancelModal.value = false; // 모달 닫기
+    router.push('/participation');   // '/participate'로 라우팅
+}
 </script>
 
 <style scoped>
+/* 모달 오버레이 스타일 */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+/* 모달 박스 스타일 */
+.modal {
+    background: white;
+    padding: 20px;
+    border-radius: 10px;
+    text-align: center;
+    max-height: 200px;
+    max-width: 400px;
+    width: 90%;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+
+    display: block; /* 모달을 화면에 표시 */
+    position: relative; /* 기본 위치 */
+    z-index: 1010;
+}
+
+.modal h3 {
+    font-size: 18px;
+    font-weight: bold;
+    margin-bottom: 10px;
+}
+
+.modal p {
+    font-size: 14px;
+    color: #666;
+    margin-bottom: 20px;
+}
+
+.modal-buttons {
+    display: flex;
+    justify-content: space-between;
+    gap: 10px;
+}
+
+.modal-buttons .btn {
+    width: 45%;
+    padding: 10px;
+    border-radius: 5px;
+    font-size: 14px;
+    cursor: pointer;
+}
+
+.modal-buttons .btn-secondary {
+    background-color: #f1f1f1;
+    color: #333;
+    border: 1px solid #ccc;
+}
+
+.modal-buttons .btn-primary {
+    background-color: #0c8;
+    color: white;
+    border: none;
+}
+
 .participation-detail-container {
     max-width: 800px;
     border-radius: 10px;
@@ -207,7 +301,8 @@ const paymentStatus = ref("결제 예약");
     text-align: start;
     display: flex;
     flex-direction: column;
-    align-items: center; /* back-button을 가운데 배치 */
+    align-items: center;
+    /* back-button을 가운데 배치 */
 }
 
 .payment-info {

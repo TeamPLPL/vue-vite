@@ -7,12 +7,14 @@ export default [
     {
         path: '/studio/:id/project',
         name : 'Funding',
-        component: Funding
+        component: Funding,
+        meta: {hideHeader: true}
     },
     {
         path: '/studio/:id/project/intro',
         name : 'Intro',
-        component: Intro
+        component: Intro,
+        meta: {hideHeader: true}
     },
     {
         path : '/studio/:id/project/schedule',
@@ -24,5 +26,4 @@ export default [
         name : 'projectInfo',
         component: ProjectInfo
     }
-
 ]
