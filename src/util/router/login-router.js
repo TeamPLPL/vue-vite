@@ -14,13 +14,21 @@ export default [
         path: '/login',
         name :'login',
         component : Login,
-        meta: {hideHeader: true}
+        meta: {
+            hideHeader: true,
+            hideTopbar: true,
+            hideFooter: true,
+        }
     },
     {
         path: '/signup',
         name :'signup',
         component : Signup,
-        meta: {hideHeader: true}
+        meta: {
+            hideHeader: true,
+            hideTopbar: true,
+            hideFooter: true,
+        }
     },
     {
         path: '/find/idpwd',
