@@ -22,20 +22,32 @@
                 <h3>{{ item.title }}</h3>
                 <p class="byline">by {{ item.author }}</p>
                 <div class="cancel-link">
-                    <router-link :to="`/cancel/${item.id}`">결제 예약취소</router-link>
+                    <button @click="showCancelModal = true" class="change-button">결제 예약 취소</button>
                     <router-link :to="`/participation/${item.id}`" class="details-link">상세보기 &gt;</router-link>
                 </div>
             </div>
         </div>
+
+        <!-- 모달 컴포넌트 -->
+        <ModalConfirm 
+            v-show="showCancelModal" 
+            :show="showCancelModal" 
+            title="결제를 취소하시겠어요?"
+            message="리워드 옵션 변경을 원한다면 결제를 취소하지 않고 참여 내역에서 변경 가능해요." 
+            @close="closeCancelModal"
+            @confirm="cancelReservation"
+        />
     </div>
 </template>
 
 <script setup>
-import { ref, computed } from 'vue';
+import { ref } from 'vue';
+import ModalConfirm from './participationComponents/ModalConfirm.vue';
 
 const selectedFilter = ref("전체");
+const showCancelModal = ref(false);
+const selectedItem = ref(null); // 선택된 항목
 
-// 샘플 데이터
 const items = ref([
     {
         id: 1,
@@ -46,11 +58,27 @@ const items = ref([
         author: "주식회사 루피",
         date: "2024.10.28",
     },
-    // 추가 데이터 항목이 필요할 경우 여기서 더 추가
 ]);
 
-// 필터링된 항목을 계산
 const filteredItems = ref(items.value);
+
+function openCancelModal(item) {
+    selectedItem.value = item;
+    showCancelModal.value = true;
+}
+
+function closeCancelModal() {
+    showCancelModal.value = false;
+    selectedItem.value = null;
+}
+
+function cancelReservation() {
+    if (selectedItem.value) {
+        console.log(`결제 예약 취소됨: ${selectedItem.value.title}`);
+        // 취소 처리 로직 추가
+    }
+    closeCancelModal();
+}
 
 function filterList() {
     if (selectedFilter.value === "전체") {
@@ -94,8 +122,10 @@ function filterList() {
 .item-header {
     display: flex;
     justify-content: space-between;
-    gap: 10px; /* 링크들 사이 간격 */
-    width: 100%; /* 부모 요소의 너비를 가득 채움 */
+    gap: 10px;
+    /* 링크들 사이 간격 */
+    width: 100%;
+    /* 부모 요소의 너비를 가득 채움 */
 }
 
 .item-left {
@@ -134,8 +164,10 @@ h3 {
 .cancel-link {
     display: flex;
     justify-content: space-between;
-    gap: 10px; /* 링크들 사이 간격 */
-    width: 100%; /* 부모 요소의 너비를 가득 채움 */
+    gap: 10px;
+    /* 링크들 사이 간격 */
+    width: 100%;
+    /* 부모 요소의 너비를 가득 채움 */
 }
 
 .cancel-link a {
