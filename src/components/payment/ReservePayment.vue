@@ -8,196 +8,89 @@
         </div>
     </div>
 
-    <div class="container my-5">
-        <h5 class="text-primary">[슈퍼얼리버드] 에브리봇 침구 로봇청소기</h5>
-        <p>제품구성 : 로봇 본체 + 먼지동 + USB 케이블</p>
+    <h5 class="fw-bold">선택한 리워드</h5>
+    <div v-for="reward in selectedRewards" :key="reward.rewardId" class="reward-item">
+        <h6 class="reward-title">{{ reward.rewardName }}</h6>
+        <p>수량: {{ reward.quantity }}개</p>
+        <p>가격: {{ (reward.price * reward.quantity).toLocaleString() }}원</p>
+    </div>
 
-        <div class="d-flex justify-content-between">
-            <span>수량: {{ quantity }}개</span>
+    <hr />
+
+    <h5 class="fw-bold">결제 요약</h5>
+    <ul class="list-unstyled">
+        <li class="d-flex justify-content-between">
+            <span>리워드 금액</span>
             <span>{{ totalPrice.toLocaleString() }}원</span>
-        </div>
-
-        <hr />
-
-        <!-- Additional Donation -->
-        <div class="d-flex justify-content-between">
-            <h6>추가 후원금</h6>
+        </li>
+        <li class="d-flex justify-content-between">
+            <span>배송비</span>
+            <span>{{ deliveryFee.toLocaleString() }}원</span>
+        </li>
+        <li class="d-flex justify-content-between">
+            <span>추가 후원금</span>
             <span>{{ donationAmount.toLocaleString() }}원</span>
-        </div>
+        </li>
+        <li class="d-flex justify-content-between fw-bold">
+            <span>총 결제 금액</span>
+            <span>{{ wholePrice.toLocaleString() }}원</span>
+        </li>
+    </ul>
 
-        <hr />
+    <hr />
 
-        <!-- Shipping Fee -->
-        <div class="d-flex justify-content-between">
-            <h6>배송비</h6>
-            <span>0원</span>
-        </div>
+    <h5 class="fw-bold">배송지 정보</h5>
+    <div class="mb-3">
+        <label for="recipientName" class="form-label">이름</label>
+        <input v-model="recipientName" type="text" class="form-control" id="recipientName" placeholder="이름을 입력하세요" />
+    </div>
+    <div class="mb-3">
+        <label for="phoneNumber" class="form-label">휴대폰 번호</label>
+        <input v-model="phoneNumber" type="text" class="form-control" id="phoneNumber" placeholder="휴대폰 번호를 입력하세요" />
+    </div>
+    <div class="mb-3">
+        <label for="address" class="form-label">주소</label>
+        <input v-model="address" type="text" class="form-control" id="address" placeholder="주소를 입력하세요" />
+    </div>
+    <div class="mb-3">
+        <input v-model="detailedAddress" type="text" class="form-control" placeholder="상세주소" />
+    </div>
+    <div class="mb-3">
+        <label for="deliveryRequest" class="form-label">배송 시 요청사항 (선택)</label>
+        <input v-model="deliveryRequest" type="text" class="form-control" id="deliveryRequest"
+            placeholder="요청사항을 입력하세요" />
+    </div>
 
-        <hr />
+    <hr />
 
-        <!-- Coupon Selection -->
-        <div class="d-flex input-group mb-3">
-            <h6>쿠폰 사용</h6>
-            <br />
-            <select class="form-select">
-                <option selected>쿠폰을 선택하세요</option>
-                <option>10% 할인 쿠폰</option>
-            </select>
-        </div>
+    <h5 class="fw-bold">결제 방법</h5>
+    <div class="form-check mb-3">
+        <input class="form-check-input" type="radio" name="paymentMethod" id="npay" value="naverpayCard"
+            v-model="paymentMethod" />
+        <label class="form-check-label" for="npay">네이버페이</label>
+    </div>
+    <div class="form-check mb-3">
+        <input class="form-check-input" type="radio" name="paymentMethod" id="kpay" value="kakaopayCard"
+            v-model="paymentMethod" />
+        <label class="form-check-label" for="kpay">카카오페이</label>
+    </div>
+    <div class="form-check mb-3">
+        <input class="form-check-input" type="radio" name="paymentMethod" id="creditCard" value="card"
+            v-model="paymentMethod" />
+        <label class="form-check-label" for="creditCard">신용/체크카드</label>
+    </div>
 
-        <!-- Point Usage -->
-        <h6>포인트 사용</h6>
-        <div class="d-flex align-items-center mb-3">
-            <input type="checkbox" id="use-all-points" class="form-check-input me-2" />
-            <label for="use-all-points" class="form-check-label me-3">모두 사용 (보유 포인트 0P)</label>
-            <input type="number" class="form-control" placeholder="0" style="max-width: 100px;" />
-        </div>
+    <div v-if="paymentMethod === 'card'" class="mb-3">
+        <label for="cardNumber" class="form-label">카드번호</label>
+        <input v-model="cardNumber" type="text" class="form-control" id="cardNumber" placeholder="카드번호를 입력하세요" />
+    </div>
 
-        <hr />
+    <hr />
 
-        <!-- Payment Summary -->
-        <h5 class="fw-bold text-start">결제 예약 금액</h5>
-        <ul class="list-unstyled">
-            <li class="d-flex justify-content-between">
-                <span>리워드 금액</span>
-                <span>{{ totalPrice.toLocaleString() }}원</span>
-            </li>
-            <li class="d-flex justify-content-between">
-                <span>쿠폰 할인 금액</span>
-                <span>-0원</span>
-            </li>
-            <li class="d-flex justify-content-between">
-                <span>포인트 할인 금액</span>
-                <span>0원</span>
-            </li>
-            <li class="d-flex justify-content-between">
-                <span>추가 후원금</span>
-                <span>{{ donationAmount.toLocaleString() }}원</span>
-            </li>
-            <li class="d-flex justify-content-between">
-                <span>배송비</span>
-                <span>0원</span>
-            </li>
-            <li class="d-flex justify-content-between fw-bold">
-                <span>총 결제 금액</span>
-                <span>{{ wholePrice.toLocaleString() }}원</span>
-            </li>
-        </ul>
-
-        <hr />
-
-        <h5 class="fw-bold text-start">리워드 배송지</h5>
-        <!-- 이름 -->
-        <div class="mb-3">
-            <label for="name" class="form-label float-start">이름</label>
-            <input type="text" class="form-control" id="name" placeholder="이름을 입력하세요" />
-        </div>
-
-        <!-- 휴대폰 번호 -->
-        <div class="mb-3">
-            <label for="phone" class="form-label float-start">휴대폰 번호</label>
-            <input type="text" class="form-control" id="phone" placeholder="휴대폰 번호를 입력하세요" />
-        </div>
-
-        <!-- 주소 -->
-        <div class="mb-3">
-            <label for="address" class="form-label float-start">주소</label>
-            <div class="input-group">
-                <input type="text" class="form-control" id="address" placeholder="주소를 입력하세요" />
-                <button class="btn btn-secondary" type="button">주소 찾기</button>
-            </div>
-        </div>
-
-        <!-- 상세주소 -->
-        <div class="mb-3">
-            <input type="text" class="form-control" placeholder="상세주소" />
-        </div>
-
-        <!-- 개인정보 보호 메시지 -->
-        <div class="mb-3">
-            <small class="text-muted float-start">
-                🔒 와디즈에서는 서포터님의 개인정보 보호를 위해 안심번호를 사용해요.
-            </small>
-            <br />
-        </div>
-
-        <!-- 배송 시 요청사항 (선택) -->
-        <div class="my-3">
-            <label for="deliveryRequest" class="form-label float-start">배송 시 요청사항 (선택)</label>
-            <input type="text" class="form-control" id="deliveryRequest" placeholder="ex) 부재 시 경비실에 보관해주세요." />
-            <small class="text-muted float-start">해당 요청사항은 배송에 관련된 내용만 적어주세요.</small>
-        </div>
-
-        <hr />
-
-        <h5 class="fw-bold text-start">지금 결제</h5>
-        <div class="form-check mb-3">
-            <input class="form-check-input" type="radio" name="paymentMethod" id="npay" value="naverpayCard"
-                v-model="paymentMethod" />
-            <label class="form-check-label d-flex align-items-center" for="npay">
-                <span class="badge bg-success text-white me-2">N pay</span>
-                네이버페이
-            </label>
-        </div>
-
-        <div class="form-check mb-3">
-            <input class="form-check-input" type="radio" name="paymentMethod" id="kpay" value="kakaopayCard"
-                v-model="paymentMethod" />
-            <label class="form-check-label d-flex align-items-center" for="kpay">
-                <span class="badge bg-warning text-dark me-2">K pay</span>
-                카카오페이
-            </label>
-        </div>
-
-        <div class="form-check mb-4">
-            <input class="form-check-input" type="radio" name="paymentMethod" id="creditCard" value="card"
-                v-model="paymentMethod" />
-            <label class="form-check-label float-start" for="creditCard">신용/체크카드</label>
-        </div>
-
-        <hr />
-
-        <!-- Payment Notice -->
-        <div class="p-3 bg-light border rounded mb-4">
-            <h6 class="fw-bold">결제 유의사항</h6>
-            <ul class="mb-0">
-                <li>장기할부는 상품금액이 30만원 이상, 일부 프로젝트 운영에 한해서만 제공됩니다.</li>
-                <li>예약 결제의 경우 결제 실행일에 결제자 귀책사유로 인해 결제가 실패할 수 있으니, 결제수단이 유효한지 확인해주세요.</li>
-                <li>예약 결제의 경우 1차 결제 실패 시 다음날 재 결제를 실행합니다.</li>
-                <li>결제 이후, 결제 정보를 변경하려면 마이페이지 > 참여 내역에서 결제 정보를 변경해주세요.</li>
-                <li>지금 결제를 한 경우에도 프로젝트가 종료되기 전까지 언제든 결제를 취소할 수 있어요.</li>
-            </ul>
-        </div>
-
-        <hr />
-
-        <!-- Terms and Conditions -->
-        <h5 class="fw-bold">약관 동의</h5>
-        <div class="form-check mb-2">
-            <input class="form-check-input" type="checkbox" id="terms1" />
-            <label class="form-check-label float-start" for="terms1">결제 진행 필수 동의</label>
-        </div>
-
-        <div class="form-check mb-2">
-            <input class="form-check-input" type="checkbox" id="terms2" />
-            <label class="form-check-label float-start" for="terms2">
-                구매조건, 결제 진행 및 결제 대행 서비스 동의(필수)
-            </label>
-        </div>
-        <ul class="list-unstyled ms-4 text-start">
-            <li>- 전자금융거래 이용약관</li>
-            <li>- 개인정보 수집 및 이용 및 제3자 제공에 대한 동의</li>
-            <li>- 환불 정책 동의</li>
-        </ul>
-        <div class="form-check mb-2">
-            <input class="form-check-input" type="checkbox" id="terms3" />
-            <label class="form-check-label float-start" for="terms3">개인정보 제3자 제공 동의 (필수)</label>
-        </div>
-
-        <div class="form-check mb-2">
-            <input class="form-check-input" type="checkbox" id="terms4" />
-            <label class="form-check-label float-start" for="terms4">책임 규정에 대한 동의 (필수)</label>
-        </div>
+    <h5 class="fw-bold">약관 동의</h5>
+    <div class="form-check mb-2">
+        <input class="form-check-input" type="checkbox" id="terms1" v-model="termsAccepted" />
+        <label for="terms1" class="form-check-label">결제 진행 필수 동의</label>
     </div>
 
     <!-- <button @click="testFunction">연결테스트</button>     -->
@@ -220,34 +113,22 @@ import { usePaymentStore } from '../../util/store/paymentStore';
 const props = defineProps(['id']); // props로 id 값을 받음
 
 const steps = ref(["리워드 선택", "결제 예약", "소문내기"]);
-const paymentMethod = ref("card"); // 초기값 설정
-//const orderId = ref(getOrderId()); // 순차적으로 증가하는 orderId
-
-// Pinia 스토어 사용
 const purchaseStore = usePurchaseStore();
-const quantity = purchaseStore.quantity;
-const totalPrice = purchaseStore.totalPrice;
-const donationAmount = purchaseStore.donationAmount;
-const paymentStore = usePaymentStore();
 
-const wholePrice = computed(() => purchaseStore.totalPrice + purchaseStore.donationAmount);
+const recipientName = ref('');
+const phoneNumber = ref('');
+const address = ref('');
+const detailedAddress = ref('');
+const deliveryRequest = ref('');
+const cardNumber = ref('');
+const paymentMethod = ref('');
+const termsAccepted = ref(false);
 
-// 순차적인 orderId 생성 및 저장
-// function getOrderId() {
-//     // 로컬 스토리지에서 기존 orderId를 가져옵니다.
-//     const storedOrderId = localStorage.getItem('orderId');
-//     if (storedOrderId) {
-//         return parseInt(storedOrderId);
-//     } else {
-//         localStorage.setItem('orderId', '1000'); // 초기값 설정
-//         return 1000;
-//     }
-// }
-
-// function incrementOrderId() {
-//     orderId.value += 1;
-//     localStorage.setItem('orderId', orderId.value.toString());
-// }
+const selectedRewards = computed(() => purchaseStore.selectedRewards);
+const totalPrice = computed(() => purchaseStore.totalPrice);
+const donationAmount = computed(() => purchaseStore.donationAmount);
+const deliveryFee = computed(() => purchaseStore.deliveryFee);
+const wholePrice = computed(() => totalPrice.value + donationAmount.value + deliveryFee.value);
 
 // 서버로 가는지 테스트
 const testFunction = async () => {
@@ -262,11 +143,26 @@ const testFunction = async () => {
 
 
 function clientAuth() {
-    console.log('Current Order ID:', purchaseStore.orderId);
+    purchaseStore.incrementOrderId(); // 에러 시에도 호출
+    if (!termsAccepted.value) {
+        alert('약관에 동의하셔야 결제가 진행됩니다.');
+        return;
+    }
+
+    console.log('결제 요청:', {
+        paymentMethod: paymentMethod.value,
+        cardNumber: paymentMethod.value === 'card' ? cardNumber.value : null,
+        recipientName: recipientName.value,
+        phoneNumber: phoneNumber.value,
+        address: `${address.value} ${detailedAddress.value}`,
+        deliveryRequest: deliveryRequest.value,
+        totalAmount: wholePrice.value,
+        selectedRewards: selectedRewards.value,
+    });
     AUTHNICE.requestPay({
         clientId: import.meta.env.VITE_NICEPAY_KEY,
         method: paymentMethod.value,
-        orderId: `test_1108_${purchaseStore.orderId}`, // Pinia 스토어에서 orderId 사용
+        orderId: `test_1109_${purchaseStore.orderId}`, // Pinia 스토어에서 orderId 사용
         amount: wholePrice.value,
         goodsName: '나이스페이-상품',
         returnUrl: `http://localhost:8080/api/payment/complete?id=${props.id}`,
@@ -276,19 +172,19 @@ function clientAuth() {
         }
     },
 
-    // 결제 성공 콜백 함수
-    function onSuccess(response) {
-        console.log("결제 성공:", response);
-        paymentStore.setPaymentSuccess(true);
-        purchaseStore.incrementOrderId(); // 결제 성공 후 orderId 증가
-    },
+        // 결제 성공 콜백 함수
+        function onSuccess(response) {
+            console.log("결제 성공:", response);
+            paymentStore.setPaymentSuccess(true);
+            purchaseStore.incrementOrderId(); // 결제 성공 후 orderId 증가
+        },
 
-    // 결제 실패 콜백 함수
-    function onFailure(error) {
-        console.log("결제 실패:", error);
-        alert("결제가 실패했습니다. 다시 시도해주세요.");
-        purchaseStore.incrementOrderId(); // 결제 실패 후 orderId 증가
-    });
+        // 결제 실패 콜백 함수
+        function onFailure(error) {
+            console.log("결제 실패:", error);
+            alert("결제가 실패했습니다. 다시 시도해주세요.");
+            purchaseStore.incrementOrderId(); // 결제 실패 후 orderId 증가
+        });
 }
 
 // 스크립트를 동적으로 로드하는 함수
@@ -324,6 +220,42 @@ onMounted(async () => {
 </script>
 
 <style scoped>
+.reward-item {
+    background-color: #f9f9f9;
+    border: 1px solid #ddd;
+    padding: 15px;
+    margin-bottom: 15px;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    font-size: 14px;
+}
+
+.reward-title {
+    font-weight: bold;
+    color: #007bff;
+    margin-bottom: 8px;
+}
+
+.reward-details {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+}
+
+.reward-info {
+    display: flex;
+}
+
+.reward-quantity,
+.reward-price {
+    margin: 0;
+    color: #333;
+}
+
+.reward-delivery-fee {
+    font-weight: bold;
+    color: #333;
+}
 .progress-steps {
     display: flex;
     align-items: center;
