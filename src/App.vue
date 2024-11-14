@@ -7,6 +7,7 @@ import axios from 'axios'; // axios import for handling headers
 import Header from './components/common/Header.vue'
 import Topbar from './components/common/Topbar.vue'
 import Footer from './components/common/Footer.vue'
+import FundingDetailHeader from './components/funding/FundingDetailHeader.vue'; // Import FundingDetailHeader
 import Example from "./components/Example.vue";
 
 const router = useRouter();
@@ -23,6 +24,10 @@ const shouldHideHeader = computed(() => route.meta.hideHeader);
 const shouldHideTopbar = computed(() => route.meta.hideTopbar);
 
 const shouldHideFooter = computed(() => route.meta.hideFooter);
+
+const isDetailPage = computed(() => {
+  return route.path.startsWith('/funding/') && route.name !== 'Funding';
+});
 
 const showTopButton = ref(false)
 
@@ -57,6 +62,7 @@ onUnmounted(() => {
       <Topbar class="topbar" v-if="!shouldHideTopbar" />
     </div>
     <Header v-if="!shouldHideHeader" />
+    <FundingDetailHeader v-if="isDetailPage" />
     <div class="container-sm">
       <div class="app-container">
         <RouterView />
@@ -83,6 +89,7 @@ onUnmounted(() => {
   z-index: 1000;
   width: 100%;
 }
+
 .footer {
   position: sticky;
   bottom: 0;
