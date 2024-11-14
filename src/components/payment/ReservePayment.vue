@@ -75,7 +75,7 @@
         <label class="form-check-label" for="kpay">카카오페이</label>
     </div>
     <div class="form-check mb-3">
-        <input class="form-check-input" type="radio" name="paymentMethod" id="creditCard" value="card"
+        <input class="form-check-input" type="radio" name="paymentMethod" id="creditCard" value="CARD"
             v-model="paymentMethod" />
         <label class="form-check-label" for="creditCard">신용/체크카드</label>
     </div>
@@ -93,12 +93,10 @@
         <label for="terms1" class="form-check-label">결제 진행 필수 동의</label>
     </div>
 
-    <!-- <button @click="testFunction">연결테스트</button>     -->
-
-    <RouterLink :to="`/purchase/step10/${id}`">
+    <RouterLink :to="`/purchase/choose/${id}`">
         <button type="button" class="btn btn-primary w-100 my-1">이전 단계</button>
     </RouterLink>
-    <RouterLink :to="`/purchase/step20/${id}`">
+    <RouterLink :to="`/purchase/reserve/${id}`">
         <button @click="clientAuth" class="btn btn-primary w-100 my-1">clientAuth 결제하기</button>
     </RouterLink>
 </template>
@@ -109,11 +107,57 @@ import { usePurchaseStore } from '../../util/store/purchaseStore'; // Pinia 스�
 import { RouterLink } from 'vue-router';
 import apiWrapper from '../../util/axios/axios';
 import { usePaymentStore } from '../../util/store/paymentStore';
+import { useRouter } from 'vue-router';
+import { useAuthStore } from '../../util/store/authStore';
+
+const authStore = useAuthStore();
+const router = useRouter();
 
 const props = defineProps(['id']); // props로 id 값을 받음
 
-const steps = ref(["리워드 선택", "결제 예약", "소문내기"]);
+const steps = ref(["리워드 선택", "결제 화면", "결제 완료"]);
 const purchaseStore = usePurchaseStore();
+
+// 인증 상태와 사용자 정보를 관리
+// const isAuthenticated = ref(false);
+// const userInfo = ref(null);
+
+// const fetchUserInfo = async () => {
+//     // const token = authStore.getJwtToken();
+
+//     // if (!token) {
+//     //     alert('로그인이 필요합니다. 로그인 페이지로 이동합니다.');
+//     //     router.push('/login');
+//     //     return;
+//     // }
+
+//     try {
+//         const response = await axios.post('http://localhost:8080/api/login', {
+//             email: state.email,
+//             password: state.password,
+//         });
+
+//         // Authorization 헤더가 정상적으로 오는지 체크
+//         if (response.headers['authorization']) {
+//             const token = response.headers['authorization'].split(' ')[1];
+//             console.log(token);
+
+//             // 로컬 스토리지에 토큰 저장
+//             localStorage.setItem('jwtToken', token);
+//             authStore.getJwtToken();
+//         } else {
+//             console.error('JWT 토큰을 찾을 수 없습니다.');
+//         }
+
+//         userInfo.value = response.data;
+//         isAuthenticated.value = true;
+//         console.log('로그인된 사용자 정보:', userInfo.value);
+//     } catch (error) {
+//         console.error('사용자 정보 가져오기 실패:', error);
+//         // alert('로그인 정보가 유효하지 않습니다. 다시 로그인해주세요.');
+//         // router.push('/login');
+//     }
+// };
 
 const recipientName = ref('');
 const phoneNumber = ref('');
@@ -142,49 +186,134 @@ const testFunction = async () => {
 }
 
 
-function clientAuth() {
+async function clientAuth() {
     purchaseStore.incrementOrderId(); // 에러 시에도 호출
-    if (!termsAccepted.value) {
-        alert('약관에 동의하셔야 결제가 진행됩니다.');
+
+    if (paymentMethod.value === 'card' && (!cardNumber.value || cardNumber.value.trim() === '')) {
+        alert('카드 번호를 입력해야 합니다.');
         return;
     }
 
-    console.log('결제 요청:', {
-        paymentMethod: paymentMethod.value,
-        cardNumber: paymentMethod.value === 'card' ? cardNumber.value : null,
-        recipientName: recipientName.value,
-        phoneNumber: phoneNumber.value,
-        address: `${address.value} ${detailedAddress.value}`,
-        deliveryRequest: deliveryRequest.value,
-        totalAmount: wholePrice.value,
-        selectedRewards: selectedRewards.value,
-    });
-    AUTHNICE.requestPay({
-        clientId: import.meta.env.VITE_NICEPAY_KEY,
-        method: paymentMethod.value,
-        orderId: `test_1109_${purchaseStore.orderId}`, // Pinia 스토어에서 orderId 사용
-        amount: wholePrice.value,
-        goodsName: '나이스페이-상품',
-        returnUrl: `http://localhost:8080/api/payment/complete?id=${props.id}`,
-        fnError: function (result) {
-            alert('개발자확인용 : ' + result.errorMsg + '');
-            purchaseStore.incrementOrderId(); // 에러 시에도 호출
-        }
-    },
+    try {
+        const paymentData = {
+            // userId: userInfo.value?.id,
+            userId: 1, // 일단 더미로 userId 넣기
+            addressId: 1, // 예시로 기본 주소 ID
+            fundingId: props.id,
+            couponId: null,
+            amount: wholePrice.value,
+            phoneNum: phoneNumber.value,
+            receiverName: recipientName.value,
+            deliveryRequest: deliveryRequest.value,
+            methodType: paymentMethod.value,
+            cardNumber: paymentMethod.value === 'CARD' ? cardNumber.value : null,
+            thirdPartyId: paymentMethod.value !== 'CARD' ? thirdPartyId.value : null,
+            thirdPartyPw: paymentMethod.value !== 'CARD' ? thirdPartyPw.value : null,
+            rewards: selectedRewards.value.reduce((acc, reward) => {
+                acc[reward.rewardId] = { rewardId: reward.rewardId, rewardName: reward.rewardName, quantity: reward.quantity };
+                return acc;
+            }, {}),
+        };
 
-        // 결제 성공 콜백 함수
-        function onSuccess(response) {
-            console.log("결제 성공:", response);
-            paymentStore.setPaymentSuccess(true);
-            purchaseStore.incrementOrderId(); // 결제 성공 후 orderId 증가
+        console.log('paymentMethod:', paymentMethod.value);
+        console.log('cardNumber:', cardNumber.value);
+        console.log('paymentData:', paymentData);
+
+        const registerResponse = await apiWrapper.postData('/api/payment/register', paymentData);
+        console.log('결제 등록 성공:', registerResponse.data);
+        console.log(registerResponse.data.id);
+
+        // 2. requestPay 호출
+        AUTHNICE.requestPay({
+            buyerTel: phoneNumber.value,
+            clientId: import.meta.env.VITE_NICEPAY_KEY,
+            method: paymentMethod.value,
+            orderId: `test_1109_${registerResponse.data.id}`, // 서버에서 결제 내역 확인용 ID
+            amount: wholePrice.value,
+            goodsName: '나이스페이-상품',
+            returnUrl: `http://localhost:8080/api/payment/complete?id=${props.id}`,
+            fnError: function (result) {
+                alert('결제 오류: ' + result.errorMsg);
+                purchaseStore.incrementOrderId();
+            }
         },
+            function onSuccess(response) {
+                console.log("결제 성공:", response);
 
-        // 결제 실패 콜백 함수
-        function onFailure(error) {
-            console.log("결제 실패:", error);
-            alert("결제가 실패했습니다. 다시 시도해주세요.");
-            purchaseStore.incrementOrderId(); // 결제 실패 후 orderId 증가
-        });
+                // 3. 성공적으로 거래 완료 시 paymentStatus 업데이트
+                updatePaymentStatus(registerResponse.data.id, 'success');
+                alert('결제가 성공적으로 완료되었습니다!');
+            },
+            function onFailure(error) {
+                console.log("결제 실패:", error);
+
+                // 4. 실패 시 paymentStatus 업데이트
+                updatePaymentStatus(registerResponse.data.id, 'failed');
+                alert('결제가 실패했습니다. 다시 시도해주세요.');
+            });
+
+    } catch (error) {
+        console.error('결제 등록 실패:', error.response || error);
+        alert('결제 등록 중 오류가 발생했습니다.');
+    }
+
+    // if (!isAuthenticated.value) {
+    //     alert('로그인이 필요합니다. 로그인 페이지로 이동합니다.');
+    //     router.push('/login');
+    //     return;
+    // }
+
+    // if (!termsAccepted.value) {
+    //     alert('약관에 동의하셔야 결제가 진행됩니다.');
+    //     return;
+    // }
+
+    // console.log('결제 요청:', {
+    //     paymentMethod: paymentMethod.value,
+    //     cardNumber: paymentMethod.value === 'card' ? cardNumber.value : null,
+    //     recipientName: recipientName.value,
+    //     phoneNumber: phoneNumber.value,
+    //     address: `${address.value} ${detailedAddress.value}`,
+    //     deliveryRequest: deliveryRequest.value,
+    //     totalAmount: wholePrice.value,
+    //     selectedRewards: selectedRewards.value,
+    // });
+    // AUTHNICE.requestPay({
+    //     clientId: import.meta.env.VITE_NICEPAY_KEY,
+    //     method: paymentMethod.value,
+    //     orderId: `test_1109_${purchaseStore.orderId}`, // Pinia 스토어에서 orderId 사용
+    //     amount: wholePrice.value,
+    //     goodsName: '나이스페이-상품',
+    //     returnUrl: `http://localhost:8080/api/payment/complete?id=${props.id}`,
+    //     fnError: function (result) {
+    //         alert('개발자확인용 : ' + result.errorMsg + '');
+    //         purchaseStore.incrementOrderId(); // 에러 시에도 호출
+    //     }
+    // },
+
+    //     // 결제 성공 콜백 함수
+    //     function onSuccess(response) {
+    //         console.log("결제 성공:", response);
+    //         paymentStore.setPaymentSuccess(true);
+    //         purchaseStore.incrementOrderId(); // 결제 성공 후 orderId 증가
+    //     },
+
+    //     // 결제 실패 콜백 함수
+    //     function onFailure(error) {
+    //         console.log("결제 실패:", error);
+    //         alert("결제가 실패했습니다. 다시 시도해주세요.");
+    //         purchaseStore.incrementOrderId(); // 결제 실패 후 orderId 증가
+    //     });
+}
+
+// 결제 상태 업데이트 함수
+async function updatePaymentStatus(paymentId, status) {
+    try {
+        const response = await apiWrapper.putData(`/api/payment/${paymentId}/status`, { status });
+        console.log(`Payment ${paymentId} 상태 업데이트:`, response.data);
+    } catch (error) {
+        console.error('결제 상태 업데이트 실패:', error.response || error);
+    }
 }
 
 // 스크립트를 동적으로 로드하는 함수
@@ -207,6 +336,16 @@ function loadScript(url, id) {
 }
 
 onMounted(async () => {
+    const token = authStore.getJwtToken();
+    if (!token) {
+        console.log("Token is null, fetching from localStorage");
+        authStore.setJwtToken(localStorage.getItem('jwtToken')); // 다시 설정
+        console.log(localStorage.getItem('jwtToken'));
+    } else {
+        console.log(token);
+    }
+
+
     console.log('Initial Order ID:', purchaseStore.orderId); // 초기 Order ID 확인
     try {
         await loadScript("https://pay.nicepay.co.kr/v1/js/", "nicepay-script");
@@ -256,6 +395,7 @@ onMounted(async () => {
     font-weight: bold;
     color: #333;
 }
+
 .progress-steps {
     display: flex;
     align-items: center;

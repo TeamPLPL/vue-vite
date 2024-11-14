@@ -42,7 +42,7 @@
         </div>
     </div>
 
-    <RouterLink :to="`/purchase/step20/${id}`">
+    <RouterLink :to="`/purchase/reserve/${id}`">
         <button type="button" class="btn btn-primary w-100 my-1" @click="saveToStore">다음 단계</button>
     </RouterLink>
 
@@ -66,7 +66,7 @@ const selectedRewards = ref([]);
 const donationAmount = ref(0);
 const route = useRoute();
 
-const steps = ref(["리워드 선택", "결제 예약", "소문내기"]);
+const steps = ref(["리워드 선택", "결제 화면", "결제 완료"]);
 
 // Pinia 스토어 인스턴스 (Setup Store 형태로 사용)
 const purchaseStore = usePurchaseStore();

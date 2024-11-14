@@ -1,8 +1,19 @@
 <template>
+    
+
     <div class="top-bar">
         <RouterLink :to="`/funding/detail/${id}`">
             < 스토리로 돌아가기 </RouterLink>
                 <h6>Looper 공항에서 여권을 찾느라 가방을 뒤집는 당신을 위해</h6>
+    </div>
+
+    <div class="progress-steps my-5">
+        <div v-for="(step, index) in steps" :key="index" class="step-container">
+            <div :class="['step-circle', { 'step-completed': index === 2, 'step-pending': index !== 2 }]">
+                {{ step }}
+            </div>
+            <div v-if="index < steps.length - 1" class="dashed-line"></div>
+        </div>
     </div>
     <div class="complete-payment-container">
         <!-- 참여 완료 메시지 -->
@@ -15,14 +26,14 @@
                 <p class="fw-bold">나만 알고 있기 아까운 프로젝트라면?</p>
                 <p>친구에게 소개하고 | 포인트를 받아보세요</p>
             </div>
-            <RouterLink to="/participation">
+            <RouterLink to="/mywadiz/info/participation">
                 <button class="next-button">다음</button>
             </RouterLink>
-            
+
         </div>
 
         <!-- 주식회사 루피 정보 -->
-        <div class="company-info d-flex justify-content-between">
+        <!-- <div class="company-info d-flex justify-content-between">
             <div class="text-start d-flex">
                 <img src="#">
                 <div>
@@ -31,19 +42,19 @@
                 
             </div>
             <button class="follow-button">팔로우</button>
-        </div>
+        </div> -->
 
         <!-- 놀랄 수 없는 이벤트 섹션 -->
-        <div class="event-section my-4">
+        <!-- <div class="event-section my-4">
             <h5>놓칠 수 없는 이벤트</h5>
             <div class="event-image">
                 <img src="../../assets/event-placeholder.png" />
             </div>
             <p>나다운 성장, 원 포인트 레벨업!</p>
-        </div>
+        </div> -->
 
         <!-- 추천 프로젝트 섹션 -->
-        <div class="project-recommendation">
+        <!-- <div class="project-recommendation">
             <h5>내 취향에 맞는 프로젝트</h5>
             <div class="project-grid">
                 <div v-for="n in 4" :key="n" class="project-card">
@@ -51,10 +62,10 @@
                     <p>프로젝트 제목 {{ n }}</p>
                 </div>
             </div>
-        </div>
+        </div> -->
 
         <!-- 관심 갈 만한 프로젝트 섹션 -->
-        <div class="project-interest">
+        <!-- <div class="project-interest">
             <h5>관심 갈 만한 프로젝트</h5>
             <div class="project-grid">
                 <div v-for="n in 4" :key="n" class="project-card">
@@ -62,12 +73,12 @@
                     <p>프로젝트 제목 {{ n }}</p>
                 </div>
             </div>
-        </div>
+        </div> -->
     </div>
 </template>
 
 <script setup>
-import { onMounted } from 'vue';
+import { onMounted, ref } from 'vue';
 import { useRouter } from 'vue-router';
 import { usePaymentStore } from '../../util/store/paymentStore';
 
@@ -75,6 +86,8 @@ defineProps(['id']); // id를 명시적으로 props로 정의
 
 const router = useRouter();
 const paymentStore = usePaymentStore();
+
+const steps = ref(["리워드 선택", "결제 화면", "결제 완료"]);
 
 onMounted(() => {
     // 결제 성공 상태 확인
@@ -86,6 +99,48 @@ onMounted(() => {
 </script>
 
 <style scoped>
+.progress-steps {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    white-space: normal;
+    /* 일반적인 줄바꿈 허용 */
+    word-break: keep-all;
+    /* 단어 단위로 줄바꿈 */
+}
+
+.step-container {
+    display: flex;
+    align-items: center;
+}
+
+.step-circle {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    color: white;
+}
+
+.step-completed {
+    background-color: #4db4d7;
+    /* Example color for completed step */
+}
+
+.step-pending {
+    background-color: #e9ecef;
+}
+
+.dashed-line {
+    border-top: 2px dashed #000000;
+    width: 80px;
+    margin: 0 10px;
+    /* 필요시 약간의 여백을 추가 */
+}
+
 .top-bar {
     display: flex;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
