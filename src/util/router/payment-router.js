@@ -13,19 +13,19 @@ import ParticipationDetail from "../../components/participation/ParticipationDet
 
 export default [
     {
-        path: "/purchase/step10/:id",
+        path: "/purchase/choose/:id",
         name: "ChooseReward",
         component: ChooseReward,
         props: true,
     },
     {
-        path: "/purchase/step20/:id",
+        path: "/purchase/reserve/:id",
         name: "ReservePayment",
         component: ReservePayment,
         props: true,
     },
     {
-        path: "/purchase/step30/:id",
+        path: "/purchase/complete/:id",
         name: "CompletePayment",
         component: CompletePayment,
         props: true,
@@ -75,12 +75,12 @@ export default [
         ]
     },
     {
-        path: '/participation',
+        path: '/mywadiz/info/participation',
         name: 'Participation',
         component: Participation,
     },
     {
-        path: '/participation/:id',
+        path: '/mywadiz/info/participation/:id',
         name: 'ParticipationDetail',
         component: ParticipationDetail,
     },
