@@ -45,7 +45,7 @@ const checkScroll = () => {
 onMounted(() => {
     // Check if payment is successful and redirect if needed
     if (paymentStore.isPaymentSuccessful) {
-        router.push('/purchase/step30/:id');
+        router.push('/purchase/complete/:id');
         paymentStore.resetPaymentStatus();
     }
     window.addEventListener('scroll', checkScroll)
