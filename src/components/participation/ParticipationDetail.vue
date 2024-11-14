@@ -151,7 +151,7 @@
                 리워드 발송에 대해 발생한 이슈는 프로젝트 상세 페이지 - 환불・정책 탭에 명시한 정책을 따릅니다.
             </p>
             <button class="back-button">
-                <router-link to="/participation">목록으로 돌아가기</router-link>
+                <router-link to="/mywadiz/info/participation">목록으로 돌아가기</router-link>
             </button>
         </div>
     </div>
@@ -185,7 +185,7 @@ function cancelReservation() {
     // 결제 예약 취소 로직 추가
     console.log("결제 예약 취소됨");
     showCancelModal.value = false; // 모달 닫기
-    router.push('/participation');   // '/participate'로 라우팅
+    router.push('/mywadiz/info/participation');   // '/participate'로 라우팅
 }
 </script>
 
