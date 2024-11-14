@@ -37,7 +37,7 @@
       class="sub-category-container"
       v-if="shouldShowSubCategories"
       @mouseenter="handleSubCategoryMouseEnter" 
-      @mouseleave="handleSubCategoryMouseLeave" 
+      @mouseleave="handleSubCategoryMouseLeave"
     >
       <div class="container-sm">
         <ul class="sub-category-list">
@@ -91,17 +91,23 @@ export default {
       fetchSubCategories(parentId);
     };
 
-    const handleNavItemMouseLeave = () => {
-      isHoveringNavItem.value = false;
-    };
-
     const handleSubCategoryMouseEnter = () => {
       isHoveringSubCategory.value = true;
     };
 
     const handleSubCategoryMouseLeave = () => {
+      isHoveringNavItem.value = false;
       isHoveringSubCategory.value = false;
     };
+
+    const handleNavItemMouseLeave = () => {
+      setTimeout(() => {
+        if (!isHoveringSubCategory.value) {
+          isHoveringNavItem.value = false;
+        }
+      }, 300); // 100ms 지연
+    };
+
 
     const setActiveCategory = (categoryId) => {
       activeCategory.value = categoryId;
@@ -136,6 +142,7 @@ export default {
 
 .sub-category-container {
   width: 100%;
+  min-height: 20px;
   background-color: #f8f9fa;
   padding: 10px 20px;
   position: absolute;

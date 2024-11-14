@@ -71,7 +71,7 @@ import { useRouter } from 'vue-router'
 import axios from 'axios'
 import defaultThumbnail from '../../assets/default_thumbnail.jpeg'
 
-const router = useRouter()
+const router = useRouter();
 
 const newFundingList = ref([])
 const topFundingList = ref([])
@@ -109,7 +109,7 @@ const handleImageError = (event) => {
 }
 
 const redirectToFundingDetail = (fundingId) => {
-    router.push(`/funding/detail/${fundingId}`)
+    router.push(`/funding/${fundingId}`)
 }
 </script>
 
