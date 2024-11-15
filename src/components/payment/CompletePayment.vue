@@ -1,5 +1,5 @@
 <template>
-    
+
 
     <div class="top-bar">
         <RouterLink :to="`/funding/detail/${id}`">
@@ -26,7 +26,7 @@
                 <p class="fw-bold">나만 알고 있기 아까운 프로젝트라면?</p>
                 <p>친구에게 소개하고 | 포인트를 받아보세요</p>
             </div>
-            <RouterLink to="/mywadiz/info/participation">
+            <RouterLink to="/mywadiz/supporter/participation">
                 <button class="next-button">다음</button>
             </RouterLink>
 
@@ -79,15 +79,29 @@
 
 <script setup>
 import { onMounted, ref } from 'vue';
-import { useRouter } from 'vue-router';
+import { useRouter, useRoute } from 'vue-router';
 import { usePaymentStore } from '../../util/store/paymentStore';
 
 defineProps(['id']); // id를 명시적으로 props로 정의
 
+const route = useRoute();
 const router = useRouter();
 const paymentStore = usePaymentStore();
 
 const steps = ref(["리워드 선택", "결제 화면", "결제 완료"]);
+
+// 쿼리 파라미터로 전달된 결제 상태와 ID 확인
+const paymentStatus = route.query.status;  // success or failed
+const paymentId = route.params.id;  // 결제 ID
+
+console.log("결제 상태:", paymentStatus);
+console.log("결제 ID:", paymentId);
+
+if (paymentStatus === 'success') {
+    alert('결제가 성공적으로 완료되었습니다!');
+} else {
+    alert('결제가 실패하였습니다. 다시 시도해주세요.');
+}
 
 onMounted(() => {
     // 결제 성공 상태 확인

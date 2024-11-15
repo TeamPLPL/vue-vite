@@ -77,6 +77,7 @@ const setMainCategories = async () => {
     }
   } catch (error) {
     console.error("API 요청 중 오류 발생:", error);
+
   }
 };
 
@@ -181,6 +182,7 @@ const handleSubCategoryClick = (subCategoryId) => {
 
 .sub-category-container {
   width: 100%;
+  min-height: 20px;
   background-color: #f8f9fa;
   padding: 10px 0;
   position: absolute;

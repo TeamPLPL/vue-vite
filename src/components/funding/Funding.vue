@@ -7,6 +7,7 @@
                     <component :is="Component" :fundingId="fundingId" />
                 </RouterView>
                 <Address />
+
             </div>
 
             <!-- 우측 사이드바 -->
@@ -84,11 +85,13 @@
 <script setup>
 import { ref, provide, onMounted } from 'vue';
 import { useRoute } from 'vue-router';
+
 import apiWrapper from '../../util/axios/axios';
 import defaultThumbnail from '../../assets/default_thumbnail.jpeg'
 import defaultProfile from '../../assets/default_profile.png'
 
 import Address from '../common/Address.vue'
+
 
 const route = useRoute(); // 현재 경로 정보를 가져오기 위해 useRoute 사용
 
@@ -116,12 +119,15 @@ onMounted(async () => {
     const [data, rewards] = await Promise.all([
         apiWrapper.fetchFundingData(fundingId.value),
         apiWrapper.fetchRewardList(fundingId.value)
+
     ])
 
     fundingData.value = data
     rewardList.value = rewards
+
     console.log("data: " + data)
     console.log("rewards: " + rewards)
+
 
     // 태그들 변환해서 담기
     tagList.value = fundingData.value.fundingTag.split(',').map(tag => tag.trim());
@@ -130,7 +136,7 @@ onMounted(async () => {
     fundingEndDate.value = formatDate(new Date(fundingData.value.fundingEndDate));
 
     leftDate.value = Math.ceil((fundingData.value.value - new Date()) / (1000 * 60 * 60 * 24));
-    console.log(leftDate)
+
 
     wishlist.value = data.isWishlist
 
@@ -167,6 +173,7 @@ function formatDate(date) {
 #funding {
     padding: 0;
     padding-bottom: 20px;
+
 }
 
 .main-content {
@@ -176,6 +183,7 @@ function formatDate(date) {
 
 #side-container {
     /* min-width: 370px; */
+
     padding: 0;
     text-align: justify;
 }
