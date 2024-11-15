@@ -151,7 +151,7 @@
                 리워드 발송에 대해 발생한 이슈는 프로젝트 상세 페이지 - 환불・정책 탭에 명시한 정책을 따릅니다.
             </p>
             <button class="back-button">
-                <router-link to="/mywadiz/info/participation">목록으로 돌아가기</router-link>
+                <router-link to="/mywadiz/supporter/participation">목록으로 돌아가기</router-link>
             </button>
         </div>
     </div>

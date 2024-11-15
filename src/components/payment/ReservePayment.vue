@@ -31,11 +31,30 @@
             <span>추가 후원금</span>
             <span>{{ donationAmount.toLocaleString() }}원</span>
         </li>
+        <li v-if="selectedCoupon" class="d-flex justify-content-between text-danger">
+            <span>쿠폰 할인 ({{ selectedCoupon.discountRate }}%)</span>
+            <span>-{{ ((totalPrice * selectedCoupon.discountRate) / 100).toLocaleString() }}원</span>
+        </li>
         <li class="d-flex justify-content-between fw-bold">
             <span>총 결제 금액</span>
             <span>{{ wholePrice.toLocaleString() }}원</span>
         </li>
     </ul>
+
+    <div class="d-flex input-group mb-3">
+        <h6>쿠폰 사용</h6>
+        <br />
+        <select v-model="selectedCoupon" class="form-select">
+            <option disabled value="">쿠폰을 선택하세요</option>
+            <option v-for="coupon in coupons" :key="coupon.id" :value="coupon">
+                {{ coupon.couponName }} ({{ coupon.discountRate }}% 할인)
+            </option>
+        </select>
+        <p v-if="selectedCoupon">
+            선택된 쿠폰: {{ selectedCoupon.couponName }} ({{ selectedCoupon.discountRate }}%)
+        </p>
+    </div>
+
 
     <hr />
 
@@ -64,7 +83,7 @@
     <hr />
 
     <h5 class="fw-bold">결제 방법</h5>
-    <div class="form-check mb-3">
+    <!-- <div class="form-check mb-3">
         <input class="form-check-input" type="radio" name="paymentMethod" id="npay" value="naverpayCard"
             v-model="paymentMethod" />
         <label class="form-check-label" for="npay">네이버페이</label>
@@ -73,9 +92,9 @@
         <input class="form-check-input" type="radio" name="paymentMethod" id="kpay" value="kakaopayCard"
             v-model="paymentMethod" />
         <label class="form-check-label" for="kpay">카카오페이</label>
-    </div>
+    </div> -->
     <div class="form-check mb-3">
-        <input class="form-check-input" type="radio" name="paymentMethod" id="creditCard" value="CARD"
+        <input class="form-check-input" type="radio" name="paymentMethod" id="creditCard" value="card"
             v-model="paymentMethod" />
         <label class="form-check-label" for="creditCard">신용/체크카드</label>
     </div>
@@ -114,6 +133,11 @@ const authStore = useAuthStore();
 const router = useRouter();
 
 const props = defineProps(['id']); // props로 id 값을 받음
+
+const userId = ref(null); // 가져온 사용자 ID 저장
+const coupons = ref([]); // 사용자 쿠폰 목록 저장
+
+const selectedCoupon = ref(null);
 
 const steps = ref(["리워드 선택", "결제 화면", "결제 완료"]);
 const purchaseStore = usePurchaseStore();
@@ -172,7 +196,14 @@ const selectedRewards = computed(() => purchaseStore.selectedRewards);
 const totalPrice = computed(() => purchaseStore.totalPrice);
 const donationAmount = computed(() => purchaseStore.donationAmount);
 const deliveryFee = computed(() => purchaseStore.deliveryFee);
-const wholePrice = computed(() => totalPrice.value + donationAmount.value + deliveryFee.value);
+const wholePrice = computed(() => {
+    if (selectedCoupon.value) {
+        const discount = (totalPrice.value * selectedCoupon.value.discountRate) / 100;
+        return totalPrice.value + donationAmount.value + deliveryFee.value - discount;
+    }
+    return totalPrice.value + donationAmount.value + deliveryFee.value;
+});
+
 
 // 서버로 가는지 테스트
 const testFunction = async () => {
@@ -185,6 +216,57 @@ const testFunction = async () => {
     }
 }
 
+// async function fetchUserInfo() {
+//     try {
+//         const token = authStore.getJwtToken();
+
+//         if (!token) {
+//             console.error('JWT 토큰이 없습니다.');
+//             return;
+//         }
+
+//         const response = await apiWrapper.postData('/user/user-info', {}, {
+//             headers: {
+//                 Authorization: `Bearer ${token}`
+//             }
+//         });
+
+//         userId.value = response.data.id; // User ID 가져오기
+//         console.log('가져온 User ID:', userId.value);
+
+//         // User ID로 쿠폰 목록 조회
+//         await fetchUserCoupons();
+//     } catch (error) {
+//         console.error('사용자 정보 가져오기 실패:', error);
+//     }
+// }
+
+const fetchUserCoupons = async () => {
+    try {
+        const token = authStore.getJwtToken(); // JWT 토큰 가져오기
+
+        if (!token) {
+            console.error('JWT 토큰이 없습니다.');
+            return;
+        }
+
+        console.log('JWT 토큰이 존재합니다!');
+
+        // const response = await apiWrapper.getData('/api/coupons/user', {
+        //     // headers: { // headers 객체 안에 Authorization 설정
+        //     //     Authorization: `Bearer ${token}`,
+        //     // },
+        //     Authorization: `Bearer ${token}`,
+        // });
+
+        const response = await apiWrapper.getData('/api/coupons/user');
+        coupons.value = response;
+        console.log('사용자 쿠폰 목록:', coupons.value);
+        console.log('사용자 ID', coupons.value.id)
+    } catch (error) {
+        console.error('쿠폰 조회 실패:', error);
+    }
+};
 
 async function clientAuth() {
     purchaseStore.incrementOrderId(); // 에러 시에도 호출
@@ -197,18 +279,18 @@ async function clientAuth() {
     try {
         const paymentData = {
             // userId: userInfo.value?.id,
-            userId: 1, // 일단 더미로 userId 넣기
+            // userId: 1, // 일단 더미로 userId 넣기
             addressId: 1, // 예시로 기본 주소 ID
             fundingId: props.id,
-            couponId: null,
+            couponId: selectedCoupon.value ? selectedCoupon.value.id : null, // 선택된 쿠폰 ID 추가,
             amount: wholePrice.value,
             phoneNum: phoneNumber.value,
             receiverName: recipientName.value,
             deliveryRequest: deliveryRequest.value,
             methodType: paymentMethod.value,
-            cardNumber: paymentMethod.value === 'CARD' ? cardNumber.value : null,
-            thirdPartyId: paymentMethod.value !== 'CARD' ? thirdPartyId.value : null,
-            thirdPartyPw: paymentMethod.value !== 'CARD' ? thirdPartyPw.value : null,
+            cardNumber: paymentMethod.value === 'card' ? cardNumber.value : null,
+            thirdPartyId: paymentMethod.value !== 'card' ? thirdPartyId.value : null,
+            thirdPartyPw: paymentMethod.value !== 'card' ? thirdPartyPw.value : null,
             rewards: selectedRewards.value.reduce((acc, reward) => {
                 acc[reward.rewardId] = { rewardId: reward.rewardId, rewardName: reward.rewardName, quantity: reward.quantity };
                 return acc;
@@ -234,23 +316,24 @@ async function clientAuth() {
             returnUrl: `http://localhost:8080/api/payment/complete?id=${props.id}`,
             fnError: function (result) {
                 alert('결제 오류: ' + result.errorMsg);
-                purchaseStore.incrementOrderId();
-            }
-        },
-            function onSuccess(response) {
-                console.log("결제 성공:", response);
-
-                // 3. 성공적으로 거래 완료 시 paymentStatus 업데이트
-                updatePaymentStatus(registerResponse.data.id, 'success');
-                alert('결제가 성공적으로 완료되었습니다!');
-            },
-            function onFailure(error) {
-                console.log("결제 실패:", error);
-
-                // 4. 실패 시 paymentStatus 업데이트
                 updatePaymentStatus(registerResponse.data.id, 'failed');
-                alert('결제가 실패했습니다. 다시 시도해주세요.');
-            });
+            }
+        }),
+            await updatePaymentStatus(registerResponse.data.id, 'complete');
+        // function onSuccess(response) {
+        //     console.log("결제 성공:", response);
+
+        //     // 3. 성공적으로 거래 완료 시 paymentStatus 업데이트
+        //     updatePaymentStatus(registerResponse.data.id, 'success');
+        //     alert('결제가 성공적으로 완료되었습니다!');
+        // },
+        // function onFailure(error) {
+        //     console.log("결제 실패:", error);
+
+        //     // 4. 실패 시 paymentStatus 업데이트
+        //     updatePaymentStatus(registerResponse.data.id, 'failed');
+        //     alert('결제가 실패했습니다. 다시 시도해주세요.');
+        // });
 
     } catch (error) {
         console.error('결제 등록 실패:', error.response || error);
@@ -336,18 +419,30 @@ function loadScript(url, id) {
 }
 
 onMounted(async () => {
-    const token = authStore.getJwtToken();
-    if (!token) {
-        console.log("Token is null, fetching from localStorage");
-        authStore.setJwtToken(localStorage.getItem('jwtToken')); // 다시 설정
-        console.log(localStorage.getItem('jwtToken'));
-    } else {
-        console.log(token);
-    }
+    // const token = authStore.getUserInfo();
+    // if (!token) {
+    //     console.log("Token is null, fetching from localStorage");
+    //     authStore.setJwtToken(localStorage.getItem('jwtToken')); // 다시 설정
+    //     console.log(localStorage.getItem('jwtToken'));
+    //     console.log(authStore.getUserInfo());
+    // } else {
+    //     console.log(token);
+    // }
 
 
-    console.log('Initial Order ID:', purchaseStore.orderId); // 초기 Order ID 확인
+    // console.log('Initial Order ID:', purchaseStore.orderId); // 초기 Order ID 확인
+    // await fetchUserCoupons();
+
     try {
+        const token = authStore.getJwtToken();
+
+        if (!token) {
+            console.error("JWT 토큰이 없습니다.");
+            router.push('/login'); // 로그인 페이지로 리다이렉트
+            return;
+        }
+        await fetchUserCoupons();
+
         await loadScript("https://pay.nicepay.co.kr/v1/js/", "nicepay-script");
         // 추가적인 스크립트를 로드하려면 같은 방식으로 호출
 
