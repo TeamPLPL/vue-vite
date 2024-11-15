@@ -1,5 +1,5 @@
 <template>
-  <div class="container mt-5 profile-settings-container">
+  <div class="container mt-2  profile-settings-container">
     <!-- 프로필 정보 설정 -->
     <div class="text-start">
       <h4 class="fw-bold">프로필 정보 설정</h4>

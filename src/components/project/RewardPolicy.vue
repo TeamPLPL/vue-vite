@@ -1,7 +1,11 @@
 <template>
   <div class="container-fluid">
     <div class="row">
-      <ProjectSidebar />
+      <div class="col-lg-3 border-end d-none d-lg-block sidebar-fixed-width">
+        <!-- ProjectSidebar에 projectId 바인딩 -->
+        <ProjectSidebar :projectId="projectId" />
+        <button class="btn btn-primary w-100">저장 하기</button>
+      </div>
 
       <!-- Content -->
       <div class="col-lg-9 p-4">
@@ -10,7 +14,6 @@
           서포터님들에게 제공할 리워드 정보를 입력해주세요. <br>
           허위 사실을 기재하거나, 상품 정보를 고시하지 않는 경우 <br>
           모든 책임은 메이커님에게 있으므로 정확한 정보를 입력해주세요.
-
         </p>
 
         <!-- 리워드 기본 정책 -->
@@ -52,29 +55,29 @@
           <label class="mt-4">제조연월</label>
           <input type="text" class="form-control w-50 mt-2" placeholder="예) 2018년 10월">
         </div>
-
-
-
-
-
       </div>
     </div>
   </div>
 </template>
 
 <script>
+import { defineComponent } from "vue";
+import { useRoute } from "vue-router";
 import ProjectSidebar from "./projectComponents/ProjectSidebar.vue";
 
-export default {
+export default defineComponent({
   name: "RewardForm",
   components: {
     ProjectSidebar,
   },
-
-};
+  props: {
+    projectId: {
+      type: String,
+      required: true,
+    },
+  },
+});
 </script>
-
-
 
 <style scoped>
 </style>

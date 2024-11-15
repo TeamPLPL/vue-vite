@@ -9,7 +9,7 @@
           <!-- 로그인 상태일 때 표시 -->
           <template v-if="isLoggedIn">
             <li class="nav-item">
-              <img src="https://static.wadiz.kr/assets/icon/profile-icon-5.png" class="profile" @click="profile">
+              <img src="https://static.wadiz.kr/assets/icon/profile-icon-5.png" class="profile" style="cursor:pointer;" @click="profile">
             </li>
             <li class="nav-item">
               <button type="button" class="btn btn-light" @click="logout">로그아웃</button>
@@ -37,8 +37,8 @@
 
 <script>
 import { useRouter } from 'vue-router';
-import axios from 'axios';
-import { ref, computed, onMounted } from 'vue';
+import apiWrapper from "../../util/axios/axios.js"
+import { ref,  onMounted } from 'vue';
 
 export default {
   setup() {
@@ -72,7 +72,42 @@ export default {
       router.push('/'); // 로그아웃 후 메인 페이지로 이동
     };
 
-    // 다른 탭이나 창에서 localStorage가 변경될 때 이를 감지하여 상태를 업데이트
+    const createProject = () => {
+      if (isLoggedIn.value) {
+        // 프로젝트 생성 여부 확인
+        if (confirm('프로젝트를 생성하시겠습니까?')) {
+          const startProject = async () => {
+            try {
+              // 확인 후, 서버로 프로젝트 생성 요청
+              const response = await apiWrapper.getData('/api/studio/start');
+              const projectId = response.projectId;
+
+              // 응답으로 projectId 반환 후, 프로젝트 관리 페이지로 이동
+              console.log('API 응답:', response);
+              console.log('projectId 응답:', projectId);
+              alert(`프로젝트가 생성되었습니다! 프로젝트 ID: ${projectId}`);
+              router.push(`/studio/${projectId}/project`);
+            } catch (error) {
+              console.error('프로젝트 시작 오류:', error);
+            }
+          };
+
+          startProject();
+        } else {
+          console.log('프로젝트 생성 취소');
+        }
+      } else {
+        router.push('/login');
+      }
+    };
+
+    const profile = () => {
+      if (isLoggedIn.value) {
+        router.push('/mywadiz/supporter')
+      }
+    }
+
+    // 다른 탭이나 창에서 localStorage 변경 시 상태 업데이트
     onMounted(() => {
       window.addEventListener('storage', (event) => {
         if (event.key === 'jwtToken') {
@@ -81,14 +116,6 @@ export default {
       });
     });
 
-    const createProject = () => {
-      if (isLoggedIn) {
-        router.push('/project/create'); // 로그인된 상태에서의 경로
-      } else {
-        router.push('/login'); // 로그아웃 상태에서는 로그인 페이지로
-      }
-    };
-
     return {
       isLoggedIn,
       login,
@@ -96,6 +123,7 @@ export default {
       logout,
       main,
       createProject,
+      profile
     };
   }
 };

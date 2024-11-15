@@ -1,7 +1,11 @@
 <template>
   <div class="container-fluid">
     <div class="row">
-      <ProjectSidebar />
+      <div class="col-lg-3 border-end d-none d-lg-block sidebar-fixed-width">
+        <!-- ProjectSidebar에 projectId 바인딩 -->
+        <ProjectSidebar :projectId="projectId" />
+        <button class="btn btn-primary w-100">저장 하기</button>
+      </div>
 
       <!-- Content -->
       <div class="col-lg-9 p-4">
@@ -31,7 +35,7 @@
         <!-- 리워드 리스트 -->
         <div v-for="(reward, index) in rewards" :key="index" class="mb-3 p-3 border rounded" style="width: 50%;">
           <div class="text-start">
-            <h5 class="fw-bold"> {{reward.price }} 원</h5>
+            <h5 class="fw-bold"> {{ reward.price }} 원</h5>
             <p><strong>{{ reward.rewardName }}</strong></p>
             <p>{{ reward.rewardDescription }}</p>
             <p>
@@ -119,7 +123,7 @@
                           value="yes"
                           id="deliveryYes"
                       />
-                      <label class="form-check-label" for="deliveryYes">배송비 있음 <br> <span class="small text-secondary">(택배로 리워드를 전달해요.)</span></label>
+                      <label class="form-check-label" for="deliveryYes">배송비 있음</label>
                     </div>
                     <div class="form-check mt-2">
                       <input
@@ -129,7 +133,7 @@
                           value="no"
                           id="deliveryNo"
                       />
-                      <label class="form-check-label" for="deliveryNo">배송비 없음 <br> <span class="small text-secondary">(배송비 없이 리워드를 전달해요.)</span></label>
+                      <label class="form-check-label" for="deliveryNo">배송비 없음</label>
                     </div>
                   </div>
 
@@ -165,13 +169,20 @@
 </template>
 
 <script>
-import lib from '../../util/scripts/lib.js';
+import { defineComponent } from "vue";
+import { useRoute } from "vue-router";
 import ProjectSidebar from "./projectComponents/ProjectSidebar.vue";
 
-export default {
+export default defineComponent({
   name: "RewardForm",
   components: {
     ProjectSidebar,
+  },
+  props: {
+    projectId: {
+      type: String,
+      required: true,
+    },
   },
   data() {
     return {
@@ -197,15 +208,15 @@ export default {
     saveReward() {
       if (this.editingIndex === null) {
         // 새로 추가
-        this.rewards.push({...this.newReward});
+        this.rewards.push({ ...this.newReward });
       } else {
         // 기존 리워드 수정
-        this.rewards.splice(this.editingIndex, 1, {...this.newReward});
+        this.rewards.splice(this.editingIndex, 1, { ...this.newReward });
       }
       this.closeModal();
     },
     editReward(index) {
-      this.newReward = {...this.rewards[index]};
+      this.newReward = { ...this.rewards[index] };
       this.showModal = true;
       this.editingIndex = index;
     },
@@ -226,25 +237,11 @@ export default {
         deliveryFee: 0,
       };
     },
-    formatNumber(value) {
-      return lib.getNumberFormatted(value);
-    }
   },
-};
+});
 </script>
 
-
-
 <style scoped>
-.card {
-  border: 1px solid #ddd;
-  border-radius: 8px;
-}
-
-.card-body {
-  padding: 16px;
-}
-
 .modal {
   background: rgba(0, 0, 0, 0.5); /* 모달 뒷배경 어둡게 */
 }

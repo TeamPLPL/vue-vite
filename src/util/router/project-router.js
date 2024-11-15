@@ -7,39 +7,44 @@ import RewardPolicy from "../../components/project/RewardPolicy.vue";
 
 export default [
     {
-        path: '/studio/:id/project',
-        name : 'Funding',
+        path : '/studio/:projectId/project/',
         component: Funding,
+        props: true,
         meta: {hideHeader: true}
     },
     {
-        path: '/studio/:id/project/intro',
+        path: '/studio/:projectId/project/intro',
         name : 'Intro',
         component: Intro,
+        props: true,
         meta: {hideHeader: true}
     },
     {
-        path : '/studio/:id/project/schedule',
+        path : '/studio/:projectId/project/schedule',
         name : 'Schedule',
         component: Schedule,
+        props: true,
         meta: {hideHeader: true}
     },
     {
-        path : '/studio/:id/project/info',
+        path : '/studio/:projectId/project/info',
         name : 'projectInfo',
         component: ProjectInfo,
+        props: true,
         meta: {hideHeader: true}
     },
     {
-        path: '/studio/:id/project/reward',
+        path: '/studio/:projectId/project/reward',
         name : 'reward',
         component: Reward,
+        props: true,
         meta: {hideHeader: true}
     },
     {
-        path: '/studio/:id/project/policy',
+        path: '/studio/:projectId/project/policy',
         name: 'policy',
         component: RewardPolicy,
+        props: true,
         meta: {hideHeader: true}
     }
 ]

@@ -21,7 +21,7 @@
         <div class="col-md-9">
           <div class="content-area">
             <!-- 여기에 오른쪽의 다른 콘텐츠를 배치할 수 있습니다 -->
-            <p>오른쪽 콘텐츠 영역입니다.</p>
+            <p></p>
           </div>
         </div>
       </div>

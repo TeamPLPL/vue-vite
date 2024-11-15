@@ -10,9 +10,9 @@
           @mouseenter="handleNavItemMouseEnter(item.mainCategoryId)"
           @mouseleave="handleNavItemMouseLeave"
         >
-          <a 
-            class="nav-link" 
-            href="#" 
+          <a
+            class="nav-link"
+            href="#"
             :class="{ active: activeCategory === item.mainCategoryId }"
             @click.prevent="setActiveCategory(item.mainCategoryId)"
           >
@@ -36,7 +36,7 @@
     <div
       class="sub-category-container"
       v-if="shouldShowSubCategories"
-      @mouseenter="handleSubCategoryMouseEnter" 
+      @mouseenter="handleSubCategoryMouseEnter"
       @mouseleave="handleSubCategoryMouseLeave"
     >
       <div class="container-sm">
@@ -64,7 +64,7 @@ export default {
     const isHoveringSubCategory = ref(false);
     const activeCategory = ref(null);
 
-    const shouldShowSubCategories = computed(() => 
+    const shouldShowSubCategories = computed(() =>
       subCategoryList.value.length > 0 && (isHoveringNavItem.value || isHoveringSubCategory.value)
     );
 
