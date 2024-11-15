@@ -6,6 +6,8 @@
                 <RouterView v-slot="{ Component }">
                     <component :is="Component" :fundingId="fundingId" />
                 </RouterView>
+                <Address />
+
             </div>
 
             <!-- 우측 사이드바 -->
@@ -83,9 +85,13 @@
 <script setup>
 import { ref, provide, onMounted } from 'vue';
 import { useRoute } from 'vue-router';
-import axios from 'axios';
+
+import apiWrapper from '../../util/axios/axios';
 import defaultThumbnail from '../../assets/default_thumbnail.jpeg'
 import defaultProfile from '../../assets/default_profile.png'
+
+import Address from '../common/Address.vue'
+
 
 const route = useRoute(); // 현재 경로 정보를 가져오기 위해 useRoute 사용
 
@@ -108,42 +114,20 @@ const defaultImageUrl = ref(defaultThumbnail);
 const defaultProfileUrl = ref(defaultProfile);
 
 
-
-// 펀딩 프로젝트 디테일 정보(펀딩 메이커 DTO 포함)
-// 리워드 정보 리스트
-
-const fetchFundingData = async (id) => {
-    try {
-        const response = await axios.post(`/api/funding/funding-data/${id}`)
-        console.log(response.data)
-        return response.data
-    } catch (error) {
-        console.error(`펀딩 프로젝트 ID: ${id}의 데이터 요청 중 오류 발생\n`, error)
-        return null
-    }
-}
-
-const fetchRewardList = async (id) => {
-    try {
-        const response = await axios.get(`/api/api/reward-list/all/${id}`)
-        console.log(response.data)
-        return response.data
-    } catch (error) {
-        console.error(`펀딩 프로젝트 ID: ${id}의 리워드 리스트 요청 중 오류 발생\n`, error)
-        return []
-    }
-};
-
-
 onMounted(async () => {
     // Promise.all을 사용하여 두 API 호출을 병렬로 실행
     const [data, rewards] = await Promise.all([
-        fetchFundingData(fundingId.value),
-        fetchRewardList(fundingId.value)
+        apiWrapper.fetchFundingData(fundingId.value),
+        apiWrapper.fetchRewardList(fundingId.value)
+
     ])
 
     fundingData.value = data
     rewardList.value = rewards
+
+    console.log("data: " + data)
+    console.log("rewards: " + rewards)
+
 
     // 태그들 변환해서 담기
     tagList.value = fundingData.value.fundingTag.split(',').map(tag => tag.trim());
@@ -152,6 +136,7 @@ onMounted(async () => {
     fundingEndDate.value = formatDate(new Date(fundingData.value.fundingEndDate));
 
     leftDate.value = Math.ceil((fundingData.value.value - new Date()) / (1000 * 60 * 60 * 24));
+
 
     wishlist.value = data.isWishlist
 
@@ -187,6 +172,8 @@ function formatDate(date) {
 <style>
 #funding {
     padding: 0;
+    padding-bottom: 20px;
+
 }
 
 .main-content {
@@ -195,7 +182,8 @@ function formatDate(date) {
 }
 
 #side-container {
-    min-width: 370px;
+    /* min-width: 370px; */
+
     padding: 0;
     text-align: justify;
 }
