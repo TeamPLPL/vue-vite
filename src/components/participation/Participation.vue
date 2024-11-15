@@ -23,7 +23,7 @@
                 <p class="byline">by {{ item.author }}</p>
                 <div class="cancel-link">
                     <button @click="showCancelModal = true" class="change-button">결제 예약 취소</button>
-                    <router-link :to="`/mywadiz/info/participation/${item.id}`" class="details-link">상세보기 &gt;</router-link>
+                    <router-link :to="`/mywadiz/supporter/participation/${item.id}`" class="details-link">상세보기 &gt;</router-link>
                 </div>
             </div>
         </div>

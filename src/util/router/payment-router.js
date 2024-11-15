@@ -75,12 +75,12 @@ export default [
         ]
     },
     {
-        path: '/mywadiz/info/participation',
+        path: '/mywadiz/supporter/participation',
         name: 'Participation',
         component: Participation,
     },
     {
-        path: '/mywadiz/info/participation/:id',
+        path: '/mywadiz/supporter/participation/:id',
         name: 'ParticipationDetail',
         component: ParticipationDetail,
     },
