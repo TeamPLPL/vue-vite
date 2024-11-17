@@ -4,7 +4,7 @@
       <div class="col-lg-3 border-end d-none d-lg-block sidebar-fixed-width">
         <!-- ProjectSidebar에 projectId 바인딩 -->
         <ProjectSidebar :projectId="projectId" />
-        <button class="btn btn-primary w-100">저장 하기</button>
+        <button class="btn btn-primary w-100" @click="saveProject">저장 하기</button>
       </div>
 
       <!-- Content -->
@@ -32,28 +32,62 @@
           </ol>
         </div>
 
-        <!-- 리워드 세부 사항 -->
         <div class="reward-details text-start mb-4">
           <label class="mt-4">품명 및 모델명</label>
-          <input type="text" class="form-control w-50 mt-2" placeholder="내용을 입력해 주세요">
+          <input
+              type="text"
+              class="form-control w-50 mt-2"
+              v-model="policy.modelName"
+              placeholder="내용을 입력해 주세요"
+          />
 
           <label class="mt-4">제품 소재</label>
-          <input type="text" class="form-control w-50 mt-2" placeholder="내용을 입력해 주세요">
+          <input
+              type="text"
+              class="form-control w-50 mt-2"
+              v-model="policy.productMaterial"
+              placeholder="내용을 입력해 주세요"
+          />
 
           <label class="mt-4">색상</label>
-          <input type="text" class="form-control w-50 mt-2" placeholder="내용을 입력해 주세요">
+          <input
+              type="text"
+              class="form-control w-50 mt-2"
+              v-model="policy.color"
+              placeholder="내용을 입력해 주세요"
+          />
 
           <label class="mt-4">치수</label>
-          <input type="text" class="form-control w-50 mt-2" placeholder="내용을 입력해 주세요">
+          <input
+              type="text"
+              class="form-control w-50 mt-2"
+              v-model="policy.field"
+              placeholder="내용을 입력해 주세요"
+          />
 
           <label class="mt-4">제조자, 수입품의 경우 수입자를 함께 표기</label>
-          <input type="text" class="form-control w-50 mt-2" placeholder="내용을 입력해 주세요">
+          <input
+              type="text"
+              class="form-control w-50 mt-2"
+              v-model="policy.manufacturer"
+              placeholder="내용을 입력해 주세요"
+          />
 
           <label class="mt-4">제조국</label>
-          <input type="text" class="form-control w-50 mt-2" placeholder="내용을 입력해 주세요">
+          <input
+              type="text"
+              class="form-control w-50 mt-2"
+              v-model="policy.manufacturingCountry"
+              placeholder="내용을 입력해 주세요"
+          />
 
           <label class="mt-4">제조연월</label>
-          <input type="text" class="form-control w-50 mt-2" placeholder="예) 2018년 10월">
+          <input
+              type="text"
+              class="form-control w-50 mt-2"
+              v-model="policy.manufactureDate"
+              placeholder="예) 2018년 10월"
+          />
         </div>
       </div>
     </div>
@@ -64,6 +98,7 @@
 import { defineComponent } from "vue";
 import { useRoute } from "vue-router";
 import ProjectSidebar from "./projectComponents/ProjectSidebar.vue";
+import apiWrapper from "../../util/axios/axios.js";
 
 export default defineComponent({
   name: "RewardForm",
@@ -74,6 +109,42 @@ export default defineComponent({
     projectId: {
       type: String,
       required: true,
+    },
+  },
+  data() {
+    return {
+      // 정책 정보 데이터
+      policy: {
+        modelName: "",
+        productMaterial: "",
+        color: "",
+        field: "",
+        manufacturer: "",
+        manufacturingCountry: "",
+        manufactureDate: "",
+      },
+    };
+  },
+  methods: {
+    async saveProject() {
+      try {
+        // 정책 데이터 DTO 매핑
+        const requestBody = { ...this.policy };
+
+        console.log("전송 데이터:", requestBody); // 디버깅용
+
+        // API 호출
+        const response = await apiWrapper.postData(`/api/studio/${this.projectId}/policy`, requestBody);
+
+        if (response.status === 200) {
+          alert("정책 정보가 성공적으로 저장되었습니다.");
+          this.$router.push(`/studio/${this.projectId}/project/`); // 페이지 이동
+          console.log("응답 데이터:", response.data);
+        }
+      } catch (error) {
+        console.error("저장 중 오류 발생:", error);
+        alert("정책 정보 저장 중 오류가 발생했습니다.");
+      }
     },
   },
 });

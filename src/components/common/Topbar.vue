@@ -38,7 +38,7 @@
 <script>
 import { useRouter } from 'vue-router';
 import apiWrapper from "../../util/axios/axios.js"
-import { ref,  onMounted } from 'vue';
+import { ref, onMounted, onUnmounted } from 'vue';
 
 export default {
   setup() {
@@ -107,7 +107,7 @@ export default {
       }
     }
 
-    // 다른 탭이나 창에서 localStorage 변경 시 상태 업데이트
+    // 다른 탭이나 창에서 localStorage 변경 시 상태 업데이트, JWT 상태 확인
     onMounted(() => {
       window.addEventListener('storage', (event) => {
         if (event.key === 'jwtToken') {

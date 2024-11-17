@@ -112,15 +112,15 @@ export default {
       }
     };
 
-    // 네이버 회원가입
     const naverSignup = async () => {
       try {
-        // 네이버 OAuth 인증 URL로 리디렉션
-        window.location.href = "http://localhost:8080/oauth2/authorization/naver";
+        // 동의창을 강제 표시하도록 `prompt` 파라미터 추가
+        window.location.href = "http://localhost:8080/oauth2/authorization/naver?prompt=consent";
       } catch (error) {
         console.error('Naver signup error:', error);
       }
     };
+
 
     // `toRefs`를 사용하여 개별 필드를 템플릿에 바인딩할 수 있도록 반환합니다.
     return {

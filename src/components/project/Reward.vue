@@ -4,7 +4,7 @@
       <div class="col-lg-3 border-end d-none d-lg-block sidebar-fixed-width">
         <!-- ProjectSidebar에 projectId 바인딩 -->
         <ProjectSidebar :projectId="projectId" />
-        <button class="btn btn-primary w-100">저장 하기</button>
+        <button class="btn btn-primary w-100" @click="saveProject">저장 하기</button>
       </div>
 
       <!-- Content -->
@@ -150,6 +150,18 @@
                     </div>
                   </div>
 
+                  <div class="form-group text-start mt-3 w-50">
+                    <label for="limitQuantity">리워드 배송 예상 날짜</label>
+                    <div class="d-flex align-items-center mt-2">
+                      <input
+                          type="date"
+                          class="form-control"
+                          v-model="newReward.deliveryStartDate"
+                          placeholder="0"
+                      />
+                    </div>
+                  </div>
+
                   <div class="mt-4 d-flex justify-content-end">
                     <button type="button" class="btn btn-secondary me-2" @click="closeModal">
                       취소
@@ -172,6 +184,7 @@
 import { defineComponent } from "vue";
 import { useRoute } from "vue-router";
 import ProjectSidebar from "./projectComponents/ProjectSidebar.vue";
+import apiWrapper from "../../util/axios/axios.js";
 
 export default defineComponent({
   name: "RewardForm",
@@ -195,6 +208,7 @@ export default defineComponent({
         limitQuantity: 0,
         deliveryOption: "yes",
         deliveryFee: 0,
+        deliveryStartDate: null, // 배송 예상 날짜
       },
       editingIndex: null, // 현재 수정 중인 리워드의 인덱스
     };
@@ -235,7 +249,36 @@ export default defineComponent({
         limitQuantity: 0,
         deliveryOption: "yes",
         deliveryFee: 0,
+        deliveryStartDate: null, // 초기화
       };
+    },
+    async saveProject() {
+      try {
+        const requestBody = this.rewards.map(reward => ({
+          id: reward.id || null,
+          rewardName: reward.rewardName,
+          price: reward.price,
+          explanation: reward.rewardDescription,
+          deliveryFee: reward.deliveryOption === "yes" ? reward.deliveryFee : 0,
+          // ISO 8601 형식으로 변환
+          deliveryStartDate: reward.deliveryStartDate
+              ? `${reward.deliveryStartDate}T00:00:00`
+              : null,
+          quantityLimit: reward.limitQuantity,
+        }));
+
+        console.log("전송 데이터:", requestBody);
+
+        const response = await apiWrapper.postData(`/api/studio/${this.projectId}/reward`, requestBody);
+
+        if (response.status === 200) {
+          alert("리워드가 성공적으로 저장되었습니다.");
+          this.$router.push(`/studio/${this.projectId}/project/`);
+        }
+      } catch (error) {
+        console.error("저장 중 오류 발생:", error);
+        alert("리워드 저장 중 오류가 발생했습니다.");
+      }
     },
   },
 });
