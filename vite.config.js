@@ -10,11 +10,11 @@ export default defineConfig({
   server: {
     port: 3000,
     proxy: {
-      // '/api': {
-      //   target: 'http://localhost:8080', // 백엔드 프로젝트에서 지정한 주소
-      //   changeOrigin: true,
-      //   rewrite: (path) => path.replace(/^\/api/, '') // `/api`를 제거하고 Spring Boot로 전달
-      // },
+      '/api': {
+        target: 'http://localhost:8080', // 백엔드 프로젝트에서 지정한 주소
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/api/, '') // `/api`를 제거하고 Spring Boot로 전달
+      },
       // NicePay가 /payment/complete로 POST 요청을 보낼 때
       // '/web/wpurchase/reward/complete': {
       //   target: 'http://localhost:3000',

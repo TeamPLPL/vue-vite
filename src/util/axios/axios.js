@@ -207,6 +207,37 @@ const apiWrapper = {
         }
     },
 
+    fetchFundingImgList: async (id) => {
+        try {
+            const response = await apiClient.post(
+                `api/funding/funding-imgs/${id}`,
+                null, // POST 요청의 body (필요 없으면 null)
+                {
+                    headers: {
+                        Accept: "application/json", // 명시적으로 JSON 응답 기대
+                    },
+                }
+            );
+            console.log('Response from server:', response.data);
+            return response.data;
+        } catch (error) {
+            console.error(`펀딩 디테일 이미지 목록 조회 중 오류 발생\n`, error);
+            return null;
+        }
+    },
+
+    fetchFundingInfo: async (id) => {
+        try {
+            const response = await apiClient.get(`api/reward-policy/${id}`);
+            console.log('Response from server 펀딩리워드정보:', response.data);
+            return response.data;
+        } catch (error) {
+            console.error(`펀딩 리워드 정보 및 환불 정책 조회 중 오류 발생\n`, error);
+            return null;
+        }
+    }
+    
+
 };
 
 export default apiWrapper;

@@ -6,8 +6,6 @@
                 <RouterView v-slot="{ Component }">
                     <component :is="Component" :fundingId="fundingId" />
                 </RouterView>
-                <Address />
-
             </div>
 
             <!-- 우측 사이드바 -->
@@ -43,38 +41,37 @@
                         </div>
                     </div>
 
-                    <div id="maker-container" class="border border-light boarder-1 rounded-3 p-3 mt-1">
-                        <div class="row">
-                            <div class="col">
-                                <img :src="getProfileUrl(maker.profileImgUrl)" alt="펀딩 메이커의 프로필 이미지">
-                            </div>
-                            <div class="col">
-                                <div>
-                                    {{ maker.userNick }}
-                                    <!-- 팔로우 시 체크 팔로우 해제 시 플러스 -->
-                                    <img v-if="maker.isFollowing" class="wish" src="../../assets/wish.png"
-                                        alt="찜 되어 있음">
-                                    <img v-else class="wish" src="../../assets/wish-not.png" alt="찜 되어있지 않음">
-                                </div>
+                    <div id="maker-container" class="border border-light boarder-1 rounded-3 p-3 mt-2">
+                        <div class="maker-info">
+                            <img :src="getProfileUrl(maker.profileImgUrl)" alt="펀딩 메이커의 프로필 이미지"
+                                class="maker-profile-img">
+                            <div class="maker-nick">
+                                {{ maker.userNick }}
+                                <img v-if="maker.isFollowing" class="wish" src="../../assets/wish.png" alt="찜 되어 있음">
+                                <img v-else class="wish" src="../../assets/wish-not.png" alt="찜 되어있지 않음">
                             </div>
                         </div>
-                        <div>{{ maker.userContent }}</div>
+                        <div class="mt-2">{{ maker.userContent }}</div>
                     </div>
                 </div>
 
-                <div id="reward-container">
-                    <div>
-                        <div>리워드 선택</div>
-                        <div>진행 기간: {{ fundingStartDate }} ~ {{ fundingEndDate }}</div>
+                <div id="reward-container" class="mt-4">
+                    <div class="reward-header">
+                        <h3 class="reward-title">리워드 선택</h3>
+                        <p class="funding-period">{{ fundingStartDate }} ~ {{ fundingEndDate }}</p>
                     </div>
-                    <div v-for="reward in rewardList" :key="reward.id" class="border border-light boarder-1 rounded-3 p-3">
-                        <div>{{ reward.rewardName }}</div>
-                        <div>{{ reward.price }}</div>
-                        <div>{{ reward.explanation }}</div>
-                        <div>{{ reward.deliveryFee }}</div>
-                        <div>{{ reward.deliveryStartDate }}</div>
-                        <div>{{ reward.quantityLimit }}</div>
-                        <div>{{ reward.supportedCnt }}</div>
+                    <div v-for="reward in rewardList" :key="reward.id" class="reward-item">
+                        <div class="reward-price">{{ reward.price.toLocaleString() }}원 펀딩</div>
+                        <h4 class="reward-name">{{ reward.rewardName }}</h4>
+                        <p class="reward-description">{{ reward.explanation }}</p>
+                        <div class="reward-details">
+                            <p>배송비: {{ reward.deliveryFee.toLocaleString() }}원</p>
+                            <p>리워드 발송 시작일: {{ formatDeliveryDate(reward.deliveryStartDate) }}</p>
+                        </div>
+                        <div class="reward-quantity">
+                            <span class="quantity-left">{{ reward.quantityLimit - reward.supportedCnt }}개 남음</span>
+                            <span class="quantity-total">총 {{ reward.quantityLimit }}개</span>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -90,9 +87,6 @@ import apiWrapper from '../../util/axios/axios';
 import defaultThumbnail from '../../assets/default_thumbnail.jpeg'
 import defaultProfile from '../../assets/default_profile.png'
 
-import Address from '../common/Address.vue'
-
-
 const route = useRoute(); // 현재 경로 정보를 가져오기 위해 useRoute 사용
 
 const fundingId = ref(route.params.id);
@@ -106,12 +100,20 @@ const tagList = ref([]);
 const fundingStartDate = ref();
 const fundingEndDate = ref();
 const leftDate = ref(0);
+provide('fundingStartDate', fundingStartDate)
+provide('fundingEndDate', fundingEndDate)
 
 const wishlist = ref();
 const maker = ref();
 
+const fundingExplanation = ref('');
+provide('fundingExplanation', fundingExplanation);
+
 const defaultImageUrl = ref(defaultThumbnail);
 const defaultProfileUrl = ref(defaultProfile);
+
+const fundingTitle = ref('');
+provide('fundingTitle', fundingTitle)
 
 
 onMounted(async () => {
@@ -125,9 +127,8 @@ onMounted(async () => {
     fundingData.value = data
     rewardList.value = rewards
 
-    console.log("data: " + data)
-    console.log("rewards: " + rewards)
-
+    fundingExplanation.value = fundingData.value.fundingExplanation;
+    fundingTitle.value = fundingData.value.fundingTitle;
 
     // 태그들 변환해서 담기
     tagList.value = fundingData.value.fundingTag.split(',').map(tag => tag.trim());
@@ -135,13 +136,14 @@ onMounted(async () => {
     fundingStartDate.value = formatDate(new Date(fundingData.value.fundingStartDate));
     fundingEndDate.value = formatDate(new Date(fundingData.value.fundingEndDate));
 
-    leftDate.value = Math.ceil((fundingData.value.value - new Date()) / (1000 * 60 * 60 * 24));
-
+    // 남은 날짜 계산 수정
+    const today = new Date();
+    const endDate = new Date(fundingData.value.fundingEndDate);
+    leftDate.value = Math.max(0, Math.ceil((endDate - today) / (1000 * 60 * 60 * 24)));
 
     wishlist.value = data.isWishlist
 
     maker.value = data.makerDTO
-    console.log(maker.value)
 })
 
 const getThumbnailUrl = (url) => {
@@ -167,6 +169,11 @@ function formatDate(date) {
 
     return [year, month, day].join('-');
 }
+
+function formatDeliveryDate(date) {
+    const d = new Date(date);
+    return `${d.getFullYear()}년 ${d.getMonth() + 1}월 ${d.getDate()}일`;
+}
 </script>
 
 <style>
@@ -188,6 +195,29 @@ function formatDate(date) {
     text-align: justify;
 }
 
+.maker-info {
+    display: flex;
+    align-items: center;
+}
+
+.maker-profile-img {
+    width: 70px;
+    height: 70px;
+    border-radius: 50%;
+    margin-right: 15px;
+}
+
+.maker-nick {
+    display: flex;
+    align-items: center;
+    font-size: 17px;
+    font-weight: bold;
+}
+
+.maker-nick img {
+    margin-left: 10px;
+}
+
 .wish,
 .share {
     width: 24px;
@@ -204,5 +234,73 @@ function formatDate(date) {
     position: sticky;
     top: 70px;
     z-index: 1000;
+    background-color: #fff;
+}
+
+.reward-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+    padding-bottom: 15px;
+    border-bottom: 1px solid #e0e0e0;
+}
+
+.reward-title {
+    font-size: 18px;
+    font-weight: bold;
+    margin: 0;
+}
+
+.funding-period {
+    font-size: 13px;
+    color: #90949c;
+    margin: 0;
+}
+
+.reward-item {
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    padding: 20px;
+    margin-bottom: 15px;
+}
+
+.reward-price {
+    font-size: 18px;
+    font-weight: bold;
+    color: #00b2b2;
+    margin-bottom: 10px;
+}
+
+.reward-name {
+    font-size: 16px;
+    font-weight: bold;
+    margin-bottom: 10px;
+}
+
+.reward-description {
+    font-size: 14px;
+    color: #666;
+    margin-bottom: 15px;
+}
+
+.reward-details {
+    font-size: 13px;
+    color: #888;
+    margin-bottom: 15px;
+}
+
+.reward-quantity {
+    font-size: 13px;
+}
+
+.quantity-left {
+    font-weight: bold;
+    color: #00b2b2;
+    margin-right: 10px;
+}
+
+.quantity-total {
+    color: #888;
 }
 </style>

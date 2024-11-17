@@ -31,16 +31,24 @@
       <!-- 서브 카테고리 리스트 표시 영역 -->
       <div class="sub-category-container" v-if="shouldShowSubCategories" @mouseenter="handleSubCategoryMouseEnter"
         @mouseleave="handleSubCategoryMouseLeave">
-        <div class="container-fluid px-3">
-          <ul class="sub-category-list">
-            <li v-for="(subCategory, index) in subCategoryList" :key="index">
-              <a href="#" @click.prevent="handleSubCategoryClick(subCategory.subCategoryId)">
-                {{ subCategory.subCategoryName }}
-              </a>
-            </li>
-          </ul>
+        <div class="container-sm">
+          <div class="container-fluid px-3">
+            <ul class="sub-category-list">
+              <li class="main-category-item">
+                <a href="#" @click.prevent="handleMainCategoryClick(activeMainCategory.mainCategoryId)">
+                  {{ activeMainCategory.mainCategoryName }} 전체
+                </a>
+              </li>
+              <li v-for="(subCategory, index) in subCategoryList" :key="index">
+                <a href="#" @click.prevent="handleSubCategoryClick(subCategory.subCategoryId)">
+                  {{ subCategory.subCategoryName }}
+                </a>
+              </li>
+            </ul>
+          </div>
         </div>
       </div>
+      
     </div>
 
   </nav>
@@ -56,6 +64,8 @@ const subCategoryList = ref([]);
 const isHoveringNavItem = ref(false);
 const isHoveringSubCategory = ref(false);
 const activeCategory = ref(null);
+
+const activeMainCategory = ref(null);
 
 const shouldShowSubCategories = computed(() =>
   subCategoryList.value.length > 0 && (isHoveringNavItem.value || isHoveringSubCategory.value)
@@ -96,9 +106,14 @@ const setSubCategories = async (parentId) => {
   }
 };
 
+// const handleNavItemMouseEnter = (parentId) => {
+//   isHoveringNavItem.value = true;
+//   setSubCategories(parentId);
+// };
 const handleNavItemMouseEnter = (parentId) => {
   isHoveringNavItem.value = true;
   setSubCategories(parentId);
+  activeMainCategory.value = menuItems.value.find(item => item.mainCategoryId === parentId);
 };
 
 const handleSubCategoryMouseEnter = () => {
@@ -110,14 +125,6 @@ const handleSubCategoryMouseLeave = () => {
   isHoveringSubCategory.value = false;
 };
 
-const handleNavItemMouseLeave = () => {
-  setTimeout(() => {
-    if (!isHoveringSubCategory.value) {
-      isHoveringNavItem.value = false;
-    }
-  }, 400);
-};
-
 const setActiveCategory = (categoryId) => {
   activeCategory.value = categoryId;
 };
@@ -125,6 +132,12 @@ const setActiveCategory = (categoryId) => {
 const handleSubCategoryClick = (subCategoryId) => {
   console.log(`Clicked sub-category: ${subCategoryId}`);
   // 여기에 서브 카테고리 클릭 시 수행할 로직을 추가하세요
+};
+
+
+const handleMainCategoryClick = (mainCategoryId) => {
+  console.log(`Clicked main category: ${mainCategoryId}`);
+  // 여기에 메인 카테고리 클릭 시 수행할 로직을 추가하세요
 };
 </script>
 
@@ -190,6 +203,10 @@ const handleSubCategoryClick = (subCategoryId) => {
   left: 0;
   z-index: 999;
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.main-category-item {
+  font-weight: bold;
 }
 
 .sub-category-list {
