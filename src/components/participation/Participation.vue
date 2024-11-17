@@ -12,13 +12,28 @@
         </div>
 
         <!-- 참여 내역 리스트 -->
-        <div v-for="item in filteredItems" :key="item.id" class="participation-item">
+        <!-- <div v-for="item in filteredItems" :key="item.id" class="participation-item">
             <div class="item-left">
                 <div class="item-header">
                     <span>{{ item.category }} > {{ item.subcategory }}</span>
                     <span class="date">{{ item.date }} 참여</span>
                 </div>
                 <span class="status">{{ item.status }}</span>
+                <h3>{{ item.title }}</h3>
+                <p class="byline">by {{ item.author }}</p>
+                <div class="cancel-link">
+                    <button @click="showCancelModal = true" class="change-button">결제 예약 취소</button>
+                    <router-link :to="`/mywadiz/supporter/participation/${item.id}`" class="details-link">상세보기 &gt;</router-link>
+                </div>
+            </div>
+        </div> -->
+        <div v-for="item in filteredItems" :key="item.id" class="participation-item">
+            <div class="item-left">
+                <div class="item-header">
+                    <span>{{ item.category }} > {{ item.subcategory }}</span>
+                    <span class="date">{{ item.date }} 참여</span>
+                </div>
+                <span class="status">{{ getStatus(item) }}</span>
                 <h3>{{ item.title }}</h3>
                 <p class="byline">by {{ item.author }}</p>
                 <div class="cancel-link">
@@ -41,26 +56,53 @@
 </template>
 
 <script setup>
-import { ref } from 'vue';
+import { ref, onMounted, computed } from 'vue';
+import { useRouter } from 'vue-router';
 import ModalConfirm from './participationComponents/ModalConfirm.vue';
+import apiWrapper from '../../util/axios/axios';
+import { useAuthStore } from '../../util/store/authStore';
 
+const authStore = useAuthStore();
 const selectedFilter = ref("전체");
 const showCancelModal = ref(false);
 const selectedItem = ref(null); // 선택된 항목
+const router = useRouter();
 
-const items = ref([
-    {
-        id: 1,
-        category: "프로모션",
-        subcategory: "패션 > 가방",
-        status: "진행중",
-        title: "[LOOPER] 공항에서 여권을 찾느라 가방을 뒤집는 당신을 위해",
-        author: "주식회사 루피",
-        date: "2024.10.28",
-    },
-]);
+// const items = ref([
+//     {
+//         id: 1,
+//         category: "프로모션",
+//         subcategory: "패션 > 가방",
+//         status: "진행중",
+//         title: "[LOOPER] 공항에서 여권을 찾느라 가방을 뒤집는 당신을 위해",
+//         author: "주식회사 루피",
+//         date: "2024.10.28",
+//     },
+// ]);
 
-const filteredItems = ref(items.value);
+// const filteredItems = ref(items.value);
+
+const items = ref([]); // 참여 내역
+const filteredItems = ref([]); // 필터링된 항목
+
+// 참여한 펀딩의 상태를 나타내준다.
+function getStatus(item) {
+    const now = new Date();
+    const fundingStartDate = new Date(item.fundingStartDate);
+    const fundingEndDate = new Date(item.fundingEndDate);
+
+    if (now >= fundingStartDate && now <= fundingEndDate) {
+        return '진행중';
+    } else if (now > fundingEndDate) {
+        if (item.currentAmount >= item.targetAmount) {
+            return '완료';
+        } else {
+            return '프로젝트 실패';
+        }
+    } else {
+        return '해당없음';
+    }
+}
 
 function openCancelModal(item) {
     selectedItem.value = item;
@@ -87,6 +129,30 @@ function filterList() {
         filteredItems.value = items.value.filter(item => item.status === selectedFilter.value);
     }
 }
+
+// API 호출로 참여 내역 가져오기
+async function fetchParticipationHistory() {
+    try {
+        const response = await apiWrapper.getData('/api/payment-history/user');
+        items.value = response; // 서버에서 받은 참여 내역 저장
+        filteredItems.value = items.value; // 필터링 초기화
+        console.log('참여 내역:', items.value);
+    } catch (error) {
+        console.error('참여 내역 조회 실패:', error);
+    }
+}
+
+// 컴포넌트가 마운트되면 참여 내역을 가져옴
+onMounted(() => {
+    const token = authStore.getJwtToken();
+
+    if (!token) {
+        console.warn('JWT 토큰이 없습니다.');
+        router.push('/login');
+        return;
+    }
+    fetchParticipationHistory();
+});
 </script>
 
 <style scoped>

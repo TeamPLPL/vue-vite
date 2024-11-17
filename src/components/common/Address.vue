@@ -83,6 +83,9 @@ import { ref, onMounted } from 'vue';
 import apiWrapper from '../../util/axios/axios';
 import { Modal } from 'bootstrap'
 
+// emit 정의
+const emit = defineEmits(['selectedAddress']); // 이벤트 이름 지정
+
 const zonecode = ref('');
 const addr = ref('');
 const addrEng = ref('');
@@ -197,6 +200,10 @@ const selectAddress = (selectedAddress) => {
     detailAddr.value = selectedAddress.detailAddr;
     extraAddr.value = selectedAddress.extraAddr;
     isDefault.value = selectedAddress.isDefault;
+
+    // emit을 통해 부모 컴포넌트로 선택된 주소 전달
+    emit('selectedAddress', selectedAddress);
+    console.log('선택된 주소 emit:', selectedAddress);
 
     // 모달 닫기
     addressListModal.hide();
