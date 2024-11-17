@@ -83,5 +83,6 @@ export default [
         path: '/mywadiz/supporter/participation/:id',
         name: 'ParticipationDetail',
         component: ParticipationDetail,
+        props: true, // 이 설정으로 props를 통해 payment의 id 값을 전달
     },
 ]
