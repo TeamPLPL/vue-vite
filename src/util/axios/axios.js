@@ -1,12 +1,12 @@
-import axios from "axios";
+import axios from 'axios'
 
 // axios 인스턴스 생성
 const apiClient = axios.create({
-  baseURL: "http://localhost:8080/", // 프록시된 기본 경로
-  timeout: 5000,
-  headers: {
-    "Content-Type": "application/json",
-  },
+    baseURL: 'http://localhost:8080/',  // 프록시된 기본 경로
+    timeout: 5000,
+    headers: {
+        'Content-Type': 'application/json',
+    },
 });
 
 // 작성자 : 신은호, 작성 날짜 : 24-11-13
@@ -15,107 +15,142 @@ const apiClient = axios.create({
     요청 인터셉터를 사용하여 각 요청에 토큰을 추가
 */
 apiClient.interceptors.request.use(
-  (config) => {
-    // 로컬 스토리지에서 토큰을 가져와 Authorization 헤더에 추가
-    const token = localStorage.getItem("jwtToken");
-    if (token) {
-      config.headers["Authorization"] = `Bearer ${token}`;
+    (config) => {
+        // 로컬 스토리지에서 토큰을 가져와 Authorization 헤더에 추가
+        const token = localStorage.getItem('jwtToken');
+        if (token) {
+            config.headers['Authorization'] = `Bearer ${token}`;
+        }
+        return config;
+    },
+    (error) => {
+        return Promise.reject(error);
     }
-    return config;
-  },
-  (error) => {
-    return Promise.reject(error);
-  }
+);
+
+// 작성자 : 신은호, 작성 날짜 : 24-11-15
+/*
+    작성 내용 : 401에러, 토큰 만료되면, login으로 돌아가기
+*/
+apiClient.interceptors.response.use(
+    (response) => {
+        // 응답이 정상일 경우 그대로 반환
+        return response;
+    },
+    (error) => {
+        // 에러 응답 처리
+        if (error.response && error.response.status === 401) {
+            // 토큰 만료 시 로그인 페이지로 리다이렉트
+            alert('인증이 만료되었습니다. 다시 로그인해 주세요.');
+            router.push('/login');  // Vue Router를 사용할 경우 router.push('/login')를 사용
+        }
+        return Promise.reject(error);
+    }
 );
 
 // Wrapper 함수
 const apiWrapper = {
-  // GET 요청 (예시: 모든 사용자 정보 가져오기)
-  getData: async (url, params = {}) => {
-    try {
-      const response = await apiClient.get(url, { params });
-      return response.data;
-    } catch (error) {
-      console.error("GET 요청 에러:", error);
-      throw error;
-    }
-  },
+    // GET 요청 (예시: 모든 사용자 정보 가져오기)
+    getData: async (url, params = {}) => {
+        try {
+            const response = await apiClient.get(url, { params });
+            return response.data;
+        } catch (error) {
+            console.error('GET 요청 에러:', error);
+            throw error;
+        }
+    },
 
-  // POST 요청 (예시: 회원가입)
-  postData: async (url, data) => {
-    try {
-      const response = await apiClient.post(url, data);
-      return response;
-    } catch (error) {
-      console.error("POST 요청 에러:", error);
-      throw error;
-    }
-  },
+    // POST 요청 (예시: 회원가입)
+    postData: async (url, data) => {
+        try {
+            const response = await apiClient.post(url, data);
+            return response;
+        } catch (error) {
+            console.error('POST 요청 에러:', error);
+            throw error;
+        }
+    },
 
-  // PUT 요청 (예시: 사용자 정보 업데이트)
-  putData: async (url, data) => {
-    try {
-      const response = await apiClient.put(url, data);
-      return response.data;
-    } catch (error) {
-      console.error("PUT 요청 에러:", error);
-      throw error;
-    }
-  },
+    // PUT 요청 (예시: 사용자 정보 업데이트)
+    putData: async (url, data) => {
+        try {
+            const response = await apiClient.put(url, data);
+            return response.data;
+        } catch (error) {
+            console.error('PUT 요청 에러:', error);
+            throw error;
+        }
+    },
 
-  // DELETE 요청 (예시: 사용자 삭제)
-  deleteData: async (url) => {
-    try {
-      const response = await apiClient.delete(url);
-      return response.data;
-    } catch (error) {
-      console.error("DELETE 요청 에러:", error);
-      throw error;
-    }
-  },
+    // DELETE 요청 (예시: 사용자 삭제)
+    deleteData: async (url) => {
+        try {
+            const response = await apiClient.delete(url);
+            return response.data;
+        } catch (error) {
+            console.error('DELETE 요청 에러:', error);
+            throw error;
+        }
+    },
 
-  // 로그인
-  login: async (credentials) => {
-    try {
-      const response = await apiClient.post("/login", credentials); // 프록시된 경로 사용
-      return response.data;
-    } catch (error) {
-      console.error("로그인 에러:", error);
-      throw error;
-    }
-  },
+    // 로그인
+    login: async (credentials) => {
+        try {
+            const response = await apiClient.post('/login', credentials);  // 프록시된 경로 사용
+            return response.data;
+        } catch (error) {
+            console.error('로그인 에러:', error);
+            throw error;
+        }
+    },
 
-  // 로그아웃
-  logout: async () => {
-    try {
-      const response = await apiClient.get("/logout"); // 로그아웃은 GET 요청
-      return response.data;
-    } catch (error) {
-      console.error("로그아웃 에러:", error);
-      throw error;
-    }
-  },
+    // 로그아웃
+    logout: async () => {
+        try {
+            const response = await apiClient.get('/logout');  // 로그아웃은 GET 요청
+            return response.data;
+        } catch (error) {
+            console.error('로그아웃 에러:', error);
+            throw error;
+        }
+    },
 
-  // 회원가입
-  signup: async (userData) => {
-    try {
-      const response = await apiClient.post("/signup", userData);
-      return response.data;
-    } catch (error) {
-      console.error("회원가입 에러:", error);
-      throw error;
-    }
-  },
+    // 회원가입
+    signup: async (userData) => {
+        try {
+            const response = await apiClient.post('/signup', userData);
+            return response.data;
+        } catch (error) {
+            console.error('회원가입 에러:', error);
+            throw error;
+        }
+    },
 
-  // 메인카테고리 리스트 조회
-  fetchMainCategories: async () => {
-    try {
-      const response = await apiClient.get("api/funding/main-categories");
-      return response.data;
-    } catch (error) {
-      console.error("메인 카테고리 API 요청 중 오류 발생:", error);
-    }
-  },
+    // 작성자 : 신은호, 내용 : 파일 업로드 POST 요청
+    postFileData: async (url, data, customHeaders = {}) => {
+        try {
+            const response = await apiClient.post(url, data, {
+                headers: {
+                    "Content-Type": "multipart/form-data",
+                    ...customHeaders, // 필요 시 사용자 정의 헤더 추가
+                },
+            });
+            return response;
+        } catch (error) {
+            console.error("파일 업로드 요청 에러:", error);
+            throw error;
+        }
+    },
+
+    fetchMainCategories: async () => {
+        try {
+            const response = await apiClient.get('api/funding/main-categories');
+            return response.data;
+        } catch (error) {
+            console.error("메인 카테고리 API 요청 중 오류 발생:", error);
+        }
+    },
 
   // 메인카테고리 id별 서브 카테고리 리스트 조회
   fetchSubCategories: async (parentId) => {
@@ -217,25 +252,24 @@ const apiWrapper = {
     }
   },
 
-  // 펀딩이미지(썸네일, 펀딩디테일이미지들) 리스트 조회
-  fetchFundingImgList: async (id) => {
-    try {
-      const response = await apiClient.post(
-        `api/funding/funding-imgs/${id}`,
-        null, // POST 요청의 body (필요 없으면 null)
-        {
-          headers: {
-            Accept: "application/json", // 명시적으로 JSON 응답 기대
-          },
+    fetchFundingImgList: async (id) => {
+        try {
+            const response = await apiClient.post(
+                `api/funding/funding-imgs/${id}`,
+                null, // POST 요청의 body (필요 없으면 null)
+                {
+                    headers: {
+                        Accept: "application/json", // 명시적으로 JSON 응답 기대
+                    },
+                }
+            );
+            console.log('Response from server:', response.data);
+            return response.data;
+        } catch (error) {
+            console.error(`펀딩 디테일 이미지 목록 조회 중 오류 발생\n`, error);
+            return null;
         }
-      );
-      console.log("Response from server:", response.data);
-      return response.data;
-    } catch (error) {
-      console.error(`펀딩 디테일 이미지 목록 조회 중 오류 발생\n`, error);
-      return null;
-    }
-  },
+    },
 
   // 펀딩 환불 및 리워드 정보 조회
   fetchFundingInfo: async (id) => {

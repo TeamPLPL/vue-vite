@@ -17,47 +17,95 @@
 
     <!-- 이미지 업로드 -->
     <div class="mt-4">
-      <input type="file" class="form-control w-50" @change="onImageUpload" accept="image/*"/>
+      <input ref="fileInput" type="file" class="form-control w-50" @change="onImageUpload" accept="image/*"/>
     </div>
 
     <!-- 이미지 썸네일 -->
-    <div v-if="thumbnail" class="thumbnail-container mt-3"> <!-- float-start 제거 -->
-      <img :src="thumbnail" alt="Uploaded Thumbnail" class="img-thumbnail" style="width: 150px; height: auto;"/>
-      <button type="button" class="btn-close position-absolute top-0 end-0" @click="removeImage" aria-label="Close"></button>
+    <div v-if="thumbnail" class="thumbnail-container mt-3">
+      <div class="thumbnail-wrapper">
+        <img :src="thumbnail" alt="Uploaded Thumbnail" class="thumbnail-image"/>
+        <button type="button" class="btn-close position-absolute top-0 end-0" @click="removeImage" aria-label="Close"></button>
+      </div>
     </div>
   </div>
 </template>
 
 <script>
+import apiWrapper from "../../../util/axios/axios.js";
+
 export default {
   name: "Thumbnail",
+  props: {
+    projectId: {
+      type: String,
+      required: true,
+    },
+  },
   data() {
     return {
-      thumbnail: null, // 이미지 미리보기 URL
+      thumbnail: null,
+      projectId: this.$route.params.projectId, // 라우터에서 projectId 가져오기
     };
   },
   methods: {
-    onImageUpload(event) {
+    async onImageUpload(event) {
       const file = event.target.files[0];
-      if (file && file.size <= 10 * 1024 * 1024) {
-        // 10MB 이하 확인
-        this.thumbnail = URL.createObjectURL(file);
-      } else {
+
+      if (!file || file.size > 10 * 1024 * 1024) {
         alert("이미지는 10MB 이하의 JPG, JPEG, PNG 파일만 업로드할 수 있습니다.");
-        event.target.value = ""; // 파일 입력 초기화
+        return;
+      }
+
+      const formData = new FormData();
+      formData.append("file", file);
+
+      try {
+        const response = await apiWrapper.postFileData(`/api/${this.projectId}/thumbnail`, formData);
+        this.thumbnail = response.data; // 썸네일 URL 설정
+      } catch (error) {
+        console.error("이미지 업로드 실패:", error);
+        alert("이미지 업로드 중 문제가 발생했습니다.");
       }
     },
     removeImage() {
       this.thumbnail = null;
+      if (this.$refs.fileInput) {
+        this.$refs.fileInput.value = ""; // 파일 입력 초기화
+      }
     },
   },
-}
+};
+
 </script>
 
 <style scoped>
 .thumbnail-container {
   display: inline-block;
-  text-align: left; /* 왼쪽 정렬 */
-  margin-top: 10px; /* 제목과 간격 조정 */
+  position: relative;
+  text-align: left;
+  margin-top: 10px;
+}
+
+.thumbnail-wrapper {
+  position: relative;
+  width: 150px; /* 정사각형 크기 */
+  height: 150px; /* 정사각형 크기 */
+  overflow: hidden;
+  border-radius: 8px; /* 둥근 모서리 (선택 사항) */
+  background-color: #f8f9fa; /* 배경색 (이미지 없을 때 표시용) */
+}
+
+.thumbnail-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover; /* 정사각형으로 맞춤 */
+  display: block;
+}
+
+.btn-close {
+  position: absolute; /* 위치 설정 */
+  top: 0; /* 부모의 상단 */
+  right: 0; /* 부모의 오른쪽 */
+  transform: translate(-50%, 50%); /* 위치 조정 (필요 시 추가) */
 }
 </style>

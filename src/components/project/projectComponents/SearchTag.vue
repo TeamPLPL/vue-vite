@@ -33,24 +33,26 @@
 </template>
 
 <script>
-import { ref } from 'vue';
+import { ref, watch } from 'vue';
 
 export default {
-  setup() {
+  emits: ['updateTags'], // 상위로 데이터를 전달하는 이벤트 정의
+  setup(props, { emit }) {
     const tagInput = ref(''); // 태그 입력을 위한 v-model 변수
     const tags = ref([]); // 태그 저장을 위한 배열
 
     const addTag = () => {
       const trimmedTag = tagInput.value.trim();
-      // 입력된 값이 비어있지 않고, 중복되지 않으며, 태그가 3개 이하 때만 추가
-      if (trimmedTag && !tags.value.includes(trimmedTag) && tags.value.length < 4) {
+      if (trimmedTag && !tags.value.includes(trimmedTag) && tags.value.length < 3) {
         tags.value.push(trimmedTag);
         tagInput.value = ''; // 입력 필드 초기화
+        emit('updateTags', tags.value); // 태그가 추가될 때 상위 컴포넌트에 전달
       }
     };
 
     const removeTag = (index) => {
       tags.value.splice(index, 1); // 해당 인덱스의 태그 삭제
+      emit('updateTags', tags.value); // 태그가 삭제될 때 상위 컴포넌트에 전달
     };
 
     return {
@@ -62,6 +64,7 @@ export default {
   },
 };
 </script>
+
 
 <style scoped>
 .small {

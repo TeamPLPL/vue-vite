@@ -6,16 +6,18 @@
         </div>
 
         <!-- 결제 예약 정보 -->
-        <div class="reservation-info">
+        <div v-if="paymentDetails" class="reservation-info">
             <div class="text-start">
-                <span>{{ category }} / {{ subcategory }}</span>
+                <span>
+                    {{ paymentDetails.mainCategory }} / {{ paymentDetails.subCategory }}
+                </span>
             </div>
             <div class="text-start">
                 <span class="status-dot"></span>
                 <span>{{ status }}</span>
             </div>
-            <h4 class="fw-bold text-start">{{ title }}</h4>
-            <p class="text-start">by {{ author }}</p>
+            <!-- <h4 class="fw-bold text-start">{{ paymentDetails.value.funding.fundingTitle }}</h4>
+            <p class="text-start">by {{ paymentDetails.value.funding.makerNick }}</p> -->
             <div class="info-container">
                 <div class="info-labels">
                     <p>결제 번호</p>
@@ -24,46 +26,66 @@
                     <p>결제 상태</p>
                 </div>
                 <div class="info-values">
-                    <p>{{ paymentId }}</p>
-                    <p>{{ date }}</p>
-                    <p>{{ endDate }}</p>
-                    <p>{{ paymentStatus }}</p>
+                    <p>{{ paymentDetails.paymentId }}</p>
+                    <p>{{ formatDate(paymentDetails.paymentDate) }}</p>
+                    <p>{{ formatDate(paymentDetails.fundingEndDate) }}</p>
+                    <p>
+                        {{ paymentDetails.paymentStatus }}
+                        <span v-if="paymentDetails.paymentStatus === 'complete'">
+                            ({{ getRefundStatus(paymentDetails.fundingEndDate) }})
+                        </span>
+                    </p>
                 </div>
             </div>
-            <button class="change-button" @click="showCancelModal = true">결제 예약 취소</button>
+            
+            <!-- 결제 예약 취소 버튼 -->
+            <button 
+                v-if="paymentDetails.paymentStatus !== 'refund' && paymentDetails.paymentStatus !== 'failed'" 
+                class="change-button" 
+                @click="openCancelModal(paymentDetails.paymentId)">
+                결제 예약 취소
+            </button>
 
             <!-- 모달 컴포넌트 -->
-            <ModalConfirm v-show="showCancelModal" :show="showCancelModal" title="결제를 취소하시겠어요?"
-                message="리워드 옵션 변경을 원한다면 결제를 취소하지 않고 참여 내역에서 변경 가능해요." @close="closeCancelModal"
-                @confirm="cancelReservation" />
+            <ModalConfirm 
+                v-show="showCancelModal" 
+                :show="showCancelModal"
+                :payment-id="collectedPaymentId"
+                title="결제를 취소하시겠어요?"
+                message="리워드 옵션 변경을 원한다면 결제를 취소하지 않고 참여 내역에서 변경 가능해요." 
+                @close="closeCancelModal"
+                @confirm="cancelReservation" 
+            />
 
-            <div class="notice">
+            <div v-if="paymentDetails.paymentStatus !== 'refund' && paymentDetails.paymentStatus !== 'failed'" class="notice">
                 <h6 class="fw-bold text-start">결제 예약 유의 사항</h6>
                 <p class="reservation-notice">
-                    - 프로젝트 종료 후 2024.11.24 17시에 결제되며, 한도초과 등으로 인한 결제 실패 시 다음날 17시에 결제됩니다.(총 2회 결제 진행)
-                    <br />
-                    - 리워드 옵션 변경과 결제 취소는 프로젝트 종료일인 2024.11.23까지 가능합니다.
+                    - 프로젝트 참여 즉시 결제되며, 결제 취소는 프로젝트 종료 시점인 {{ formatDate(paymentDetails.fundingEndDate) }}까지 가능합니다.
                 </p>
             </div>
 
         </div>
 
         <!-- 리워드 정보 -->
-        <div class="reward-info">
-            <h6 class="text-start">리워드 정보</h6>
-            <h6 class="fw-bold text-start">[얼리버드] F5 리미티드 에디션 단품</h6>
-            <p class="reward-subtitle">23% 할인기여금 / 1,580단위 F5 리미티드 에디션 *1</p>
-            <p class="reward-price">37,600원 / 1개</p>
-            <p class="reward-date">발송 시작일: 2024년 12월 중순 (11~20일) 예정</p>
+        <div v-if="paymentDetails" class="reward-info">
+            <h3 class="text-start fw-bold">리워드 정보</h3>
+            <br />
+            <div v-for="reward in (paymentDetails.rewards || [])" :key="reward.rewardId" class="reward-list">
+                <h6 class="fw-bold text-start">{{ reward.rewardName }}</h6>
+                <hr />
+                <p class="reward-price">{{ reward.price }}원 / {{ reward.count }}개</p>
+                <p>발송 시작 : {{ formatDate(reward.deliveryStartDate) }} 예정</p>
+            </div>
             <p class="reward-notice">
-                * 프로젝트 교환 · 환불 · A/S 정책은 펀딩 · 정책을 확인하세요. <br />
-                프로젝트 환불 * 정책 바로가기 &gt;
+                * 프로젝트 환불 정책 <br />
+                - 프로젝트 기간동안 환불이 가능하며, 프로젝트 기간이 지난 후에는 환불이 불가능합니다. &gt;
             </p>
         </div>
 
         <!-- 결제 내역 -->
-        <div class="payment-summary">
-            <h6>결제 내역</h6>
+        <div v-if="paymentDetails" class="payment-summary">
+            <h6 class="fw-bold">결제 내역</h6>
+            <br />
             <div class="payment-info">
                 <div class="info-labels">
                     <p>리워드 금액</p>
@@ -73,22 +95,24 @@
                     <p>배송비</p>
                 </div>
                 <div class="info-values">
-                    <p>37,600원</p>
+                    <p>{{ calculateTotalRewardPrice() }}원</p>
+                    <p>- {{ calculateDiscountPrice() }}원</p>
                     <p>- 0원</p>
-                    <p>- 0원</p>
-                    <p>0원</p>
-                    <p>3,000원</p>
+                    <!-- <p>{{ paymentDetails.amount + calculateDiscountPrice() - calculateTotalRewardPrice() - getMaxDeliveryFee() }}원</p> -->
+                    <p>{{ AdditionalFunding() }}원</p>
+                    <p>{{ getMaxDeliveryFee() }}원</p>
                 </div>
             </div>
             <div class="final-amount">
                 <p>최종 결제 금액</p>
-                <p class="amount-value">40,600원</p>
+                <p class="amount-value">{{ paymentDetails.amount }}원</p>
             </div>
         </div>
 
         <!-- 결제 정보 -->
-        <div class="payment-details">
-            <h6>결제 정보</h6>
+        <div v-if="paymentDetails" class="payment-details">
+            <h6 class="fw-bold">결제 정보</h6>
+            <br />
             <div class="payment-info">
                 <div class="info-labels">
                     <p>결제방법</p>
@@ -96,22 +120,15 @@
                     <p>할부기간</p>
                 </div>
                 <div class="info-values">
-                    <p>신용(체크)카드</p>
-                    <p>************7071</p>
+                    <p>{{ isCreditCard() }}</p>
+                    <p>{{ paymentDetails.cardNumber }}</p>
                     <p>일시불</p>
                 </div>
             </div>
-            <button class="change-button">결제 정보 변경하기</button>
-        </div>
-
-        <div>
-            <p class="payment-notice">
-                결제 정보 및 할부 변경은 펀딩 종료일 전날 2024.11.24 16시 30분까지 가능합니다.
-            </p>
         </div>
 
         <!-- 배송지 정보 -->
-        <div class="shipping-info">
+        <div v-if="paymentDetails" class="shipping-info">
             <h3>배송지 정보</h3>
             <div class="shipping-details">
                 <div class="info-labels">
@@ -121,39 +138,29 @@
                     <p>배송 시 요청사항</p>
                 </div>
                 <div class="info-values">
-                    <p>홍엽</p>
-                    <p>010-8108-6648</p>
-                    <p>[11520] 경기 양주시 장흥면 호국로123번길 36-17 (일영리, 스타빌) 103동 401호</p>
-                    <input type="text" placeholder="요청 사항을 입력하세요" />
+                    <p>{{ paymentDetails.receiverName }}</p>
+                    <p>{{ paymentDetails.phoneNum }}</p>
+                    <p>[{{ paymentDetails.address.zonecode }}] {{ paymentDetails.address.addr }} {{
+                        paymentDetails.address.extraAddr }} {{ paymentDetails.address.detailAddr }}</p>
+                    <p>{{ paymentDetails.deliveryRequest }}</p>
                 </div>
             </div>
-            <button class="change-button">배송지 정보 변경하기</button>
-
-            <div class="shipping-notice">
-                <p>
-                    프로젝트 종료 이후에는 서포터의 배송지 정보가 메이커에게 전달되기 때문에 종료 이후 배송 정보 변경 등에 대한 문의는 메이커에게 직접 해야 합니다.
-                </p>
-                <button class="inquiry-button">메이커에게 문의하기</button>
-            </div>
-
-
-        </div>
-        <!-- 하단 안내 사항 -->
-        <div class="footer-notice">
             <p class="policy">
                 리워드 발송은 메이커의 의무로 프로젝트 진행 시 메이커가 약속한 리워드 발송 시각에 제공하는 것을 원칙으로 합니다.
                 다만 메이커의 예기치 못한 일정 변경이 있을 수 있으며,
                 리워드 발송에 대해 발생한 이슈는 프로젝트 상세 페이지 - 환불・정책 탭에 명시한 정책을 따릅니다.
             </p>
-            <button class="back-button">
-                <router-link to="/mywadiz/supporter/participation">목록으로 돌아가기</router-link>
-            </button>
+            <div class="footer-notice">
+                <button class="back-button">
+                    <router-link to="/mywadiz/supporter/participation">목록으로 돌아가기</router-link>
+                </button>
+            </div>
         </div>
     </div>
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, watch } from 'vue';
 import ModalConfirm from './participationComponents/ModalConfirm.vue';
 import { useRouter, useRoute } from 'vue-router';
 import apiWrapper from '../../util/axios/axios';
@@ -161,8 +168,10 @@ import { useAuthStore } from '../../util/store/authStore';
 
 const router = useRouter();
 const showCancelModal = ref(false);
+const collectedPaymentId = ref(null);
 
 const route = useRoute();
+const status = route.query.status;
 const paymentId = ref(route.params.id); // URL에서 Payment의 id 값을 가져오기
 
 console.log('현재 결제 ID:', paymentId.value); // 디버깅용 로그
@@ -170,17 +179,10 @@ console.log('현재 결제 ID:', paymentId.value); // 디버깅용 로그
 const authStore = useAuthStore();
 const paymentDetails = ref(null);
 
-// 기본 데이터
-const category = ref("프리오더");
-const subcategory = ref("푸드>음료>커피");
-const date = ref("2024.11.05 21:49");
-const status = ref("진행중");
-const title = ref("머신도 필요 없는 세상에서 가장 작은 바리스타 | 8가지 풍미 <F5 커피>");
-const author = ref("디에이치알");
-
-// const paymentId = ref("13344846");
-const endDate = ref("2024.11.23");
-const paymentStatus = ref("결제 예약");
+function openCancelModal(paymentId) {
+    collectedPaymentId.value = paymentId;
+    showCancelModal.value = true;
+}
 
 function closeCancelModal() {
     showCancelModal.value = false;
@@ -189,23 +191,57 @@ function closeCancelModal() {
 function cancelReservation() {
     // 결제 예약 취소 로직 추가
     console.log("결제 예약 취소됨");
+    console.log('취소할 Payment ID:', collectedPaymentId.value);
     showCancelModal.value = false; // 모달 닫기
-    router.push('/mywadiz/info/participation');   // '/participate'로 라우팅
+    router.push('/mywadiz/supporter/participation');   // '/participate'로 라우팅
 }
 
-async function fetchUserPayments() {
-    try {
-        const token = authStore.getJwtToken(); // JWT 토큰 가져오기
-        if (!token) {
-            console.warn('JWT 토큰이 없습니다.');
-            return;
-        }
+function formatDate(dateString) {
+    if (!dateString) return '날짜 정보 없음';
+    const options = { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' };
+    return new Date(dateString).toLocaleDateString('ko-KR', options);
+}
 
-        const response = await apiWrapper.getData('/api/payment/user');
-        payments.value = response;
-        console.log('User Payments:', payments.value);
-    } catch (error) {
-        console.error('Error fetching user payments:', error);
+// 환불 상태를 결정하는 함수
+function getRefundStatus(fundingEndDate) {
+    const now = new Date();
+    const endDate = new Date(fundingEndDate);
+
+    return now < endDate ? '환불 가능' : '환불 불가능';
+}
+
+// 리워드 총 금액 계산
+const calculateTotalRewardPrice = () => {
+    if (!paymentDetails.value || !paymentDetails.value.rewards) return 0;
+
+    return paymentDetails.value.rewards.reduce((total, reward) => {
+        return total + (reward.price * reward.count); // 리워드 가격 * 수량
+    }, 0);
+};
+
+// 할인 금액 계산
+const calculateDiscountPrice = () => {
+    return calculateTotalRewardPrice() * paymentDetails.value.discountRate / 100;
+}
+
+// 최대 배송비 계산
+const getMaxDeliveryFee = () => {
+    if (!paymentDetails.value || !paymentDetails.value.rewards) return 0;
+
+    return Math.max(...paymentDetails.value.rewards.map(reward => reward.deliveryFee), 0);
+};
+
+// 추가 후원금 계산
+const AdditionalFunding = () => {
+    return paymentDetails.value.amount + calculateDiscountPrice() - calculateTotalRewardPrice() - getMaxDeliveryFee()
+}
+
+// 신용카드 여부 확인
+const isCreditCard = () => {
+    if (paymentDetails.value.methodType === 'card' || paymentDetails.value.methodType === 'CARD') {
+        return '신용(체크)카드';
+    } else {
+        return '기타';
     }
 }
 
@@ -218,20 +254,51 @@ async function fetchPaymentDetails(paymentId) {
         }
 
         const response = await apiWrapper.getData(`/api/payment/${paymentId}/details`);
+        console.log('API Response:', response); // API 응답 확인
         paymentDetails.value = response;
-        console.log('Payment Details:', paymentDetails.value);
+        console.log('Fetched Payment Details 1:', paymentDetails.value);
     } catch (error) {
         console.error('Error fetching payment details:', error);
+        paymentDetails.value = null; // 실패 시 초기화
     }
 }
 
-onMounted(() => {
-    fetchPaymentDetails(route.params.id);
+// route.params.id 변경 시 fetch 다시 호출
+watch(() => route.params.id, async (newId) => {
+    await fetchPaymentDetails(newId);
+    console.log('Fetched Payment Details after route change:', paymentDetails.value);
+});
+
+// 처음 mount 시 fetch 호출
+onMounted(async () => {
+    await fetchPaymentDetails(route.params.id);
+    console.log('Fetched Payment Details:', paymentDetails.value);
 });
 </script>
 
 <style scoped>
 /* 모달 오버레이 스타일 */
+.shipping-details {
+    display: flex;
+    /* 가로 정렬을 위해 flexbox 사용 */
+    gap: 20px;
+    /* 라벨과 값 사이 간격 추가 */
+}
+
+.info-labels,
+.info-values {
+    flex: 1;
+    /* 각 요소가 동일한 비율로 공간 차지 */
+}
+
+.info-labels p,
+.info-values p {
+    margin: 5px 0;
+    /* 각 줄 사이의 간격 */
+    word-break: break-word;
+    /* 긴 텍스트 줄 바꿈 */
+}
+
 .modal-overlay {
     position: fixed;
     top: 0;
@@ -306,19 +373,22 @@ onMounted(() => {
     border-radius: 10px;
     padding: 20px;
     margin: 20px auto;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.reward-list {
+    margin-bottom: 1%;
 }
 
 .reservation-info,
 .reward-info,
 .payment-summary,
 .payment-details,
-.shipping-info,
-.footer-notice {
+.shipping-info {
     background-color: #fff;
     padding: 5%;
     margin: 3%;
     text-align: start;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
 .notice {
@@ -336,16 +406,6 @@ onMounted(() => {
     padding: 1%;
     background-color: #f3f4f6;
     text-align: start;
-}
-
-.footer-notice {
-    padding: 5%;
-    background-color: white;
-    text-align: start;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    /* back-button을 가운데 배치 */
 }
 
 .payment-info {
@@ -445,9 +505,27 @@ onMounted(() => {
     cursor: pointer;
     text-align: center;
     border-radius: 5px;
+    justify-content: center;
+    display: flex;
+    /* 플렉스박스로 설정 */
+    justify-content: center;
+    /* 가운데 정렬 */
+    align-items: center;
+    /* 세로축 중앙 정렬 */
+}
+
+/* 부모 컨테이너에 대해 설정하려면: */
+.footer-notice {
+    display: flex;
+    justify-content: center; /* 가로로 가운데 정렬 */
+    align-items: center; /* 세로로 가운데 정렬 */
+    flex-direction: column; /* 세로 정렬 */
+    padding: 20px;
 }
 
 .policy {
     background-color: #f3f4f6;
+    width: 100%;
+    margin-top: 2%;
 }
 </style>

@@ -59,9 +59,12 @@
           </div>
         </div>
       </div>
+      
     </div>
+
   </nav>
 </template>
+
 
 <script setup>
 import { ref, computed, onMounted } from 'vue';
@@ -74,6 +77,7 @@ const subCategoryList = ref([]);
 const isHoveringNavItem = ref(false);
 const isHoveringSubCategory = ref(false);
 const activeCategory = ref(null);
+
 const activeMainCategory = ref(null);
 
 //////////////////// 검색 기능 구현

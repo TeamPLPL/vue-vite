@@ -4,6 +4,7 @@ import loginRouter from "./login-router.js";
 import mainpageRouter from "./mainpage-router.js";
 import projectRouter from "./project-router.js";
 import fundingRouter from "./funding-router.js";
+import {jwtDecode} from "jwt-decode";
 
 /*
 *   작성자 : 신은호, 작성 날짜 : 24년 11월 11일
@@ -26,6 +27,30 @@ const routes = [
 const router = createRouter({
     history: createWebHistory(),
     routes,
+});
+
+// 작성자 : 신은호, 작성 내용 : 토큰 만료 확인
+router.beforeEach((to, from, next) => {
+    const token = localStorage.getItem('jwtToken');
+
+    if (token) {
+        const decoded = jwtDecode(token);
+        const currentTime = Date.now() / 1000; // 초 단위
+
+        if (decoded.exp < currentTime) {
+            alert('토큰이 만료되었습니다. 다시 로그인해 주세요.');
+            localStorage.removeItem('jwtToken'); // 만료된 토큰 제거
+            next('/login'); // 로그인 페이지로 이동
+            return;
+        }
+    }
+
+    if (!token && to.meta.requiresAuth) {
+        alert('로그인이 필요합니다.');
+        next('/login');
+    } else {
+        next();
+    }
 });
 
 export default router;
