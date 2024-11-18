@@ -1,26 +1,3 @@
-<!-- <template>
-    <div>
-        <h2>{{ categoryTitle }}</h2>
-        <div v-if="noContentMessage" class="alert alert-info">
-            {{ noContentMessage }}
-        </div>
-        <div v-else class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 row-cols-xl-5 g-4">
-            <div class="col" v-for="(funding, index) in categoryFundings" :key="index">
-                <div class="card h-100" @click="redirectToFundingDetail(funding.id)">
-                    <img :src="getThumbnailUrl(funding.thumbnailImgUrl)" class="card-img-top"
-                        :alt="funding.fundingTitle" @error="handleImageError">
-                    <div class="card-body">
-                        <h5 class="card-title">{{ funding.fundingTitle }}</h5>
-                        <p class="card-text">작성자: {{ funding.makerNick }}</p>
-                        <p class="card-text">달성률: {{ funding.achievementRate }}</p>
-                        <p class="card-text">후원자 수: {{ funding.supportCnt }}</p>
-                        <p class="card-text">찜 수: {{ funding.wishlistCnt }}</p>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</template> -->
 <template>
     <div>
         <h2 id="selected-category-title">{{ categoryTitle }}</h2>
@@ -31,16 +8,16 @@
             <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 row-cols-xl-5 g-4">
                 <div class="col" v-for="(funding, index) in categoryFundings.content" :key="index">
                     <div class="card h-100" @click="redirectToFundingDetail(funding.id)">
-                    <img :src="getThumbnailUrl(funding.thumbnailImgUrl)" class="card-img-top"
-                        :alt="funding.fundingTitle" @error="handleImageError">
-                    <div class="card-body">
-                        <h5 class="card-title">{{ funding.fundingTitle }}</h5>
-                        <p class="card-text">작성자: {{ funding.makerNick }}</p>
-                        <p class="card-text">달성률: {{ funding.achievementRate }}</p>
-                        <p class="card-text">후원자 수: {{ funding.supportCnt }}</p>
-                        <p class="card-text">찜 수: {{ funding.wishlistCnt }}</p>
+                        <img :src="getThumbnailUrl(funding.thumbnailImgUrl)" class="card-img-top"
+                            :alt="funding.fundingTitle" @error="handleImageError">
+                        <div class="card-body">
+                            <h5 class="card-title">{{ funding.fundingTitle }}</h5>
+                            <p class="card-text">작성자: {{ funding.makerNick }}</p>
+                            <p class="card-text">달성률: {{ funding.achievementRate }}</p>
+                            <p class="card-text">후원자 수: {{ funding.supportCnt }}</p>
+                            <p class="card-text">찜 수: {{ funding.wishlistCnt }}</p>
+                        </div>
                     </div>
-                </div>
                 </div>
             </div>
             <nav aria-label="Page navigation" class="mt-4">
@@ -126,7 +103,7 @@ const displayedPages = computed(() => {
         }
     }
 
-    return Array.from({length: end - start + 1}, (_, i) => start + i);
+    return Array.from({ length: end - start + 1 }, (_, i) => start + i);
 });
 
 
@@ -240,6 +217,4 @@ const redirectToFundingDetail = (fundingId) => {
         font-size: 0.7rem;
     }
 }
-
-
 </style>

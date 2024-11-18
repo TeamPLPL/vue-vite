@@ -305,37 +305,6 @@ const apiWrapper = {
     }
   },
 
-  // getWishlist: async () => {
-  //     try {
-  //         const response = await apiClient.get('/api/wish/list');
-  //         console.log('Response from server getWishlist:', response.data);
-  //         return response.data;
-  //     } catch (error) {
-  //         console.error(`getWishlist 중 오류 발생`, error);
-  //         if (error.response && error.response.status === 401) {
-  //             console.warn('Unauthorized access to wishlist.');
-  //             return [];
-  //         }
-  //         throw error; // 에러를 호출자에게 전파
-  //     }
-  // },
-
-  // updateWishlist: async (wishList) => {
-  //     try {
-  //         await apiClient.post('/api/wish/update', wishList);
-  //         console.log("wishlist 목록 업데이트 성공");
-  //         return true;
-  //     } catch (error) {
-  //         console.error(`updateWishlist 중 오류 발생`, error);
-  //         if (error.response && error.response.status === 401) {
-  //             console.warn('Unauthorized access to wishlist. User not authenticated.');
-  //             // 인증 관련 처리
-  //             // router.push('/login');
-  //         }
-  //         throw error; // 에러를 호출자에게 전파
-  //     }
-  // },
-
   getWishlist: async () => {
     try {
       const response = await apiClient.get("/api/wish/list");
@@ -349,8 +318,6 @@ const apiWrapper = {
       }
       throw error; // 에러를 호출자에게 전파
     }
-
-    // return await apiClient.get("/api/wish/list");
   },
   addToWishlist: async (id) => {
     try {
@@ -359,7 +326,6 @@ const apiWrapper = {
       console.error("Failed to add to wishlist:", error);
       throw error; // 또는 사용자 정의 에러 객체를 throw
     }
-    // return await apiClient.post(`/api/wish/add/${id}`);
   },
   removeFromWishlist: async (id) => {
     try {
@@ -368,7 +334,6 @@ const apiWrapper = {
       console.error("Failed to delete to wishlist:", error);
       throw error; // 또는 사용자 정의 에러 객체를 throw
     }
-    // return await apiClient.delete(`/api/wish/remove/${id}`);
   },
   checkWishlistStatus: async (id) => {
     try {
@@ -387,7 +352,6 @@ const apiWrapper = {
     }
   },
   updateWishlist: async (wishList) => {
-    // return await apiClient.post("/api/wish/update", wishList);
     try {
       await apiClient.post("/api/wish/update", wishList);
       console.log("wishlist 목록 업데이트 성공");
@@ -403,6 +367,23 @@ const apiWrapper = {
         alert("인증된 사용자가 아닙니다.\n(재)로그인하세요.");
         return false;
       }
+      throw error; // 에러를 호출자에게 전파
+    }
+  },
+
+  getSearchResult: async (title, page, size) => {
+    try {
+      const response = await apiClient.get("/api/funding/search", {
+        params: {
+          title: title,
+          page: page - 1, // Spring Boot는 0-based 페이징을 사용
+          size: size, // 페이지 당 항목 수
+        },
+      });
+      console.log("제목 검색 성공: " + response);
+      return response;
+    } catch (error) {
+      console.error(`getSearchResult 중 오류 발생`, error);
       throw error; // 에러를 호출자에게 전파
     }
   },

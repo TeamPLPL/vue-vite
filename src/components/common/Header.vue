@@ -1,7 +1,7 @@
 <template>
   <nav class="navbar sticky-top navbar-light bg-light">
-    <div class="container-sm">
-      <div class="container-fluid px-3">
+    <div class="container-sm ps-0">
+      <div class="container-fluid pe-3">
         <div class="d-flex align-items-center w-100">
           <!-- 왼쪽 화살표 버튼 -->
           <button class="btn btn-link nav-arrow" @click="scrollLeft" :disabled="isScrolledLeft">
@@ -27,9 +27,10 @@
           </button>
 
           <!-- 검색 폼 -->
-          <form class="d-flex ms-auto search-form" role="search">
+          <form class="d-flex ms-auto search-form" role="search" @submit.prevent="handleSearch">
             <div class="input-group">
-              <input class="form-control border-end-0" type="search" placeholder="Search" aria-label="Search">
+              <input class="form-control border-end-0" type="search" v-model="searchQuery" placeholder="Search"
+                aria-label="Search" @keyup.enter="handleSearch">
               <button class="btn border-start-0 search-button" type="submit">
                 <i class="bi bi-search"></i>
               </button>
@@ -75,6 +76,25 @@ const isHoveringSubCategory = ref(false);
 const activeCategory = ref(null);
 const activeMainCategory = ref(null);
 
+//////////////////// 검색 기능 구현
+const searchQuery = ref('');
+
+const handleSearch = () => {
+  if (searchQuery.value.trim()) {
+    router.push({
+      name: 'SearchResult',
+      query: {
+        q: searchQuery.value,
+        page: 1
+      }
+    });
+    searchQuery.value = ''; // 검색 후 검색창 비우기 (선택사항)
+  }
+};
+
+//////////////////// 검색 기능 구현 끝
+
+
 const shouldShowSubCategories = computed(() =>
   subCategoryList.value.length > 0 && (isHoveringNavItem.value || isHoveringSubCategory.value)
 );
@@ -100,7 +120,7 @@ const scrollRight = () => {
 const updateScrollState = () => {
   if (navScroll.value) {
     isScrolledLeft.value = navScroll.value.scrollLeft <= 0;
-    isScrolledRight.value = 
+    isScrolledRight.value =
       navScroll.value.scrollLeft + navScroll.value.clientWidth >= navScroll.value.scrollWidth;
   }
 };
@@ -169,14 +189,6 @@ const handleMainCategoryClick = (mainCategoryId) => {
     query: { name: menuItems.value.find(item => item.mainCategoryId === mainCategoryId)?.mainCategoryName }
   });
 };
-
-// const handleMainCategoryClick = (mainCategory) => {
-//   router.push({
-//     name: 'Category',
-//     params: { type: 'main', id: mainCategory.id },
-//     query: { name: mainCategory.name }
-//   });
-// };
 
 const handleSubCategoryClick = (subCategoryId) => {
   router.push({
@@ -281,28 +293,28 @@ const handleSubCategoryClick = (subCategoryId) => {
   }
 
   .nav-arrow {
-  padding: 0.25rem 0.5rem;
-  font-size: 1.25rem;
-  line-height: 1;
-  background-color: transparent;
-  border: none;
-  color: #6c757d;
-}
+    padding: 0.25rem 0.5rem;
+    font-size: 1.25rem;
+    line-height: 1;
+    background-color: transparent;
+    border: none;
+    color: #6c757d;
+  }
 
-.nav-arrow:disabled {
-  color: #ced4da;
-  cursor: not-allowed;
-}
+  .nav-arrow:disabled {
+    color: #ced4da;
+    cursor: not-allowed;
+  }
 
-.nav-arrow:not(:disabled):hover {
-  color: #495057;
-}
+  .nav-arrow:not(:disabled):hover {
+    color: #495057;
+  }
 
-.nav-scroll {
-  position: relative;
-  overflow-x: hidden;
-  scroll-behavior: smooth;
-}
+  .nav-scroll {
+    position: relative;
+    overflow-x: hidden;
+    scroll-behavior: smooth;
+  }
 
 }
 </style>
