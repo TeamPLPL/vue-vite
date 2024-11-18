@@ -48,6 +48,36 @@ export default defineComponent({
     },
   },
   methods: {
+    async initializeProjectData() {
+      try {
+        // API 호출
+        const projectData = await apiWrapper.getData(`/api/studio/${this.projectId}/project`);
+        console.log("API 응답 데이터:", projectData);
+
+        const projectInfo = projectData.projectInfo;
+        if (!projectInfo) {
+          console.error("프로젝트 정보가 없습니다.");
+          return;
+        }
+
+        // fundingStartDate와 fundingEndDate를 초기화
+        if (projectInfo.fundingStartDate) {
+          this.startDate = new Date(projectInfo.fundingStartDate).toISOString().split("T")[0];
+        }
+        if (projectInfo.fundingEndDate) {
+          this.endDate = new Date(projectInfo.fundingEndDate).toISOString().split("T")[0];
+        }
+
+        console.log("초기화된 날짜:", {
+          startDate: this.startDate,
+          endDate: this.endDate,
+        });
+      } catch (error) {
+        console.error("프로젝트 데이터 초기화 중 오류 발생:", error);
+        alert("프로젝트 데이터를 불러오는 중 문제가 발생했습니다.");
+      }
+    },
+
     async saveProject() {
       try {
         // LocalDateTime 형식으로 변환
@@ -115,6 +145,9 @@ export default defineComponent({
       endDate,
       dayDifference,
     };
+  },
+  async mounted() {
+    await this.initializeProjectData();
   },
 });
 </script>

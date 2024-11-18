@@ -200,6 +200,61 @@ export default defineComponent({
         alert("프로젝트 소개 저장 중 오류가 발생했습니다.");
       }
     },
+    async initializeProjectData() {
+      try {
+        // API 호출
+        const projectData = await apiWrapper.getData(`/api/studio/${this.projectId}/project`);
+        console.log("API 응답 데이터:", projectData);
+
+        const projectInfo = projectData.projectInfo;
+        if (!projectInfo) {
+          console.error("프로젝트 정보가 없습니다.");
+          return;
+        }
+
+        this.fundingTitle = projectInfo.fundingTitle || "";
+        this.amount = projectInfo.targetAmount ? projectInfo.targetAmount.toString() : "";
+        this.formattedAmount = this.amount
+            ? new Intl.NumberFormat("ko-KR").format(this.amount) + "원"
+            : "";
+        // 상위 카테고리 및 하위 카테고리 이름 초기화
+        this.selectedUpperCategory = projectInfo.mainCategoryId;
+        this.selectedLowerCategory = projectInfo.subCategoryId;
+
+        // 이름 초기화
+        this.mainCategoryName = projectInfo.mainCategoryName || "";
+        this.subCategoryName = projectInfo.subCategoryName || "";
+
+        // UI 데이터와 동기화
+        const upperCategory = this.upperCategories.find(
+            (category) => category.idx === this.selectedUpperCategory
+        );
+        if (upperCategory) {
+          upperCategory.name = this.mainCategoryName;
+        }
+
+        const lowerCategory = this.subCategories.find(
+            (subcategory) => subcategory.idx === this.selectedLowerCategory
+        );
+        if (lowerCategory) {
+          lowerCategory.name = this.subCategoryName;
+        }
+
+        console.log("초기화된 데이터:", {
+          selectedUpperCategory: this.selectedUpperCategory,
+          selectedLowerCategory: this.selectedLowerCategory,
+          mainCategoryName: this.mainCategoryName,
+          subCategoryName: this.subCategoryName,
+        });
+
+        // DOM 업데이트 후 확인
+        await this.$nextTick();
+        console.log("DOM 업데이트 완료");
+      } catch (error) {
+        console.error("프로젝트 데이터 초기화 중 오류:", error);
+        alert("프로젝트 데이터를 불러오는 중 문제가 발생했습니다.");
+      }
+    },
     closeModal() {
       this.showModal = false;
       // this.selectedUpperCategory = null;
@@ -239,6 +294,9 @@ export default defineComponent({
           ? new Intl.NumberFormat('ko-KR').format(inputValue) + '원'
           : '';
     },
+  },
+  async mounted() {
+    await this.initializeProjectData();
   },
 });
 </script>
