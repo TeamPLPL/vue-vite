@@ -14,8 +14,11 @@
         <p class="text-start">메이커님의 프로젝트를 소개해 주세요.</p>
         <hr/>
         <MakerType @updateMakerInfo="updateMakerInfo"/>
+
         <Thumbnail/>
+
         <IntroductionImages/>
+
         <ProjectStory/>
 
         <!-- MyEditor에 초기 데이터 전달 -->

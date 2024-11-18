@@ -240,6 +240,11 @@ export default defineComponent({
           lowerCategory.name = this.subCategoryName;
         }
 
+        // 선택된 카테고리 텍스트 초기화
+        if (this.mainCategoryName && this.subCategoryName) {
+          this.selectedCategoryText = `${this.mainCategoryName} > ${this.subCategoryName}`;
+        }
+
         console.log("초기화된 데이터:", {
           selectedUpperCategory: this.selectedUpperCategory,
           selectedLowerCategory: this.selectedLowerCategory,

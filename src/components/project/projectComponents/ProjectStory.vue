@@ -1,6 +1,6 @@
 <template>
   <div class="story-guide mt-5">
-    <h4 class="story-title">프로젝트 스토리 <span class="required">*</span></h4>
+    <h4 class="story-title fw-bold">프로젝트 스토리 <span class="required">*</span></h4>
 
     <!-- 통합 TIP 섹션 -->
     <div class="tip-section p-3 bg-light rounded">
@@ -40,13 +40,6 @@ export default {
   color: #333;
   text-align: left;
 }
-
-.story-title {
-  font-weight: bold;
-  font-size: 18px;
-  margin-bottom: 10px;
-}
-
 .required {
   color: red;
 }

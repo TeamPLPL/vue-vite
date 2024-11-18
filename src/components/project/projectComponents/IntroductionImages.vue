@@ -1,6 +1,6 @@
 <template>
   <div class="introduction-images mt-5">
-    <h4 class="fw-bold text-start">소개 사진 등록</h4>
+    <h4 class="fw-bold text-start">소개 사진 등록 <span class="text-danger">*</span></h4>
     <p class="text-muted small text-start">프로젝트 상세페이지 최상단에 노출할 사진을 등록해 주세요.</p>
 
     <!-- 가이드 박스 -->
@@ -14,111 +14,121 @@
           <li>GIF: 2MB 이하, 해상도 760x480 픽셀 이상 ~ 1440x864 픽셀 이하</li>
           <li>JPG, JPEG, PNG: 10MB 이하, 해상도 760x480 픽셀 이상</li>
         </ul>
-        <li>최대 10장까지 등록 가능</li>
+        <li>긴 이미지로 올리는 것을 추천드립니다.</li>
       </ul>
     </div>
 
-    <!-- 이미지 업로드 섹션 -->
-    <div class="d-flex flex-wrap gap-2">
-      <div
-          v-for="(image, index) in images"
-          :key="image.url"
-          class="position-relative"
-          style="width: 80px; height: 80px;"
-      >
-        <img
-            :src="image.url"
-            alt="이미지 미리보기"
-            class="img-fluid w-100 h-100 object-fit-cover"
-        />
-        <!-- 삭제 버튼 -->
-        <button
-            class="btn btn-danger btn-sm position-absolute top-0 end-0"
-            @click="removeImage(index)"
-            style="z-index: 1;"
-        >
-          삭제
-        </button>
-      </div>
 
-      <!-- 업로드 버튼 -->
-      <div
-          class="d-flex flex-column align-items-center justify-content-center position-relative border border-secondary border-dashed rounded"
-          style="width: 80px; height: 80px; cursor: pointer;"
-      >
-        <input
-            type="file"
-            @change="uploadImage"
-            class="file-input position-absolute w-100 h-100 opacity-0"
-        />
-        <i class="bi bi-camera fs-3 text-muted"></i>
-        <p class="small text-muted">{{ images.length }}/10</p>
+    <!-- 이미지 업로드 -->
+    <div class="mt-4">
+      <input ref="fileInput" type="file" class="form-control w-50" @change="onImageUpload" accept="image/*"/>
+    </div>
+
+    <!-- 이미지 썸네일 -->
+    <div v-if="thumbnail" class="thumbnail-container mt-3">
+      <div class="thumbnail-wrapper">
+        <img :src="thumbnail" alt="Uploaded Thumbnail" class="thumbnail-image"/>
+        <button type="button" class="btn-close position-absolute top-0 end-0" @click="removeImage" aria-label="Close"></button>
       </div>
     </div>
   </div>
 </template>
 
 <script>
-import { ref } from "vue";
-import { useRoute } from "vue-router";
 import apiWrapper from "../../../util/axios/axios.js";
 
 export default {
   name: "IntroductionImages",
-  setup() {
-    const route = useRoute();
-    const projectId = route.params.projectId;
-
-    const images = ref([]);
-
-    const uploadImage = async (event) => {
+  props: {
+    projectId: {
+      type: String,
+      required: true,
+    },
+  },
+  data() {
+    return {
+      thumbnail: null,
+      projectId: this.$route.params.projectId, // 라우터에서 projectId 가져오기
+    };
+  },
+  methods: {
+    async onImageUpload(event) {
       const file = event.target.files[0];
+
       if (!file || file.size > 10 * 1024 * 1024) {
         alert("이미지는 10MB 이하의 JPG, JPEG, PNG 파일만 업로드할 수 있습니다.");
         return;
       }
 
+      const formData = new FormData();
+      formData.append("file", file);
+
       try {
-        const formData = new FormData();
-        formData.append("file", file);
-
-        // 이미지 업로드 API 호출
-        const response = await apiWrapper.postFileData(
-            `/api/${projectId}/introductionimages`,
-            formData
-        );
-
-        console.log("업로드된 이미지 URL:", response.data); // 디버깅용
-        images.value.push({ url: response.data }); // 반환된 URL을 배열에 추가
-
-        console.log("Images 배열:", images.value);
+        const response = await apiWrapper.postFileData(`/api/${this.projectId}/introductionimages`, formData);
+        const fileData = response.data; // FileDTO 데이터를 받음
+        this.fileId = fileData.fileId; // fileId 저장
+        this.thumbnail = fileData.signedUrl; // signedUrl로 썸네일 URL 설정
       } catch (error) {
         console.error("이미지 업로드 실패:", error);
         alert("이미지 업로드 중 문제가 발생했습니다.");
       }
-    };
+    },
+    async removeImage() {
+      if (!this.fileId) {
+        alert("삭제할 이미지가 없습니다.");
+        return;
+      }
 
-    const removeImage = (index) => {
-      // 해당 이미지를 배열에서 제거
-      images.value.splice(index, 1);
-      console.log("Images 배열:", images.value);
-    };
-
-    return {
-      images,
-      uploadImage,
-      removeImage,
-    };
+      try {
+        // GET 요청으로 이미지 삭제 API 호출
+        await apiWrapper.getData(`/api/${this.fileId}/deleteimage`);
+        alert("이미지가 삭제되었습니다.");
+        this.thumbnail = null; // 화면에서 썸네일 제거
+        this.fileId = null; // fileId 초기화
+        if (this.$refs.fileInput) {
+          this.$refs.fileInput.value = ""; // 파일 입력 초기화
+        }
+      } catch (error) {
+        console.error("이미지 삭제 실패:", error);
+        alert("이미지 삭제 중 문제가 발생했습니다.");
+      }
+      // this.thumbnail = null;
+      // if (this.$refs.fileInput) {
+      //   this.$refs.fileInput.value = ""; // 파일 입력 초기화
+      // }
+    },
   },
 };
 </script>
 
 <style scoped>
-.file-input {
-  cursor: pointer;
+.thumbnail-container {
+  display: inline-block;
+  position: relative;
+  text-align: left;
+  margin-top: 10px;
 }
 
-.object-fit-cover {
-  object-fit: cover;
+.thumbnail-wrapper {
+  position: relative;
+  width: 150px; /* 정사각형 크기 */
+  height: 150px; /* 정사각형 크기 */
+  overflow: hidden;
+  border-radius: 8px; /* 둥근 모서리 (선택 사항) */
+  background-color: #f8f9fa; /* 배경색 (이미지 없을 때 표시용) */
+}
+
+.thumbnail-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover; /* 정사각형으로 맞춤 */
+  display: block;
+}
+
+.btn-close {
+  position: absolute; /* 위치 설정 */
+  top: 0; /* 부모의 상단 */
+  right: 0; /* 부모의 오른쪽 */
+  transform: translate(-50%, 50%); /* 위치 조정 (필요 시 추가) */
 }
 </style>
