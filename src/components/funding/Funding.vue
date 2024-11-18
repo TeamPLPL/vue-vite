@@ -17,7 +17,10 @@
                                 {{ fundingData.mainCategoryNm }}&nbsp;&nbsp;>&nbsp;&nbsp;{{ fundingData.subCategoryNm }}
                             </div>
                             <div class="me-3">
-                                <img v-if="wishlist" class="wish" src="../../assets/wish.png" alt="찜 되어 있음">
+                                <button @click="toggleWishlist(fundingId)">
+                                    {{ isInWishlist ? '찜 취소' : '찜하기' }}
+                                </button>
+                                <img v-if="isInWishlist" class="wish" src="../../assets/wish.png" alt="찜 되어 있음">
                                 <img v-else class="wish" src="../../assets/wish-not.png" alt="찜 되어있지 않음">
                                 &nbsp;&nbsp;
                                 <img class="share" src="../../assets/share.png" alt="공유하기">
@@ -80,7 +83,7 @@
 </template>
 
 <script setup>
-import { ref, provide, onMounted } from 'vue';
+import { ref, provide, inject, computed, onMounted, onUnmounted } from 'vue';
 import { useRoute } from 'vue-router';
 
 import apiWrapper from '../../util/axios/axios';
@@ -91,6 +94,20 @@ const route = useRoute(); // 현재 경로 정보를 가져오기 위해 useRout
 
 const fundingId = ref(route.params.id);
 provide('fundingId', fundingId);
+
+//////////////////// wishlist start
+const wishlistStore = inject('wishlistStore');
+
+const isInWishlist = computed(() => wishlistStore.getters.isInWishlist(fundingId.value));
+
+const toggleWishlist = (fundingId) => {
+    if (isInWishlist.value) {
+        wishlistStore.mutations.removeFromWishlist(fundingId);
+    } else {
+        wishlistStore.mutations.addToWishlist(fundingId);
+    }
+};
+////////////////////// wishlist end
 
 const fundingData = ref();
 const rewardList = ref([]);
@@ -103,7 +120,7 @@ const leftDate = ref(0);
 provide('fundingStartDate', fundingStartDate)
 provide('fundingEndDate', fundingEndDate)
 
-const wishlist = ref();
+// const wishlist = ref();
 const maker = ref();
 
 const fundingExplanation = ref('');
@@ -141,10 +158,17 @@ onMounted(async () => {
     const endDate = new Date(fundingData.value.fundingEndDate);
     leftDate.value = Math.max(0, Math.ceil((endDate - today) / (1000 * 60 * 60 * 24)));
 
-    wishlist.value = data.isWishlist
+    // wishlist.value = data.isWishlist
 
     maker.value = data.makerDTO
+
+    await wishlistStore.actions.fetchWishlist();
 })
+
+onUnmounted(async () => {
+    await wishlistStore.actions.updateWishlistInDB();
+});
+
 
 const getThumbnailUrl = (url) => {
     return url || defaultImageUrl.value

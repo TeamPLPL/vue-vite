@@ -176,6 +176,7 @@ const apiWrapper = {
         }
     },
 
+    // 주소 저장
     saveAddress: async (addressData) => {
         try {
             console.log('Sending address data:', addressData); // 로깅 추가
@@ -192,6 +193,7 @@ const apiWrapper = {
         }
     },
 
+    // 주소 목록 조회
     getAddressList: async () => {
         try {
             const response = await apiClient.post('api/address/list');
@@ -207,6 +209,7 @@ const apiWrapper = {
         }
     },
 
+    // 펀딩이미지(썸네일, 펀딩디테일이미지들) 리스트 조회
     fetchFundingImgList: async (id) => {
         try {
             const response = await apiClient.post(
@@ -226,6 +229,7 @@ const apiWrapper = {
         }
     },
 
+    // 펀딩 환불 및 리워드 정보 조회
     fetchFundingInfo: async (id) => {
         try {
             const response = await apiClient.get(`api/reward-policy/${id}`);
@@ -235,8 +239,63 @@ const apiWrapper = {
             console.error(`펀딩 리워드 정보 및 환불 정책 조회 중 오류 발생\n`, error);
             return null;
         }
-    }
+    },
+
+    // MainCategoryId별 펀딩 목록 조회(페이징 처리)
+    fetchFundingsByMainCategoryId: async (id, page = 0, size = Const.DEFAULT_PAGE_SIZE) => {
+        try {
+            const response = await apiClient.get(`api/funding/fundinglist/main/${id}`, {
+                params: {
+                    page: page,
+                    size: size,
+                    sort: 'supportCnt,DESC'
+                }
+            });
+            console.log('Response from server fetchFundingsByMainCategoryId:', response.data);
+            return response.data;
+        } catch (error) {
+            console.error(`fetchFundingsByMainCategoryId 중 오류 발생\n`, error);
+            return null;
+        }
+    },
     
+    // SubCategoryId별 펀딩 목록 조회(페이징 처리)
+    fetchFundingsBySubCategoryId: async (id, page = 0, size = Const.DEFAULT_PAGE_SIZE) => {
+        try {
+            const response = await apiClient.get(`api/funding/fundinglist/sub/${id}`, {
+                params: {
+                    page: page,
+                    size: size,
+                    sort: 'supportCnt,DESC'
+                }
+            });
+            console.log('Response from server fetchFundingsBySubCategoryId:', response.data);
+            return response.data;
+        } catch (error) {
+            console.error(`fetchFundingsBySubCategoryId 중 오류 발생\n`, error);
+            return null;
+        }
+    },
+
+    getWishlist: async () => {
+        try {
+            const response = await apiClient.get('/api/wish/list');
+            console.log('Response from server getWishlist:', response.data);
+            return response.data;
+        } catch (error) {
+            console.error(`getWishlist 중 오류 발생\n`, error);
+            return null;
+        }
+    },
+
+    updateWishlist: async () => {
+        try {
+            const response = await apiClient.post('/api/wish/update');
+            console.log("wishlist 목록 업데이트 성공")
+        } catch (error) {
+            console.error(`updateWishlist 중 오류 발생\n`, error);
+        }
+    },
 
 };
 
