@@ -6,27 +6,13 @@
         <div class="filter-dropdown">
             <select v-model="selectedFilter" @change="filterList">
                 <option value="전체">전체</option>
-                <option value="진행중">진행중</option>
-                <option value="종료">종료</option>
+                <option value="결제 예약">결제 예약</option>
+                <option value="결제 완료">결제 완료</option>
+                <option value="결제 취소 / 실패">결제 취소 / 실패</option>
+                <option value="프로젝트 실패">프로젝트 실패</option>
             </select>
         </div>
 
-        <!-- 참여 내역 리스트 -->
-        <!-- <div v-for="item in filteredItems" :key="item.id" class="participation-item">
-            <div class="item-left">
-                <div class="item-header">
-                    <span>{{ item.category }} > {{ item.subcategory }}</span>
-                    <span class="date">{{ item.date }} 참여</span>
-                </div>
-                <span class="status">{{ item.status }}</span>
-                <h3>{{ item.title }}</h3>
-                <p class="byline">by {{ item.author }}</p>
-                <div class="cancel-link">
-                    <button @click="showCancelModal = true" class="change-button">결제 예약 취소</button>
-                    <router-link :to="`/mywadiz/supporter/participation/${item.id}`" class="details-link">상세보기 &gt;</router-link>
-                </div>
-            </div>
-        </div> -->
         <div v-for="item in filteredItems" :key="item.id" class="participation-item">
             <div class="item-left">
                 <div class="item-header">
@@ -37,26 +23,29 @@
                 <h3>{{ item.title }}</h3>
                 <p class="byline">by {{ item.author }}</p>
                 <div class="cancel-link">
-                    <button @click="showCancelModal = true" class="change-button">결제 예약 취소</button>
-                    <router-link :to="`/mywadiz/supporter/participation/${item.id}`" class="details-link">상세보기 &gt;</router-link>
+                    <!-- 결제 예약 취소 버튼 -->
+                    <button v-if="item.status !== 'failed' && item.status !== 'refund'" class="change-button"
+                        @click="openCancelModal(item.id)">
+                        결제 예약 취소
+                    </button>
+                    <!-- <router-link :to="`/mywadiz/supporter/participation/${item.id}`" class="details-link">상세보기 &gt;</router-link> -->
+                    <router-link
+                        :to="{ name: 'ParticipationDetail', params: { id: item.id }, query: { status: getStatus(item) } }">
+                        상세보기 &gt;
+                    </router-link>
                 </div>
             </div>
         </div>
 
         <!-- 모달 컴포넌트 -->
-        <ModalConfirm 
-            v-show="showCancelModal" 
-            :show="showCancelModal" 
-            title="결제를 취소하시겠어요?"
-            message="리워드 옵션 변경을 원한다면 결제를 취소하지 않고 참여 내역에서 변경 가능해요." 
-            @close="closeCancelModal"
-            @confirm="cancelReservation"
-        />
+        <ModalConfirm v-show="showCancelModal" :show="showCancelModal" :payment-id="collectedPaymentId"
+            title="결제를 취소하시겠어요?" message="리워드 옵션 변경을 원한다면 결제를 취소하지 않고 참여 내역에서 변경 가능해요." @close="closeCancelModal"
+            @confirm="cancelReservation" />
     </div>
 </template>
 
 <script setup>
-import { ref, onMounted, computed } from 'vue';
+import { ref, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import ModalConfirm from './participationComponents/ModalConfirm.vue';
 import apiWrapper from '../../util/axios/axios';
@@ -65,22 +54,9 @@ import { useAuthStore } from '../../util/store/authStore';
 const authStore = useAuthStore();
 const selectedFilter = ref("전체");
 const showCancelModal = ref(false);
+const collectedPaymentId = ref(null);
 const selectedItem = ref(null); // 선택된 항목
 const router = useRouter();
-
-// const items = ref([
-//     {
-//         id: 1,
-//         category: "프로모션",
-//         subcategory: "패션 > 가방",
-//         status: "진행중",
-//         title: "[LOOPER] 공항에서 여권을 찾느라 가방을 뒤집는 당신을 위해",
-//         author: "주식회사 루피",
-//         date: "2024.10.28",
-//     },
-// ]);
-
-// const filteredItems = ref(items.value);
 
 const items = ref([]); // 참여 내역
 const filteredItems = ref([]); // 필터링된 항목
@@ -91,7 +67,7 @@ function getStatus(item) {
     const fundingStartDate = new Date(item.fundingStartDate);
     const fundingEndDate = new Date(item.fundingEndDate);
 
-    if (now >= fundingStartDate && now <= fundingEndDate) {
+    if (now >= fundingStartDate && now < fundingEndDate) {
         return '진행중';
     } else if (now > fundingEndDate) {
         if (item.currentAmount >= item.targetAmount) {
@@ -104,30 +80,47 @@ function getStatus(item) {
     }
 }
 
-function openCancelModal(item) {
-    selectedItem.value = item;
+function filterList() {
+    filteredItems.value = items.value.filter(item => {
+        const now = new Date();
+        const fundingEndDate = new Date(item.fundingEndDate);
+
+        switch (selectedFilter.value) {
+            case "전체":
+                return true; // 모든 내역 공개
+            case "결제 예약":
+                return now < fundingEndDate && item.status === 'complete';
+            case "결제 완료":
+                return now >= fundingEndDate && item.status === 'complete' && item.currentAmount >= item.targetAmount;
+            case "결제 취소 / 실패":
+                return item.status === 'failed' || item.status === 'refund';
+            case "프로젝트 실패":
+                return now >= fundingEndDate && item.status === 'complete' && item.currentAmount < item.targetAmount;
+            default:
+                return false; // 필터에 해당하지 않는 경우 제외
+        }
+    });
+}
+
+
+function openCancelModal(paymentId) {
+    if (!paymentId) {
+        console.error('Invalid Payment ID:', paymentId); // 디버깅용
+        return;
+    }
+    console.log('열린 Payment ID:', paymentId); // 디버깅용
+    collectedPaymentId.value = paymentId;
     showCancelModal.value = true;
 }
 
 function closeCancelModal() {
     showCancelModal.value = false;
-    selectedItem.value = null;
 }
 
-function cancelReservation() {
-    if (selectedItem.value) {
-        console.log(`결제 예약 취소됨: ${selectedItem.value.title}`);
-        // 취소 처리 로직 추가
-    }
+async function cancelReservation(paymentId) {
+    console.log('취소할 Payment ID:', paymentId); // 전달받은 Payment ID 확인
+    // 결제 취소 로직
     closeCancelModal();
-}
-
-function filterList() {
-    if (selectedFilter.value === "전체") {
-        filteredItems.value = items.value;
-    } else {
-        filteredItems.value = items.value.filter(item => item.status === selectedFilter.value);
-    }
 }
 
 // API 호출로 참여 내역 가져오기
