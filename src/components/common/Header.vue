@@ -1,6 +1,25 @@
 <template>
   <nav class="navbar sticky-top navbar-light bg-light">
     <div class="container-sm">
+      <!-- 메인 카테고리 네비게이션 -->
+      <ul class="nav nav-underline">
+        <li
+          class="nav-item"
+          v-for="(item, index) in menuItems"
+          :key="index"
+          @mouseenter="handleNavItemMouseEnter(item.mainCategoryId)"
+          @mouseleave="handleNavItemMouseLeave"
+        >
+          <a
+            class="nav-link"
+            href="#"
+            :class="{ active: activeCategory === item.mainCategoryId }"
+            @click.prevent="setActiveCategory(item.mainCategoryId)"
+          >
+            {{ item.mainCategoryName }}
+          </a>
+        </li>
+      </ul>
       <div class="container-fluid px-3">
         <div class="d-flex align-items-center w-100">
           <!-- 메인 카테고리 네비게이션 -->
@@ -15,7 +34,6 @@
               </li>
             </ul>
           </div>
-
           <!-- 검색 폼 -->
           <form class="d-flex ms-auto search-form" role="search">
             <div class="input-group">
@@ -51,6 +69,23 @@
       
     </div>
 
+    <!-- 서브 카테고리 리스트 표시 영역 -->
+    <div
+      class="sub-category-container"
+      v-if="shouldShowSubCategories"
+      @mouseenter="handleSubCategoryMouseEnter"
+      @mouseleave="handleSubCategoryMouseLeave"
+    >
+      <div class="container-sm">
+        <ul class="sub-category-list">
+          <li v-for="(subCategory, index) in subCategoryList" :key="index">
+            <a href="#" @click.prevent="handleSubCategoryClick(subCategory.subCategoryId)">
+              {{ subCategory.subCategoryName }}
+            </a>
+          </li>
+        </ul>
+      </div>
+    </div>
   </nav>
 </template>
 
@@ -64,7 +99,6 @@ const subCategoryList = ref([]);
 const isHoveringNavItem = ref(false);
 const isHoveringSubCategory = ref(false);
 const activeCategory = ref(null);
-
 const activeMainCategory = ref(null);
 
 const shouldShowSubCategories = computed(() =>

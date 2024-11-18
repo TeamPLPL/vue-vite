@@ -1,7 +1,11 @@
 <template>
   <div class="container-fluid">
     <div class="row">
-      <ProjectSidebar />
+      <div class="col-lg-3 border-end d-none d-lg-block sidebar-fixed-width">
+        <!-- ProjectSidebar에 projectId 바인딩 -->
+        <ProjectSidebar :projectId="projectId" />
+        <button class="btn btn-primary w-100" @click="saveProject">저장 하기</button>
+      </div>
 
       <!-- Content -->
       <div class="col-lg-9 p-4">
@@ -31,7 +35,7 @@
         <!-- 리워드 리스트 -->
         <div v-for="(reward, index) in rewards" :key="index" class="mb-3 p-3 border rounded" style="width: 50%;">
           <div class="text-start">
-            <h5 class="fw-bold"> {{reward.price }} 원</h5>
+            <h5 class="fw-bold"> {{ reward.price }} 원</h5>
             <p><strong>{{ reward.rewardName }}</strong></p>
             <p>{{ reward.rewardDescription }}</p>
             <p>
@@ -119,7 +123,7 @@
                           value="yes"
                           id="deliveryYes"
                       />
-                      <label class="form-check-label" for="deliveryYes">배송비 있음 <br> <span class="small text-secondary">(택배로 리워드를 전달해요.)</span></label>
+                      <label class="form-check-label" for="deliveryYes">배송비 있음</label>
                     </div>
                     <div class="form-check mt-2">
                       <input
@@ -129,7 +133,7 @@
                           value="no"
                           id="deliveryNo"
                       />
-                      <label class="form-check-label" for="deliveryNo">배송비 없음 <br> <span class="small text-secondary">(배송비 없이 리워드를 전달해요.)</span></label>
+                      <label class="form-check-label" for="deliveryNo">배송비 없음</label>
                     </div>
                   </div>
 
@@ -143,6 +147,18 @@
                           placeholder="0"
                       />
                       <span class="ms-2">원</span>
+                    </div>
+                  </div>
+
+                  <div class="form-group text-start mt-3 w-50">
+                    <label for="limitQuantity">리워드 배송 예상 날짜</label>
+                    <div class="d-flex align-items-center mt-2">
+                      <input
+                          type="date"
+                          class="form-control"
+                          v-model="newReward.deliveryStartDate"
+                          placeholder="0"
+                      />
                     </div>
                   </div>
 
@@ -165,13 +181,21 @@
 </template>
 
 <script>
-import lib from '../../util/scripts/lib.js';
+import { defineComponent } from "vue";
+import { useRoute } from "vue-router";
 import ProjectSidebar from "./projectComponents/ProjectSidebar.vue";
+import apiWrapper from "../../util/axios/axios.js";
 
-export default {
+export default defineComponent({
   name: "RewardForm",
   components: {
     ProjectSidebar,
+  },
+  props: {
+    projectId: {
+      type: String,
+      required: true,
+    },
   },
   data() {
     return {
@@ -184,6 +208,7 @@ export default {
         limitQuantity: 0,
         deliveryOption: "yes",
         deliveryFee: 0,
+        deliveryStartDate: null, // 배송 예상 날짜
       },
       editingIndex: null, // 현재 수정 중인 리워드의 인덱스
     };
@@ -197,15 +222,15 @@ export default {
     saveReward() {
       if (this.editingIndex === null) {
         // 새로 추가
-        this.rewards.push({...this.newReward});
+        this.rewards.push({ ...this.newReward });
       } else {
         // 기존 리워드 수정
-        this.rewards.splice(this.editingIndex, 1, {...this.newReward});
+        this.rewards.splice(this.editingIndex, 1, { ...this.newReward });
       }
       this.closeModal();
     },
     editReward(index) {
-      this.newReward = {...this.rewards[index]};
+      this.newReward = { ...this.rewards[index] };
       this.showModal = true;
       this.editingIndex = index;
     },
@@ -224,27 +249,42 @@ export default {
         limitQuantity: 0,
         deliveryOption: "yes",
         deliveryFee: 0,
+        deliveryStartDate: null, // 초기화
       };
     },
-    formatNumber(value) {
-      return lib.getNumberFormatted(value);
-    }
+    async saveProject() {
+      try {
+        const requestBody = this.rewards.map(reward => ({
+          id: reward.id || null,
+          rewardName: reward.rewardName,
+          price: reward.price,
+          explanation: reward.rewardDescription,
+          deliveryFee: reward.deliveryOption === "yes" ? reward.deliveryFee : 0,
+          // ISO 8601 형식으로 변환
+          deliveryStartDate: reward.deliveryStartDate
+              ? `${reward.deliveryStartDate}T00:00:00`
+              : null,
+          quantityLimit: reward.limitQuantity,
+        }));
+
+        console.log("전송 데이터:", requestBody);
+
+        const response = await apiWrapper.postData(`/api/studio/${this.projectId}/reward`, requestBody);
+
+        if (response.status === 200) {
+          alert("리워드가 성공적으로 저장되었습니다.");
+          this.$router.push(`/studio/${this.projectId}/project/`);
+        }
+      } catch (error) {
+        console.error("저장 중 오류 발생:", error);
+        alert("리워드 저장 중 오류가 발생했습니다.");
+      }
+    },
   },
-};
+});
 </script>
 
-
-
 <style scoped>
-.card {
-  border: 1px solid #ddd;
-  border-radius: 8px;
-}
-
-.card-body {
-  padding: 16px;
-}
-
 .modal {
   background: rgba(0, 0, 0, 0.5); /* 모달 뒷배경 어둡게 */
 }

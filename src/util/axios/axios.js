@@ -28,6 +28,26 @@ apiClient.interceptors.request.use(
     }
 );
 
+// 작성자 : 신은호, 작성 날짜 : 24-11-15
+/*
+    작성 내용 : 401에러, 토큰 만료되면, login으로 돌아가기
+*/
+apiClient.interceptors.response.use(
+    (response) => {
+        // 응답이 정상일 경우 그대로 반환
+        return response;
+    },
+    (error) => {
+        // 에러 응답 처리
+        if (error.response && error.response.status === 401) {
+            // 토큰 만료 시 로그인 페이지로 리다이렉트
+            alert('인증이 만료되었습니다. 다시 로그인해 주세요.');
+            router.push('/login');  // Vue Router를 사용할 경우 router.push('/login')를 사용
+        }
+        return Promise.reject(error);
+    }
+);
+
 // Wrapper 함수
 const apiWrapper = {
     // GET 요청 (예시: 모든 사용자 정보 가져오기)
@@ -107,7 +127,22 @@ const apiWrapper = {
         }
     },
 
-    // 메인카테고리 리스트 조회
+    // 작성자 : 신은호, 내용 : 파일 업로드 POST 요청
+    postFileData: async (url, data, customHeaders = {}) => {
+        try {
+            const response = await apiClient.post(url, data, {
+                headers: {
+                    "Content-Type": "multipart/form-data",
+                    ...customHeaders, // 필요 시 사용자 정의 헤더 추가
+                },
+            });
+            return response;
+        } catch (error) {
+            console.error("파일 업로드 요청 에러:", error);
+            throw error;
+        }
+    },
+
     fetchMainCategories: async () => {
         try {
             const response = await apiClient.get('api/funding/main-categories');
@@ -236,8 +271,6 @@ const apiWrapper = {
             return null;
         }
     }
-    
-
 };
 
 export default apiWrapper;

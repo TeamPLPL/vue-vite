@@ -1,10 +1,10 @@
 <!-- Sidebar.vue -->
 <template>
-  <div class="col-lg-3 border-end d-none d-lg-block sidebar-fixed-width">
     <div class="p-3">
       <div class="border rounded p-3 mb-3">
         <h6 class="fw-bold">프로젝트 번호</h6>
-        <p class="text-primary mb-0">319893</p>
+        <!-- props에 projectId값 받아옴  -->
+        <p class="text-primary mb-0">{{ projectId }}</p>
       </div>
       <hr>
       <div class="d-flex align-items-center ps-2">
@@ -19,14 +19,17 @@
         <li class="py-2 ps-4 text-start">리워드 정책</li>
       </ul>
     </div>
-    <button class="btn btn-primary w-100 mt-auto mb-3">저장하기</button>
-    <button class="btn custom-btn w-100 mt-auto">나가기</button>
-  </div>
 </template>
 
 <script>
 export default {
-  name: 'ProjectSidebar'
+  name: 'ProjectSidebar',
+  props: {
+    projectId: {
+      type: String,
+      required: true
+    }
+  }
 }
 </script>
 

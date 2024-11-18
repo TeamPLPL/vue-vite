@@ -3,7 +3,7 @@ import Signup from "../../components/user/Signup.vue";
 import CookieToHeader from "../../components/user/CookieToHeader.vue";
 import MyMaker from "../../components/user/MyMaker.vue";
 import MySupporter from "../../components/user/MySupporter.vue";
-import Info from "../../components/user/Info.vue";
+import Info from "../../components/user/userComponents/Info.vue";
 import FindIdPwd from "../../components/user/FindIdPwd.vue";
 import ModifyProfile from "../../components/user/ModifyProfile.vue";
 import UpdatePwd from "../../components/user/UpdatePwd.vue";
@@ -56,12 +56,6 @@ export default [
         path: '/mywadiz/supporter',
         name: 'mywadiz-supporter',
         component: MySupporter,
-        meta: {hideHeader: true}
-    },
-    {
-        path: '/mywadiz/info',
-        name: 'mywadiz-info',
-        component: Info,
         meta: {hideHeader: true}
     },
     {
