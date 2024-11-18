@@ -5,7 +5,7 @@ const apiClient = axios.create({
     baseURL: 'http://localhost:8080/',  // 프록시된 기본 경로
     timeout: 5000,
     headers: {
-      'Content-Type': 'application/json',
+        'Content-Type': 'application/json',
     },
 });
 
@@ -142,6 +142,135 @@ const apiWrapper = {
             throw error;
         }
     },
+
+    fetchMainCategories: async () => {
+        try {
+            const response = await apiClient.get('api/funding/main-categories');
+            return response.data;
+        } catch (error) {
+            console.error("메인 카테고리 API 요청 중 오류 발생:", error);
+        }
+    },
+
+    // 메인카테고리 id별 서브 카테고리 리스트 조회
+    fetchSubCategories: async (parentId) => {
+        try {
+        const response = await apiClient.get(`api/funding/sub-categories/${parentId}`);
+        return response.data;
+        } catch (error) {
+        console.error("서브 카테고리 API 요청 중 오류 발생:", error);
+        }
+    },
+
+    // 메인페이지 타입(최신, 인기)순 펀딩리스트 호출 함수
+    fetchFundingList: async (type) => {
+        try {
+            const response = await apiClient.get(`api/funding/fundinglist/${type}`)
+            return response.data
+        } catch (error) {
+            console.error(`${type}순 펀딩 리스트 요청 중 오류 발생:`, error)
+            return []
+        }
+    },
+
+    // 펀딩디테일 사이드바 내용 조회 함수
+    fetchFundingData: async (id) => {
+        try {
+            const response = await apiClient.post(`api/funding/funding-data/${id}`)
+            return response.data
+        } catch (error) {
+            console.error(`펀딩 프로젝트 ID: ${id}의 데이터 요청 중 오류 발생\n`, error)
+            return null
+        }
+    },
+
+    // 펀딩 리워드 사이드바 내용 조회 함수
+    fetchRewardList: async (id) => {
+        try {
+            const response = await apiClient.get(`api/reward-list/all/${id}`)
+            return response.data
+        } catch (error) {
+            console.error(`펀딩 프로젝트 ID: ${id}의 리워드 리스트 요청 중 오류 발생\n`, error)
+            return null
+        }
+    },
+
+    // 기본 주소 조회 함수
+    getDefaultAddr: async () => {
+        try {
+            const response = await apiClient.post('api/address/default')
+            console.log("axios에서 response: ", response)
+            return response.data
+        } catch (error) {
+            if (error.response && error.response.status === 401) {
+                console.error("401 Unauthorized - 인증 오류 발생")
+            } else {
+                console.error(`기본 주소 조회 중 오류 발생\n`, error)
+            }
+            return null
+        }
+    },
+
+    saveAddress: async (addressData) => {
+        try {
+            console.log('Sending address data:', addressData); // 로깅 추가
+            const response = await apiClient.post('api/address/new', addressData);
+            console.log('Response from server:', response.data); // 응답 로깅
+            return response.data;
+        } catch (error) {
+            if (error.response && error.response.status === 401) {
+                console.error("401 Unauthorized - 인증 오류 발생");
+            } else {
+                console.error(`주소 저장 중 오류 발생\n`, error);
+            }
+            return null
+        }
+    },
+
+    getAddressList: async () => {
+        try {
+            const response = await apiClient.post('api/address/list');
+            console.log('Response from server:', response.data); // 응답 로깅
+            return response.data;
+        } catch (error) {
+            if (error.response && error.response.status === 401) {
+                console.error("401 Unauthorized - 인증 오류 발생");
+            } else {
+                console.error(`주소 목록 조회 중 오류 발생\n`, error);
+            }
+            return null
+        }
+    },
+
+    fetchFundingImgList: async (id) => {
+        try {
+            const response = await apiClient.post(
+                `api/funding/funding-imgs/${id}`,
+                null, // POST 요청의 body (필요 없으면 null)
+                {
+                    headers: {
+                        Accept: "application/json", // 명시적으로 JSON 응답 기대
+                    },
+                }
+            );
+            console.log('Response from server:', response.data);
+            return response.data;
+        } catch (error) {
+            console.error(`펀딩 디테일 이미지 목록 조회 중 오류 발생\n`, error);
+            return null;
+        }
+    },
+
+    fetchFundingInfo: async (id) => {
+        try {
+            const response = await apiClient.get(`api/reward-policy/${id}`);
+            console.log('Response from server 펀딩리워드정보:', response.data);
+            return response.data;
+        } catch (error) {
+            console.error(`펀딩 리워드 정보 및 환불 정책 조회 중 오류 발생\n`, error);
+            return null;
+        }
+    }
 };
 
 export default apiWrapper;

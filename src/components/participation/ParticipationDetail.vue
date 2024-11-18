@@ -33,14 +33,9 @@
             <button class="change-button" @click="showCancelModal = true">결제 예약 취소</button>
 
             <!-- 모달 컴포넌트 -->
-            <ModalConfirm 
-                v-show="showCancelModal" 
-                :show="showCancelModal" 
-                title="결제를 취소하시겠어요?"
-                message="리워드 옵션 변경을 원한다면 결제를 취소하지 않고 참여 내역에서 변경 가능해요." 
-                @close="closeCancelModal"
-                @confirm="cancelReservation"
-            />
+            <ModalConfirm v-show="showCancelModal" :show="showCancelModal" title="결제를 취소하시겠어요?"
+                message="리워드 옵션 변경을 원한다면 결제를 취소하지 않고 참여 내역에서 변경 가능해요." @close="closeCancelModal"
+                @confirm="cancelReservation" />
 
             <div class="notice">
                 <h6 class="fw-bold text-start">결제 예약 유의 사항</h6>
@@ -151,19 +146,29 @@
                 리워드 발송에 대해 발생한 이슈는 프로젝트 상세 페이지 - 환불・정책 탭에 명시한 정책을 따릅니다.
             </p>
             <button class="back-button">
-                <router-link to="/mywadiz/info/participation">목록으로 돌아가기</router-link>
+                <router-link to="/mywadiz/supporter/participation">목록으로 돌아가기</router-link>
             </button>
         </div>
     </div>
 </template>
 
 <script setup>
-import { ref } from 'vue';
+import { ref, onMounted } from 'vue';
 import ModalConfirm from './participationComponents/ModalConfirm.vue';
-import { useRouter } from 'vue-router';
+import { useRouter, useRoute } from 'vue-router';
+import apiWrapper from '../../util/axios/axios';
+import { useAuthStore } from '../../util/store/authStore';
 
 const router = useRouter();
 const showCancelModal = ref(false);
+
+const route = useRoute();
+const paymentId = ref(route.params.id); // URL에서 Payment의 id 값을 가져오기
+
+console.log('현재 결제 ID:', paymentId.value); // 디버깅용 로그
+
+const authStore = useAuthStore();
+const paymentDetails = ref(null);
 
 // 기본 데이터
 const category = ref("프리오더");
@@ -173,7 +178,7 @@ const status = ref("진행중");
 const title = ref("머신도 필요 없는 세상에서 가장 작은 바리스타 | 8가지 풍미 <F5 커피>");
 const author = ref("디에이치알");
 
-const paymentId = ref("13344846");
+// const paymentId = ref("13344846");
 const endDate = ref("2024.11.23");
 const paymentStatus = ref("결제 예약");
 
@@ -187,6 +192,42 @@ function cancelReservation() {
     showCancelModal.value = false; // 모달 닫기
     router.push('/mywadiz/info/participation');   // '/participate'로 라우팅
 }
+
+async function fetchUserPayments() {
+    try {
+        const token = authStore.getJwtToken(); // JWT 토큰 가져오기
+        if (!token) {
+            console.warn('JWT 토큰이 없습니다.');
+            return;
+        }
+
+        const response = await apiWrapper.getData('/api/payment/user');
+        payments.value = response;
+        console.log('User Payments:', payments.value);
+    } catch (error) {
+        console.error('Error fetching user payments:', error);
+    }
+}
+
+async function fetchPaymentDetails(paymentId) {
+    try {
+        const token = authStore.getJwtToken(); // JWT 토큰 가져오기
+        if (!token) {
+            console.warn('JWT 토큰이 없습니다.');
+            return;
+        }
+
+        const response = await apiWrapper.getData(`/api/payment/${paymentId}/details`);
+        paymentDetails.value = response;
+        console.log('Payment Details:', paymentDetails.value);
+    } catch (error) {
+        console.error('Error fetching payment details:', error);
+    }
+}
+
+onMounted(() => {
+    fetchPaymentDetails(route.params.id);
+});
 </script>
 
 <style scoped>
@@ -215,8 +256,10 @@ function cancelReservation() {
     width: 90%;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 
-    display: block; /* 모달을 화면에 표시 */
-    position: relative; /* 기본 위치 */
+    display: block;
+    /* 모달을 화면에 표시 */
+    position: relative;
+    /* 기본 위치 */
     z-index: 1010;
 }
 
