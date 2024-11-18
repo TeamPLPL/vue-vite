@@ -17,14 +17,21 @@
                                 {{ fundingData.mainCategoryNm }}&nbsp;&nbsp;>&nbsp;&nbsp;{{ fundingData.subCategoryNm }}
                             </div>
                             <div class="me-3">
-                                <button @click="toggleWishlist(fundingId)">
-                                    {{ isInWishlist ? '찜 취소' : '찜하기' }}
-                                </button>
-                                <img v-if="isInWishlist" class="wish" src="../../assets/wish.png" alt="찜 되어 있음">
-                                <img v-else class="wish" src="../../assets/wish-not.png" alt="찜 되어있지 않음">
+                                <img v-if="isInWishlist" class="wish" src="../../assets/wish.png" alt="찜 되어 있음"
+                                    @click="toggleWishlist(fundingId)">
+                                <img v-else class="wish" src="../../assets/wish-not.png" alt="찜 되어있지 않음"
+                                    @click="toggleWishlist(fundingId)">
                                 &nbsp;&nbsp;
                                 <img class="share" src="../../assets/share.png" alt="공유하기">
                             </div>
+                            <!-- <div class="me-3">
+                                <img v-if="isInWishlist" class="wish" src="../../assets/wish.png" alt="찜 되어 있음"
+                                    @click="toggleWishlist(fundingId)">
+                                <img v-else class="wish" src="../../assets/wish-not.png" alt="찜 되어있지 않음"
+                                    @click="toggleWishlist(fundingId)">
+                                &nbsp;&nbsp;
+                                <img class="share" src="../../assets/share.png" alt="공유하기">
+                            </div> -->
                         </div>
                         <!-- <hr class="secondary"> -->
                         <div class="m-1 mt-3">
@@ -83,9 +90,8 @@
 </template>
 
 <script setup>
-import { ref, provide, inject, computed, onMounted, onUnmounted } from 'vue';
+import { ref, provide, inject, computed, onMounted } from 'vue';
 import { useRoute } from 'vue-router';
-
 import apiWrapper from '../../util/axios/axios';
 import defaultThumbnail from '../../assets/default_thumbnail.jpeg'
 import defaultProfile from '../../assets/default_profile.png'
@@ -97,16 +103,60 @@ provide('fundingId', fundingId);
 
 //////////////////// wishlist start
 const wishlistStore = inject('wishlistStore');
+const isInWishlist = ref(false);
+const isAuthenticated = computed(() => wishlistStore.getters.getIsAuthenticated());
 
-const isInWishlist = computed(() => wishlistStore.getters.isInWishlist(fundingId.value));
 
-const toggleWishlist = (fundingId) => {
-    if (isInWishlist.value) {
-        wishlistStore.mutations.removeFromWishlist(fundingId);
-    } else {
-        wishlistStore.mutations.addToWishlist(fundingId);
+const checkWishlistStatus = async () => {
+    try {
+        isInWishlist.value = await wishlistStore.actions.checkWishlistStatus(fundingId.value);
+    } catch (error) {
+        console.error('찜 상태 확인 중 오류 발생:', error);
     }
 };
+
+const toggleWishlist = async () => {
+    if (!isAuthenticated.value) {
+        alert('로그인 된 사용자만 이용 가능한 기능입니다.');
+        return;
+    }
+
+    try {
+        if (isInWishlist.value) {
+            await wishlistStore.actions.removeFromWishlist(fundingId.value);
+        } else {
+            await wishlistStore.actions.addToWishlist(fundingId.value);
+        }
+        isInWishlist.value = !isInWishlist.value;
+    } catch (error) {
+        if (error.response && error.response.status === 401) {
+            alert('로그인 된 사용자만 이용 가능한 기능입니다.');
+        } else {
+            console.error('찜 토글 중 오류 발생:', error);
+        }
+    }
+};
+
+// const toggleWishlist = async () => {
+//     try {
+//         let success;
+//         if (isInWishlist.value) {
+//             success = await wishlistStore.actions.removeFromWishlist(fundingId.value);
+//         } else {
+//             success = await wishlistStore.actions.addToWishlist(fundingId.value);
+//         }
+
+//         if (success) {
+//             isInWishlist.value = !isInWishlist.value;
+//         } else {
+//             console.log('찜 상태 업데이트에 실패했습니다.');
+//         }
+//     } catch (error) {
+//         console.error('찜 토글 중 오류 발생:', error);
+//     }
+// };
+
+
 ////////////////////// wishlist end
 
 const fundingData = ref();
@@ -162,13 +212,8 @@ onMounted(async () => {
 
     maker.value = data.makerDTO
 
-    await wishlistStore.actions.fetchWishlist();
+    await checkWishlistStatus();
 })
-
-onUnmounted(async () => {
-    await wishlistStore.actions.updateWishlistInDB();
-});
-
 
 const getThumbnailUrl = (url) => {
     return url || defaultImageUrl.value

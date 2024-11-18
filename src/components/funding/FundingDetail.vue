@@ -1,9 +1,8 @@
 <template>
     <div>
         <div class="thumbnail-container">
-            <img :src="thumbnailUrlComputed"
-            class="thumbnail-img object-fit-cover border rounded" 
-            :alt="`${fundingTitle}의 썸네일`" @error="handleImageError">
+            <img :src="thumbnailUrlComputed" class="thumbnail-img object-fit-cover border rounded"
+                :alt="`${fundingTitle}의 썸네일`" @error="handleImageError">
         </div>
     </div>
     <div>
@@ -22,8 +21,15 @@ import { useRoute } from 'vue-router';
 import apiWrapper from '../../util/axios/axios';
 import defaultImageUrl from '../../assets/default_thumbnail.jpeg';
 
+const props = defineProps({
+    fundingId: {
+        type: [String, Number], // fundingId가 문자열이나 숫자일 수 있으므로
+        required: true
+    }
+});
+
 const route = useRoute();
-const fundingId = inject('fundingId');
+
 const fundingTitle = inject('fundingTitle');
 const fundingExplanation = inject('fundingExplanation');
 
@@ -33,7 +39,8 @@ const detailImgList = ref([]);
 // 컴포넌트가 마운트될 때 데이터 호출
 onMounted(async () => {
     try {
-        const data = await apiWrapper.fetchFundingImgList(fundingId.value);
+
+        const data = await apiWrapper.fetchFundingImgList(props.fundingId);
         thumbnailUrl.value = data.thumbnailImgUrl;
         detailImgList.value = data.detailImgUrlList;
     } catch (error) {

@@ -9,7 +9,7 @@ import Topbar from './components/common/Topbar.vue'
 import Footer from './components/common/Footer.vue'
 import FundingDetailHeader from './components/funding/FundingDetailHeader.vue'; // Import FundingDetailHeader
 import Example from "./components/Example.vue";
-import wishlistStore from "./util/scripts/wishlist"
+import wishlistStore from "./util/scripts/wishlistStore"
 
 provide('wishlistStore', wishlistStore);
 

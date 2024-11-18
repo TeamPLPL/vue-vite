@@ -2,9 +2,11 @@
   <nav class="navbar navbar-expand-sm">
     <div class="container-sm">
       <span class="navbar-text">
-        <img src="../../assets/wadiz.png" @click="main" style="width: 100px; height: auto; cursor: pointer; margin-left: 19.2px;">
+        <img src="../../assets/wadiz.png" @click="main"
+          style="width: 100px; height: auto; cursor: pointer; margin-left: 19.2px;">
       </span>
-      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarContent" aria-controls="navbarContent" aria-expanded="false" aria-label="Toggle navigation">
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarContent"
+        aria-controls="navbarContent" aria-expanded="false" aria-label="Toggle navigation">
         <span class="navbar-toggler-icon"></span>
       </button>
       <div class="collapse navbar-collapse justify-content-end" id="navbarContent">
@@ -121,16 +123,18 @@ export default {
   margin-right: 10px;
 }
 
+
+/* */
 @media (max-width: 575.98px) {
   .navbar-nav {
     width: 100%;
   }
-  
+
   .nav-item {
     width: 100%;
     margin-bottom: 10px;
   }
-  
+
   .navbar-collapse {
     text-align: right;
   }
@@ -141,7 +145,7 @@ export default {
   }
 
   .profile {
-    margin: 0 auto 10px;
+    margin: 0;
     display: block;
   }
 }
