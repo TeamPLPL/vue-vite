@@ -104,7 +104,10 @@ export default {
           console.error('JWT 토큰을 찾을 수 없습니다.');
         }
       } catch (error) {
+        // 로그인 실패 시 경고 메시지와 페이지 리로드
+        alert('로그인에 실패하였습니다.');
         console.error('API 호출 에러:', error);
+        window.location.reload();
       }
     };
 

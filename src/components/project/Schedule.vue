@@ -1,7 +1,11 @@
 <template>
   <div class="container-fluid">
     <div class="row">
-      <ProjectSidebar />
+      <div class="col-lg-3 border-end d-none d-lg-block sidebar-fixed-width">
+      <!-- ProjectSidebar에 projectId 바인딩 -->
+      <ProjectSidebar :projectId="projectId" />
+        <button class="btn btn-primary w-100" @click="saveProject">저장 하기</button>
+      </div>
 
       <!-- Content -->
       <div class="col-lg-9 p-4">
@@ -33,10 +37,78 @@
 <script>
 import { defineComponent, ref, computed, watch } from "vue";
 import ProjectSidebar from "./projectComponents/ProjectSidebar.vue";
+import apiWrapper from "../../util/axios/axios.js";
 
 export default defineComponent({
   components: { ProjectSidebar },
+  props: {
+    projectId: {
+      type: String,
+      required: true,
+    },
+  },
+  methods: {
+    async initializeProjectData() {
+      try {
+        // API 호출
+        const projectData = await apiWrapper.getData(`/api/studio/${this.projectId}/project`);
+        console.log("API 응답 데이터:", projectData);
+
+        const projectInfo = projectData.projectInfo;
+        if (!projectInfo) {
+          console.error("프로젝트 정보가 없습니다.");
+          return;
+        }
+
+        // fundingStartDate와 fundingEndDate를 초기화
+        if (projectInfo.fundingStartDate) {
+          this.startDate = new Date(projectInfo.fundingStartDate).toISOString().split("T")[0];
+        }
+        if (projectInfo.fundingEndDate) {
+          this.endDate = new Date(projectInfo.fundingEndDate).toISOString().split("T")[0];
+        }
+
+        console.log("초기화된 날짜:", {
+          startDate: this.startDate,
+          endDate: this.endDate,
+        });
+      } catch (error) {
+        console.error("프로젝트 데이터 초기화 중 오류 발생:", error);
+        alert("프로젝트 데이터를 불러오는 중 문제가 발생했습니다.");
+      }
+    },
+
+    async saveProject() {
+      try {
+        // LocalDateTime 형식으로 변환
+        const startDateTime = new Date(this.startDate).toISOString().slice(0, 19); // 'YYYY-MM-DDTHH:mm:ss'로 변환
+        const endDateTime = new Date(this.endDate).toISOString().slice(0, 19); // 'YYYY-MM-DDTHH:mm:ss'로 변환
+
+        // DTO 객체 생성
+        const requestBody = {
+          fundingStartDate: startDateTime,
+          fundingEndDate: endDateTime,
+        };
+
+        console.log("전송 데이터:", requestBody); // 디버깅용
+
+        // 서버 요청
+        const response = await apiWrapper.postData(`/api/studio/${this.projectId}/schedule`, requestBody);
+
+        if (response.status === 200) {
+          alert("프로젝트 일정이 성공적으로 저장되었습니다.");
+          this.$router.push(`/studio/${this.projectId}/project/`); // 페이지 이동
+          console.log("응답 데이터:", response.data);
+        }
+      } catch (error) {
+        console.error("저장 중 오류 발생:", error);
+        alert("프로젝트 일정 저장 중 오류가 발생했습니다.");
+      }
+    },
+  },
   setup() {
+    // 라우트에서 projectId 가져오기
+
     // 날짜 상태 정의
     const startDate = ref("");
     const endDate = ref("");
@@ -73,6 +145,9 @@ export default defineComponent({
       endDate,
       dayDifference,
     };
+  },
+  async mounted() {
+    await this.initializeProjectData();
   },
 });
 </script>

@@ -18,20 +18,39 @@
       </ul>
     </div>
 
-    <!-- 이미지 업로드 리스트 -->
+    <!-- 이미지 업로드 섹션 -->
     <div class="d-flex flex-wrap gap-2">
       <div
           v-for="(image, index) in images"
-          :key="index"
-          class="position-relative rounded overflow-hidden"
+          :key="image.url"
+          class="position-relative"
           style="width: 80px; height: 80px;"
       >
-        <img :src="image.url" alt="이미지 미리보기" class="img-fluid w-100 h-100 object-fit-cover" />
+        <img
+            :src="image.url"
+            alt="이미지 미리보기"
+            class="img-fluid w-100 h-100 object-fit-cover"
+        />
+        <!-- 삭제 버튼 -->
+        <button
+            class="btn btn-danger btn-sm position-absolute top-0 end-0"
+            @click="removeImage(index)"
+            style="z-index: 1;"
+        >
+          삭제
+        </button>
       </div>
 
       <!-- 업로드 버튼 -->
-      <div v-if="images.length < 10" class="d-flex flex-column align-items-center justify-content-center position-relative border border-secondary border-dashed rounded" style="width: 80px; height: 80px; cursor: pointer;">
-        <input type="file" @change="uploadImage" class="file-input position-absolute w-100 h-100 opacity-0" />
+      <div
+          class="d-flex flex-column align-items-center justify-content-center position-relative border border-secondary border-dashed rounded"
+          style="width: 80px; height: 80px; cursor: pointer;"
+      >
+        <input
+            type="file"
+            @change="uploadImage"
+            class="file-input position-absolute w-100 h-100 opacity-0"
+        />
         <i class="bi bi-camera fs-3 text-muted"></i>
         <p class="small text-muted">{{ images.length }}/10</p>
       </div>
@@ -40,39 +59,55 @@
 </template>
 
 <script>
-import { reactive } from "vue";
-import axios from "axios";
+import { ref } from "vue";
+import { useRoute } from "vue-router";
+import apiWrapper from "../../../util/axios/axios.js";
 
 export default {
+  name: "IntroductionImages",
   setup() {
-    const images = reactive([]);
+    const route = useRoute();
+    const projectId = route.params.projectId;
+
+    const images = ref([]);
 
     const uploadImage = async (event) => {
       const file = event.target.files[0];
-      if (!file) return;
+      if (!file || file.size > 10 * 1024 * 1024) {
+        alert("이미지는 10MB 이하의 JPG, JPEG, PNG 파일만 업로드할 수 있습니다.");
+        return;
+      }
 
       try {
-        // 백엔드 API 호출하여 AWS S3에 이미지 업로드
         const formData = new FormData();
         formData.append("file", file);
 
-        const response = await axios.post("/api/upload", formData, {
-          headers: {
-            "Content-Type": "multipart/form-data",
-          },
-        });
+        // 이미지 업로드 API 호출
+        const response = await apiWrapper.postFileData(
+            `/api/${projectId}/introductionimages`,
+            formData
+        );
 
-        // 업로드 성공 시 DB에서 이미지 URL 불러오기
-        const imageUrl = response.data.url; // 서버에서 반환된 이미지 URL
-        images.push({ url: imageUrl });
+        console.log("업로드된 이미지 URL:", response.data); // 디버깅용
+        images.value.push({ url: response.data }); // 반환된 URL을 배열에 추가
+
+        console.log("Images 배열:", images.value);
       } catch (error) {
         console.error("이미지 업로드 실패:", error);
+        alert("이미지 업로드 중 문제가 발생했습니다.");
       }
+    };
+
+    const removeImage = (index) => {
+      // 해당 이미지를 배열에서 제거
+      images.value.splice(index, 1);
+      console.log("Images 배열:", images.value);
     };
 
     return {
       images,
       uploadImage,
+      removeImage,
     };
   },
 };
