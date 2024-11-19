@@ -7,6 +7,7 @@ import Info from "../../components/user/userComponents/Info.vue";
 import FindIdPwd from "../../components/user/FindIdPwd.vue";
 import ModifyProfile from "../../components/user/ModifyProfile.vue";
 import UpdatePwd from "../../components/user/UpdatePwd.vue";
+import Address from "../../components/common/Address.vue";
 import DropoutUser from "../../components/user/DropoutUser.vue";
 
 export default [
@@ -87,6 +88,16 @@ export default [
             requiresAuth: true,
             requiresSecureAccess: true,
         },
+    },
+    {
+        path: '/mywadiz/info/deliveryAddress',
+        name: 'address',
+        component: Address,
+        meta: {
+            hideHeader: true,
+            requiresAuth: true,
+            requiresSecureAccess: true,
+        }
     },
     {
         path: "/mywadiz/info/dropoutuser",

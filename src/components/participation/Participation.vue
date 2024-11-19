@@ -24,13 +24,15 @@
                 <p class="byline">by {{ item.author }}</p>
                 <div class="cancel-link">
                     <!-- 결제 예약 취소 버튼 -->
-                    <button v-if="item.status !== 'failed' && item.status !== 'refund'" class="change-button"
+                    <!-- <button v-if="item.status !== 'failed' && item.status !== 'refund'" class="change-button"
                         @click="openCancelModal(item.id)">
                         결제 예약 취소
-                    </button>
+                    </button> -->
                     <!-- <router-link :to="`/mywadiz/supporter/participation/${item.id}`" class="details-link">상세보기 &gt;</router-link> -->
+                    <p v-if="item.status !== 'failed' && item.status !== 'refund'">{{ item.fundingEndDate }} 결제 예정</p>
                     <router-link
-                        :to="{ name: 'ParticipationDetail', params: { id: item.id }, query: { status: getStatus(item) } }">
+                        :to="{ name: 'ParticipationDetail', params: { id: item.id }, query: { status: getStatus(item) } }"
+                    >
                         상세보기 &gt;
                     </router-link>
                 </div>
@@ -38,9 +40,9 @@
         </div>
 
         <!-- 모달 컴포넌트 -->
-        <ModalConfirm v-show="showCancelModal" :show="showCancelModal" :payment-id="collectedPaymentId"
+        <!-- <ModalConfirm v-show="showCancelModal" :show="showCancelModal" :payment-id="collectedPaymentId"
             title="결제를 취소하시겠어요?" message="리워드 옵션 변경을 원한다면 결제를 취소하지 않고 참여 내역에서 변경 가능해요." @close="closeCancelModal"
-            @confirm="cancelReservation" />
+            @confirm="cancelReservation" /> -->
     </div>
 </template>
 
