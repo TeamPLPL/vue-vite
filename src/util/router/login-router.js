@@ -93,7 +93,11 @@ export default [
         path: '/mywadiz/info/deliveryAddress',
         name: 'address',
         component: Address,
-        meta: {hideHeader: true}
+        meta: {
+            hideHeader: true,
+            requiresAuth: true,
+            requiresSecureAccess: true,
+        }
     },
     {
         path: "/mywadiz/info/dropoutuser",
