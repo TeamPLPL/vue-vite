@@ -77,7 +77,7 @@ const handleCategorySelected = (category) => {
 <template>
   <div id="app-vue-container">
     <div class="container-fluid">
-      <Topbar class="topbar" v-if="!shouldHideTopbar" />
+      <Topbar class="topbar" v-if="!shouldHideTopbar" :key="$route.path" />
     </div>
     <Header v-if="!shouldHideHeader" @category-selected="handleCategorySelected" />
     <FundingDetailHeader v-if="isDetailPage" />
