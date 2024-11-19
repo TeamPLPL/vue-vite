@@ -2,7 +2,7 @@
     <div class="comment-container">
         <div class="d-flex justify-content-between">
             <h4>서포터 게시판</h4>
-            <button @click="showModal = true">글쓰기</button>
+            <button @click="openModal">글쓰기</button>
         </div>
         <hr />
         <div v-for="board in boards" :key="board.id" class="comment-box">
@@ -32,16 +32,18 @@
         </div>
 
         <!-- 글쓰기 모달 -->
-        <div v-if="showModal" class="modal-overlay">
-            <div class="modal-content">
-                <h4>의견</h4>
-                <textarea v-model="newBoardContent" placeholder="프로젝트에 대한 의견을 남겨주세요" rows="5"></textarea>
-                <div class="modal-footer">
-                    <button @click="showModal = false">취소</button>
-                    <button @click="submitBoard">등록하기</button>
+        <teleport to="html">
+            <div v-if="showModal" class="modal-overlay">
+                <div class="modal-content">
+                    <h4>의견</h4>
+                    <textarea v-model="newBoardContent" placeholder="프로젝트에 대한 의견을 남겨주세요" rows="5"></textarea>
+                    <div class="modal-footer">
+                        <button @click="closeModal">취소</button>
+                        <button @click="submitBoard">등록하기</button>
+                    </div>
                 </div>
             </div>
-        </div>
+        </teleport>
 
     </div>
 </template>
@@ -58,6 +60,14 @@ const boards = ref([]);
 const openMenuId = ref(null); // 현재 열려 있는 메뉴 ID
 const showModal = ref(false); // 모달 표시 여부 관리
 const newBoardContent = ref(''); // 새 글 내용
+
+// Modal 열기와 닫기
+const openModal = () => {
+    showModal.value = true;
+};
+const closeModal = () => {
+    showModal.value = false;
+};
 
 // Fetch boards data
 const fetchBoards = async () => {
@@ -118,7 +128,7 @@ const submitBoard = async () => {
         });
         alert('게시글이 등록되었습니다.');
         newBoardContent.value = ''; // 입력 필드 초기화
-        showModal.value = false; // 모달 닫기
+        closeModal(); // 모달 닫기
         fetchBoards(); // 게시판 새로고침
     } catch (error) {
         console.error('Error submitting board:', error);
@@ -126,7 +136,9 @@ const submitBoard = async () => {
     }
 };
 
-onMounted(fetchBoards);
+onMounted(() => {
+    fetchBoards();
+});
 </script>
 
 <style scoped>
