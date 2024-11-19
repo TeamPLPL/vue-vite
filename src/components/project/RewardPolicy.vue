@@ -5,6 +5,7 @@
         <!-- ProjectSidebar에 projectId 바인딩 -->
         <ProjectSidebar :projectId="projectId" />
         <button class="btn btn-primary w-100" @click="saveProject">저장 하기</button>
+        <button class="btn btn-secondary mt-2 w-100" @click="exit">나가기</button>
       </div>
 
       <!-- Content -->
@@ -125,7 +126,33 @@ export default defineComponent({
       },
     };
   },
+  mounted() {
+    this.fetchPolicy(); // 컴포넌트 마운트 시 정책 정보 가져오기
+  },
   methods: {
+    async fetchPolicy() {
+      try {
+        const response = await apiWrapper.getData(`/api/${this.projectId}/getpolicy`);
+        console.log("정책 데이터 가져오기 응답:", response);
+        console.log(response.id);
+        // 정책 데이터 초기화
+        if (response.id) {
+          console.log(response.id);
+          this.policy = {
+            modelName: response.modelName || "",
+            productMaterial: response.productMaterial || "",
+            color: response.color || "",
+            field: response.field || "",
+            manufacturer: response.manufacturer || "",
+            manufacturingCountry: response.manufacturingCountry || "",
+            manufactureDate: response.manufactureDate || "",
+          };
+        }
+      } catch (error) {
+        console.error("정책 데이터 가져오기 실패:", error);
+        alert("정책 데이터를 가져오는 중 오류가 발생했습니다.");
+      }
+    },
     async saveProject() {
       try {
         // 정책 데이터 DTO 매핑
@@ -146,6 +173,12 @@ export default defineComponent({
         alert("정책 정보 저장 중 오류가 발생했습니다.");
       }
     },
+    exit() {
+      const shouldExit = confirm("저장하지 않고 나가시겠습니까?");
+      if (shouldExit) {
+        this.$router.push(`/studio/${this.projectId}/project/`); // 페이지 이동
+      }
+    }
   },
 });
 </script>

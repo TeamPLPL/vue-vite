@@ -10,49 +10,62 @@
       </div>
       <ul class="list-unstyled small text-muted ms-3 text-start">
         <li>이미지 용량 제한</li>
-        <ul class="ms-4">
+        <ul class="mt-2" style="list-style-type: circle">
           <li>GIF: 2MB 이하, 해상도 760x480 픽셀 이상 ~ 1440x864 픽셀 이하</li>
           <li>JPG, JPEG, PNG: 10MB 이하, 해상도 760x480 픽셀 이상</li>
         </ul>
-        <li>긴 이미지로 올리는 것을 추천드립니다.</li>
+        <li class="mt-2">긴 이미지로 올리는 것을 추천드립니다.</li>
       </ul>
     </div>
 
 
     <!-- 이미지 업로드 -->
     <div class="mt-4">
-      <input ref="fileInput" type="file" class="form-control w-50" @change="onImageUpload" accept="image/*"/>
+      <input ref="fileInput" type="file" class="form-control w-50" @change="onImageUpload" accept="image/*" :disabled="thumbnail"/>
     </div>
 
     <!-- 이미지 썸네일 -->
-    <div v-if="thumbnail" class="thumbnail-container mt-3">
-      <div class="thumbnail-wrapper">
-        <img :src="thumbnail" alt="Uploaded Thumbnail" class="thumbnail-image"/>
-        <button type="button" class="btn-close position-absolute top-0 end-0" @click="removeImage" aria-label="Close"></button>
+    <div v-if="thumbnail" class="thumbnail-container mt-3 d-flex align-items-start">
+      <div class="thumbnail-wrapper position-relative">
+        <img :src="thumbnail" alt="Uploaded Thumbnail" class="thumbnail-image img-thumbnail float-start"/>
+        <button
+            type="button"
+            class="btn-close position-absolute"
+            @click="removeImage"
+            aria-label="Close">
+        </button>
       </div>
     </div>
+
   </div>
 </template>
 
 <script>
+import { onMounted, ref } from "vue";
+import { useRoute } from "vue-router"; // useRoute 훅 가져오기
 import apiWrapper from "../../../util/axios/axios.js";
 
 export default {
-  name: "IntroductionImages",
-  props: {
-    projectId: {
-      type: String,
-      required: true,
-    },
-  },
-  data() {
-    return {
-      thumbnail: null,
-      projectId: this.$route.params.projectId, // 라우터에서 projectId 가져오기
+  name: "Thumbnail",
+  setup() {
+    const route = useRoute(); // 현재 라우트 정보 가져오기
+    const projectId = route.params.projectId; // 라우트 params에서 projectId 가져오기
+    const thumbnail = ref(null); // 썸네일 URL
+    const fileId = ref(null); // 파일 ID
+    const fileInput = ref(null); // input 요소에 대한 ref
+
+    const fetchInitialThumbnail = async () => {
+      try {
+        const response = await apiWrapper.getData(`/api/${projectId}/detailiamge`);
+        const fileData = response; // 서버 응답이 바로 FileDTO 객체라고 가정
+        thumbnail.value = fileData.signedUrl; // 썸네일 URL 설정
+        fileId.value = fileData.fileId; // fileId 저장
+      } catch (error) {
+        console.error("초기 썸네일 가져오기 실패:", error);
+      }
     };
-  },
-  methods: {
-    async onImageUpload(event) {
+
+    const onImageUpload = async (event) => {
       const file = event.target.files[0];
 
       if (!file || file.size > 10 * 1024 * 1024) {
@@ -64,39 +77,46 @@ export default {
       formData.append("file", file);
 
       try {
-        const response = await apiWrapper.postFileData(`/api/${this.projectId}/introductionimages`, formData);
+        const response = await apiWrapper.postFileData(`/api/${projectId}/detailiamge`, formData);
         const fileData = response.data; // FileDTO 데이터를 받음
-        this.fileId = fileData.fileId; // fileId 저장
-        this.thumbnail = fileData.signedUrl; // signedUrl로 썸네일 URL 설정
+        fileId.value = fileData.fileId; // fileId 저장
+        thumbnail.value = fileData.signedUrl; // signedUrl로 썸네일 URL 설정
       } catch (error) {
         console.error("이미지 업로드 실패:", error);
         alert("이미지 업로드 중 문제가 발생했습니다.");
       }
-    },
-    async removeImage() {
-      if (!this.fileId) {
+    };
+
+    const removeImage = async () => {
+      if (!fileId.value) {
         alert("삭제할 이미지가 없습니다.");
         return;
       }
 
       try {
-        // GET 요청으로 이미지 삭제 API 호출
-        await apiWrapper.getData(`/api/${this.fileId}/deleteimage`);
+        await apiWrapper.getData(`/api/${fileId.value}/deleteimage`);
         alert("이미지가 삭제되었습니다.");
-        this.thumbnail = null; // 화면에서 썸네일 제거
-        this.fileId = null; // fileId 초기화
-        if (this.$refs.fileInput) {
-          this.$refs.fileInput.value = ""; // 파일 입력 초기화
+        thumbnail.value = null; // 화면에서 썸네일 제거
+        fileId.value = null; // fileId 초기화
+        if (fileInput.value) {
+          fileInput.value.value = ""; // 파일 입력 초기화
         }
       } catch (error) {
         console.error("이미지 삭제 실패:", error);
         alert("이미지 삭제 중 문제가 발생했습니다.");
       }
-      // this.thumbnail = null;
-      // if (this.$refs.fileInput) {
-      //   this.$refs.fileInput.value = ""; // 파일 입력 초기화
-      // }
-    },
+    };
+
+    onMounted(() => {
+      fetchInitialThumbnail(); // 컴포넌트 초기화 시 썸네일 데이터 가져오기
+    });
+
+    return {
+      thumbnail,
+      fileInput,
+      onImageUpload,
+      removeImage,
+    };
   },
 };
 </script>

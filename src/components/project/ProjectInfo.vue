@@ -5,6 +5,7 @@
         <!-- ProjectSidebar에 projectId 바인딩 -->
         <ProjectSidebar :projectId="projectId"/>
         <button class="btn btn-primary w-100" @click="saveProject">저장 하기</button>
+        <button class="btn btn-secondary mt-2 w-100" @click="exit">나가기</button>
       </div>
 
       <!-- Content -->
@@ -22,10 +23,9 @@
         <ProjectStory/>
 
         <!-- MyEditor에 초기 데이터 전달 -->
-        <MyEditor @updateExplanation="updateFundingExplanation"/>
+        <MyEditor :initialData="fundingExplanation" @updateExplanation="updateFundingExplanation"/>
 
-        <!-- SearchTag에서 태그를 업데이트 -->
-        <SearchTag @updateTags="updateFundingTags" />
+        <SearchTag :initialData="fundingTag" @updateTags="updateFundingTags"/>
       </div>
     </div>
   </div>
@@ -62,9 +62,34 @@ export default defineComponent({
   data() {
     return {
       fundingTag: "", // SearchTag에서 전달받은 태그를 저장
+      fundingExplanation: "", // MyEditor의 펀딩 설명 초기값
     };
   },
   methods: {
+    // 초기 데이터를 DB에서 불러오는 메서드
+    async fetchInitialData() {
+      try {
+        const response = await apiWrapper.getData(`/api/studio/${this.projectId}/info`);
+        console.log("Information 응답 데이터:", response); // 여기서 응답 데이터 구조 확인
+        if (response.success) { // success: true인지 확인
+          const data = response; // 데이터 접근
+          console.log("데이터:", data);
+
+          console.log("funding 설명 :" + data.projectInfo.fundingExplanation);
+          console.log("funding Tag :" + data.projectInfo.fundingTag);
+
+          // 데이터 설정
+          this.fundingTag = data.projectInfo.fundingTag || ""; // 초기 태그 설정
+          this.fundingExplanation = data.projectInfo.fundingExplanation || ""; // 초기 설명 설정
+
+          console.log("Information 초기 데이터 로드 완료:", data);
+        } else {
+          console.error("API 응답에서 success가 false입니다.");
+        }
+      } catch (error) {
+        console.error("초기 데이터 로드 중 오류 발생:", error);
+      }
+    },
     updateFundingExplanation(content) {
       // MyEditor에서 전달받은 데이터를 업데이트
       this.fundingExplanation = content;
@@ -106,6 +131,12 @@ export default defineComponent({
         alert("프로젝트 정보 저장 중 오류가 발생했습니다.");
       }
     },
+    exit() {
+      const shouldExit = confirm("저장하지 않고 나가시겠습니까?");
+      if (shouldExit) {
+        this.$router.push(`/studio/${this.projectId}/project/`); // 페이지 이동
+      }
+    }
   },
   setup() {
     const makerInfo = reactive({
@@ -127,6 +158,10 @@ export default defineComponent({
       makerInfo,
       updateMakerInfo,
     };
+  },
+  mounted() {
+    // 초기 데이터 로드
+    this.fetchInitialData();
   },
 });
 </script>
