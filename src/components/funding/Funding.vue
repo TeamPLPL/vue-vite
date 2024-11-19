@@ -16,22 +16,30 @@
                             <div>
                                 {{ fundingData.mainCategoryNm }}&nbsp;&nbsp;>&nbsp;&nbsp;{{ fundingData.subCategoryNm }}
                             </div>
-                            <div class="me-3">
+                            <div class="me-3 d-flex align-items-center">
                                 <img v-if="isInWishlist" class="wish" src="../../assets/wish.png" alt="찜 되어 있음"
                                     @click="toggleWishlist(fundingId)">
                                 <img v-else class="wish" src="../../assets/wish-not.png" alt="찜 되어있지 않음"
                                     @click="toggleWishlist(fundingId)">
                                 &nbsp;&nbsp;
-                                <img class="share" src="../../assets/share.png" alt="공유하기">
+                                <div class="me-3 share-container">
+                                    <img class="share" src="../../assets/share.png" alt="공유하기"
+                                        @click="toggleShareModal">
+
+                                    <div v-if="showShareModal" class="share-modal">
+                                        <button @click="shareKakao">카카오 공유</button>
+                                        <button @click="shareNaver">네이버 공유</button>
+                                        <button @click="copyUrl">URL 복사</button> <!-- URL 복사 버튼 -->
+                                    </div>
+                                </div>
+                                <!-- <img class="share" src="../../assets/share.png" alt="공유하기" @click="toggleShareModal">
+
+                                <div v-if="showShareModal" class="share-modal">
+                                    <button @click="shareKakao">카카오 공유</button>
+                                    <button @click="shareNaver">네이버 공유</button>
+                                    <button @click="copyUrl">URL 복사</button>
+                                </div> -->
                             </div>
-                            <!-- <div class="me-3">
-                                <img v-if="isInWishlist" class="wish" src="../../assets/wish.png" alt="찜 되어 있음"
-                                    @click="toggleWishlist(fundingId)">
-                                <img v-else class="wish" src="../../assets/wish-not.png" alt="찜 되어있지 않음"
-                                    @click="toggleWishlist(fundingId)">
-                                &nbsp;&nbsp;
-                                <img class="share" src="../../assets/share.png" alt="공유하기">
-                            </div> -->
                         </div>
                         <!-- <hr class="secondary"> -->
                         <div class="m-1 mt-3">
@@ -57,8 +65,9 @@
                                 class="maker-profile-img">
                             <div class="maker-nick">
                                 {{ maker.userNick }}
-                                <img v-if="maker.isFollowing" class="wish" src="../../assets/wish.png" alt="찜 되어 있음">
-                                <img v-else class="wish" src="../../assets/wish-not.png" alt="찜 되어있지 않음">
+                                <img v-if="maker.isFollowing" class="wish" src="../../assets/followed.png"
+                                    alt="팔로우 되어 있음">
+                                <img v-else class="wish" src="../../assets/unfollowed.png" alt="팔로우 되어있지 않음">
                             </div>
                         </div>
                         <div class="mt-2">{{ maker.userContent }}</div>
@@ -91,12 +100,13 @@
 
 <script setup>
 import { ref, provide, inject, computed, onMounted } from 'vue';
-import { useRoute } from 'vue-router';
+import { useRoute, useRouter } from 'vue-router';
 import apiWrapper from '../../util/axios/axios';
 import defaultThumbnail from '../../assets/default_thumbnail.jpeg'
 import defaultProfile from '../../assets/default_profile.png'
 
 const route = useRoute(); // 현재 경로 정보를 가져오기 위해 useRoute 사용
+const router = useRouter();
 
 const fundingId = ref(route.params.id);
 provide('fundingId', fundingId);
@@ -105,13 +115,35 @@ provide('fundingId', fundingId);
 const wishlistStore = inject('wishlistStore');
 const isInWishlist = ref(false);
 const isAuthenticated = computed(() => wishlistStore.getters.getIsAuthenticated());
+const isInitialLoad = ref(true);
 
+// 인증 에러 처리를 위한 별도의 함수
+const handleAuthError = () => {
+    alert('인증이 만료되었습니다. 다시 로그인해 주세요.');
+    router.push('/login');
+};
 
 const checkWishlistStatus = async () => {
+    // try {
+    //     isInWishlist.value = await wishlistStore.actions.checkWishlistStatus(fundingId.value);
+    // } catch (error) {
+    //     console.error('찜 상태 확인 중 오류 발생:', error);
+    // }
+    if (!isAuthenticated.value) {
+        isInWishlist.value = false;
+        return;
+    }
+
     try {
         isInWishlist.value = await wishlistStore.actions.checkWishlistStatus(fundingId.value);
     } catch (error) {
         console.error('찜 상태 확인 중 오류 발생:', error);
+        // 초기 로딩 시 401 에러를 무시
+        if (!isInitialLoad.value && error.response && error.response.status === 401) {
+            handleAuthError();
+        }
+    } finally {
+        isInitialLoad.value = false;
     }
 };
 
@@ -137,27 +169,53 @@ const toggleWishlist = async () => {
     }
 };
 
-// const toggleWishlist = async () => {
-//     try {
-//         let success;
-//         if (isInWishlist.value) {
-//             success = await wishlistStore.actions.removeFromWishlist(fundingId.value);
-//         } else {
-//             success = await wishlistStore.actions.addToWishlist(fundingId.value);
-//         }
-
-//         if (success) {
-//             isInWishlist.value = !isInWishlist.value;
-//         } else {
-//             console.log('찜 상태 업데이트에 실패했습니다.');
-//         }
-//     } catch (error) {
-//         console.error('찜 토글 중 오류 발생:', error);
-//     }
-// };
-
-
 ////////////////////// wishlist end
+
+////////////////////// share start
+
+// 공유 모달 관련 상태 추가
+const showShareModal = ref(false);
+const shareUrl = ref(window.location.href);
+
+// 공유 모달 토글 함수
+const toggleShareModal = () => {
+    showShareModal.value = !showShareModal.value;
+};
+
+// 공유 함수들 추가
+const shareKakao = () => {
+    // Kakao SDK 초기화 필요
+    window.Kakao.Link.sendDefault({
+        objectType: 'feed',
+        content: {
+            title: fundingTitle.value,
+            description: fundingData.value.fundingExplanation,
+            imageUrl: getThumbnailUrl(fundingData.value.thumbnailUrl),
+            link: {
+                mobileWebUrl: shareUrl.value,
+                webUrl: shareUrl.value,
+            },
+        },
+    });
+};
+
+const shareNaver = () => {
+    const url = encodeURI(encodeURIComponent(shareUrl.value));
+    const title = encodeURI(fundingTitle.value);
+    window.open(`https://share.naver.com/web/shareView?url=${url}&title=${title}`);
+};
+
+const copyUrl = () => {
+    navigator.clipboard.writeText(shareUrl.value)
+        .then(() => {
+            alert('URL이 복사되었습니다.');
+        })
+        .catch(err => {
+            console.error('URL 복사 중 오류 발생:', err);
+        });
+};
+
+////////////////////// share end
 
 const fundingData = ref();
 const rewardList = ref([]);
@@ -238,6 +296,7 @@ function formatDate(date) {
 
     return [year, month, day].join('-');
 }
+provide('formatDate', formatDate);
 
 function formatDeliveryDate(date) {
     const d = new Date(date);
@@ -371,5 +430,37 @@ function formatDeliveryDate(date) {
 
 .quantity-total {
     color: #888;
+}
+
+.share-container {
+    position: relative;
+    /* 부모 요소를 기준으로 자식 요소의 위치를 설정 */
+}
+
+.share-modal {
+    position: absolute;
+    top: 100%;
+    /* 공유 아이콘 바로 아래에 위치 */
+    left: 0;
+    background-color: white;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    padding: 10px;
+    z-index: 1000;
+}
+
+.share-modal button {
+    display: block;
+    width: 100%;
+    padding: 5px 10px;
+    margin-bottom: 5px;
+    background-color: #f0f0f0;
+    border: none;
+    border-radius: 3px;
+    cursor: pointer;
+}
+
+.share-modal button:hover {
+    background-color: #e0e0e0;
 }
 </style>

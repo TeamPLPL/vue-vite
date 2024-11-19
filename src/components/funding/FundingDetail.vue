@@ -9,8 +9,12 @@
         {{ fundingExplanation }}
     </div>
     <div>
-        <div v-for="(detailImg, index) in detailImgList" :key="index">
+        <!-- <div v-for="(detailImg, index) in detailImgList" :key="index">
             <img :src="detailUrlComputed(detailImg)" :alt="`${fundingTitle}의 설명 이미지${index}`">
+        </div> -->
+        <div class="detail-img-container d-flex flex-column">
+            <img :src="detailImgUrlComputed" class="detail-img img-fluid" :alt="`${fundingTitle}의 설명 이미지`"
+                @error="handleImageError">
         </div>
     </div>
 </template>
@@ -34,7 +38,8 @@ const fundingTitle = inject('fundingTitle');
 const fundingExplanation = inject('fundingExplanation');
 
 const thumbnailUrl = ref();
-const detailImgList = ref([]);
+// const detailImgList = ref([]);
+const detailImgUrl = ref();
 
 // 컴포넌트가 마운트될 때 데이터 호출
 onMounted(async () => {
@@ -42,7 +47,8 @@ onMounted(async () => {
 
         const data = await apiWrapper.fetchFundingImgList(props.fundingId);
         thumbnailUrl.value = data.thumbnailImgUrl;
-        detailImgList.value = data.detailImgUrlList;
+        detailImgUrl.value = data.detailImgUrl;
+        // detailImgList.value = data.detailImgUrlList;
     } catch (error) {
         console.error('이미지 데이터 로딩 중 오류 발생:', error);
     }
@@ -50,6 +56,10 @@ onMounted(async () => {
 
 const thumbnailUrlComputed = computed(() => {
     return thumbnailUrl.value || defaultImageUrl;
+});
+
+const detailImgUrlComputed = computed(() => {
+    return detailImgUrl.value || defaultImageUrl;
 });
 
 const handleImageError = (event) => {
@@ -65,5 +75,16 @@ const detailUrlComputed = computed((url) => {
 <style>
 .thumbnail-img {
     max-width: 100%;
+}
+
+.detail-img-container {
+    height: 100vh;
+    overflow-y: auto;
+}
+
+.detail-img {
+    max-width: 100%;
+    height: auto;
+    object-fit: contain;
 }
 </style>
