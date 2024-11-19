@@ -12,64 +12,82 @@ import DropoutUser from "../../components/user/DropoutUser.vue";
 
 export default [
     {
-        path: '/login',
-        name :'login',
-        component : Login,
+        path: "/login",
+        name: "login",
+        component: Login,
         meta: {
             hideHeader: true,
             hideTopbar: true,
             hideFooter: true,
-        }
+        },
     },
     {
-        path: '/signup',
-        name :'signup',
-        component : Signup,
+        path: "/signup",
+        name: "signup",
+        component: Signup,
         meta: {
             hideHeader: true,
             hideTopbar: true,
             hideFooter: true,
-        }
+        },
     },
     {
-        path: '/find/idpwd',
-        name : 'find-id',
+        path: "/find/idpwd",
+        name: "find-id",
         component: FindIdPwd,
-        meta: {hideHeader: true}
+        meta: { hideHeader: true },
     },
     {
-        path: '/cookie-to-header',
-        name :'cookie-to-header',
-        component : CookieToHeader,
+        path: "/cookie-to-header",
+        name: "cookie-to-header",
+        component: CookieToHeader,
         meta: {
             hideHeader: true,
             hideTopbar: true,
             hideFooter: true,
-        }
+            requiresAuth: true,
+            requiresSecureAccess: true,
+        },
     },
     {
-        path: '/mywadiz/maker',
-        name: 'mywadiz-maker',
+        path: "/mywadiz/maker",
+        name: "mywadiz-maker",
         component: MyMaker,
-        meta: {hideHeader: true}
+        meta: {
+            hideHeader: true,
+            requiresAuth: true,
+            requiresSecureAccess: true,
+        },
     },
     {
-        path: '/mywadiz/supporter',
-        name: 'mywadiz-supporter',
+        path: "/mywadiz/supporter",
+        name: "mywadiz-supporter",
         component: MySupporter,
-        meta: {hideHeader: true}
+        meta: {
+            hideHeader: true,
+            requiresAuth: true,
+            requiresSecureAccess: true,
+        },
     },
     {
-        path: '/mywadiz/info/modifyprofile',
-        name: 'modifyprofile',
+        path: "/mywadiz/info/modifyprofile",
+        name: "modifyprofile",
         component: ModifyProfile,
-        meta: {hideHeader: true}
+        meta: {
+            hideHeader: true,
+            requiresAuth: true,
+            requiresSecureAccess: true,
+        },
     },
     {
-        path: '/mywadiz/info/updatepwd',
-        name: 'updatepwd',
+        path: "/mywadiz/info/updatepwd",
+        name: "updatepwd",
         component: UpdatePwd,
-        meta: {hideHeader: true}
+        meta: {
+            hideHeader: true,
+            requiresAuth: true,
+            requiresSecureAccess: true,
+        },
     },
     {
         path: '/mywadiz/info/deliveryAddress',
@@ -78,10 +96,13 @@ export default [
         meta: {hideHeader: true}
     },
     {
-        path: '/mywadiz/info/dropoutuser',
-        name: 'dropoutuser',
+        path: "/mywadiz/info/dropoutuser",
+        name: "dropoutuser",
         component: DropoutUser,
-        meta: {hideHeader: true}
-    }
-
-]
+        meta: {
+            hideHeader: true,
+            requiresAuth: true,
+            requiresSecureAccess: true,
+        },
+    },
+];

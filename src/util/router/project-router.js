@@ -7,44 +7,68 @@ import RewardPolicy from "../../components/project/RewardPolicy.vue";
 
 export default [
     {
-        path : '/studio/:projectId/project/',
+        path: "/studio/:projectId/project/",
         component: Funding,
         props: true,
-        meta: {hideHeader: true}
+        meta: {
+            hideHeader: true,
+            requiresAuth: true,
+            requiresSecureAccess: true,
+        },
     },
     {
-        path: '/studio/:projectId/project/intro',
-        name : 'Intro',
+        path: "/studio/:projectId/project/intro",
+        name: "Intro",
         component: Intro,
         props: true,
-        meta: {hideHeader: true}
+        meta: {
+            hideHeader: true,
+            requiresAuth: true,
+            requiresSecureAccess: true,
+        },
     },
     {
-        path : '/studio/:projectId/project/schedule',
-        name : 'Schedule',
+        path: "/studio/:projectId/project/schedule",
+        name: "Schedule",
         component: Schedule,
         props: true,
-        meta: {hideHeader: true}
+        meta: {
+            hideHeader: true,
+            requiresAuth: true,
+            requiresSecureAccess: true,
+        },
     },
     {
-        path : '/studio/:projectId/project/info',
-        name : 'projectInfo',
+        path: "/studio/:projectId/project/info",
+        name: "projectInfo",
         component: ProjectInfo,
         props: true,
-        meta: {hideHeader: true}
+        meta: {
+            hideHeader: true,
+            requiresAuth: true,
+            requiresSecureAccess: true,
+        },
     },
     {
-        path: '/studio/:projectId/project/reward',
-        name : 'reward',
+        path: "/studio/:projectId/project/reward",
+        name: "reward",
         component: Reward,
         props: true,
-        meta: {hideHeader: true}
+        meta: {
+            hideHeader: true,
+            requiresAuth: true,
+            requiresSecureAccess: true,
+        },
     },
     {
-        path: '/studio/:projectId/project/policy',
-        name: 'policy',
+        path: "/studio/:projectId/project/policy",
+        name: "policy",
         component: RewardPolicy,
         props: true,
-        meta: {hideHeader: true}
-    }
-]
+        meta: {
+            hideHeader: true,
+            requiresAuth: true,
+            requiresSecureAccess: true,
+        },
+    },
+];

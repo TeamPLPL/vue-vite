@@ -17,11 +17,11 @@
               </div>
 
               <!--              <hr>-->
-<!--              <div class="d-flex align-items-center" style="display: none">-->
-<!--                <img src="https://via.placeholder.com/24" alt="포인트 아이콘" class="me-2">-->
-<!--                <span>포인트</span>-->
-<!--                <span class="ms-auto fw-bold">0 P</span>-->
-<!--              </div>-->
+              <!--              <div class="d-flex align-items-center" style="display: none">-->
+              <!--                <img src="https://via.placeholder.com/24" alt="포인트 아이콘" class="me-2">-->
+              <!--                <span>포인트</span>-->
+              <!--                <span class="ms-auto fw-bold">0 P</span>-->
+              <!--              </div>-->
             </div>
           </div>
 
@@ -45,7 +45,10 @@
         </div>
 
         <!-- 고객센터 Section -->
-        <Info/>
+        <Info />
+
+        <!-- 찜 리스트 및 팔로우 리스트 Section -->
+        <WishsFollows />
       </div>
     </div>
   </div>
@@ -56,9 +59,11 @@ import { useRouter } from "vue-router";
 import ProfileSidebar from "./userComponents/ProfileSidebar.vue";
 import CustomerService from "./userComponents/CustomerService.vue";
 import Info from "./userComponents/Info.vue";
+import WishsFollows from "./userComponents/WishsFollows.vue";
 
 export default {
   components: {
+    WishsFollows,
     Info,
     ProfileSidebar,
     CustomerService
@@ -78,10 +83,14 @@ export default {
 </script>
 
 <style scoped>
-.profile{
-  width: 80px; /* 원하는 이미지 크기 */
-  height: 80px; /* 원하는 이미지 크기 */
-  border-radius: 50%; /* 원형으로 만듦 */
-  object-fit: cover; /* 이미지가 원 안에 꽉 차게 조정 */
+.profile {
+  width: 80px;
+  /* 원하는 이미지 크기 */
+  height: 80px;
+  /* 원하는 이미지 크기 */
+  border-radius: 50%;
+  /* 원형으로 만듦 */
+  object-fit: cover;
+  /* 이미지가 원 안에 꽉 차게 조정 */
 }
 </style>
