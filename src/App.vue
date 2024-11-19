@@ -1,5 +1,5 @@
 <script setup>
-import { ref, onMounted, onUnmounted, computed } from 'vue';
+import { ref, provide, onMounted, onUnmounted, computed } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
 import { useAuthStore } from './util/store/authStore'; // authStore import
 import { usePaymentStore } from './util/store/paymentStore';
@@ -9,6 +9,9 @@ import Topbar from './components/common/Topbar.vue'
 import Footer from './components/common/Footer.vue'
 import FundingDetailHeader from './components/funding/FundingDetailHeader.vue'; // Import FundingDetailHeader
 import Example from "./components/Example.vue";
+import wishlistStore from "./util/scripts/wishlistStore"
+
+provide('wishlistStore', wishlistStore);
 
 const router = useRouter();
 const route = useRoute();
@@ -43,34 +46,50 @@ const checkScroll = () => {
 }
 
 onMounted(() => {
-    // Check if payment is successful and redirect if needed
-    if (paymentStore.isPaymentSuccessful) {
-        router.push('/purchase/complete/:id');
-        paymentStore.resetPaymentStatus();
-    }
-    window.addEventListener('scroll', checkScroll)
+  // Check if payment is successful and redirect if needed
+  if (paymentStore.isPaymentSuccessful) {
+    router.push('/purchase/complete/:id');
+    paymentStore.resetPaymentStatus();
+  }
+  window.addEventListener('scroll', checkScroll)
 });
 
 onUnmounted(() => {
   window.removeEventListener('scroll', checkScroll)
 })
+
+//////////////
+
+// const selectedCategory = ref(null);
+
+// const handleCategorySelected = (category) => {
+//   selectedCategory.value = category;
+// };
+const handleCategorySelected = (category) => {
+  router.push({
+    name: 'Category',
+    params: { type: category.type, id: category.id },
+    query: { name: category.name }
+  });
+};
 </script>
 
 <template>
-  <div>
+  <div id="app-vue-container">
     <div class="container-fluid">
       <Topbar class="topbar" v-if="!shouldHideTopbar" />
     </div>
-    <Header v-if="!shouldHideHeader" />
+    <Header v-if="!shouldHideHeader" @category-selected="handleCategorySelected" />
     <FundingDetailHeader v-if="isDetailPage" />
     <div class="container-sm">
       <div class="app-container">
+        <!-- <RouterView :selected-category="selectedCategory" /> -->
         <RouterView />
       </div>
     </div>
     <div class="">
       <Footer class="footer" v-if="!shouldHideFooter" />
-    </div>  
+    </div>
   </div>
   <button @click="scrollToTop" id="top-btn" class="top-button" :class="{ 'show': showTopButton }">
     Top
@@ -78,11 +97,23 @@ onUnmounted(() => {
 </template>
 
 <style>
-/* .app-container {
-  display: flex;
-  flex-direction: column;
-  min-height: 100vh;
-} */
+#app-vue-container {
+  min-width: 400px;
+  position: relative;
+  overflow-x: hidden;
+}
+
+@media screen and (max-width: 767px) {
+  #app-vue-container {
+    min-width: 100%;
+    width: 100%;
+  }
+}
+
+.app-container {
+  padding-top: 38px;
+}
+
 .topbar {
   position: sticky;
   top: 0;
@@ -115,7 +146,8 @@ onUnmounted(() => {
   opacity: 0;
   transition: opacity 0.3s, visibility 0.3s;
   visibility: hidden;
-  z-index: 2000; /* Footer보다 높은 z-index 설정 */
+  z-index: 2000;
+  /* Footer보다 높은 z-index 설정 */
 }
 
 .top-button.show {
@@ -130,5 +162,4 @@ onUnmounted(() => {
 #top-btn {
   padding: 0;
 }
-
 </style>

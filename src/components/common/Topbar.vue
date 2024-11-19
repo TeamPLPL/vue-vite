@@ -1,11 +1,16 @@
 <template>
   <nav class="navbar navbar-expand-sm">
     <div class="container-sm">
-      <div class="navbar-collapse" id="navbarText">
-        <span class="navbar-text">
-          <img src="../../assets/wadiz.png" @click="main" style="width: 100px; height: auto; cursor: pointer; margin-left: 19.2px;">
-        </span>
-        <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
+      <span class="navbar-text">
+        <img src="../../assets/wadiz.png" @click="main"
+          style="width: 100px; height: auto; cursor: pointer; margin-left: 19.2px;">
+      </span>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarContent"
+        aria-controls="navbarContent" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse justify-content-end" id="navbarContent">
+        <ul class="navbar-nav align-items-end">
           <!-- 로그인 상태일 때 표시 -->
           <template v-if="isLoggedIn">
             <li class="nav-item">
@@ -34,6 +39,7 @@
     </div>
   </nav>
 </template>
+
 
 <script>
 import { useRouter } from 'vue-router';
@@ -131,16 +137,44 @@ export default {
 
 
 <style scoped>
-.profile{
-  width: 40px; /* 원하는 이미지 크기 */
-  height: 40px; /* 원하는 이미지 크기 */
-  border-radius: 50%; /* 원형으로 만듦 */
-  object-fit: cover; /* 이미지가 원 안에 꽉 차게 조정 */
-  margin-right: 19.2px
+.profile {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  object-fit: cover;
+  margin-right: 19.2px;
 }
+
 .nav-item {
   display: flex;
   align-items: center;
   margin-right: 10px;
+}
+
+
+/* */
+@media (max-width: 575.98px) {
+  .navbar-nav {
+    width: 100%;
+  }
+
+  .nav-item {
+    width: 100%;
+    margin-bottom: 10px;
+  }
+
+  .navbar-collapse {
+    text-align: right;
+  }
+
+  .btn {
+    width: 100%;
+    max-width: none;
+  }
+
+  .profile {
+    margin: 0;
+    display: block;
+  }
 }
 </style>
