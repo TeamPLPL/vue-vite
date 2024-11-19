@@ -440,6 +440,32 @@ const apiWrapper = {
       throw error; // 에러를 호출자에게 전파
     }
   },
-};
 
+  getNoticeList: async (id, page, size) => {
+    try {
+      const response = await apiClient.get(`/api/funding/${id}/notice`, {
+        params: {
+          page: page,
+          size: size,
+        },
+      });
+      console.log("펀딩 공지사항 불러오기 성공:", response);
+      return response.data;
+    } catch (error) {
+      console.error(`getNoticeList 중 오류 발생`, error);
+      if (error.response) {
+        // 서버가 응답을 반환한 경우
+        console.error("Error status:", error.response.status);
+        console.error("Error data:", error.response.data);
+      } else if (error.request) {
+        // 요청이 전송되었지만 응답을 받지 못한 경우
+        console.error("No response received:", error.request);
+      } else {
+        // 요청 설정 중 오류가 발생한 경우
+        console.error("Error message:", error.message);
+      }
+      throw error;
+    }
+  },
+};
 export default apiWrapper;

@@ -112,9 +112,12 @@ export default {
     };
 
     const profile = () => {
+      console.log('프로필 클릭됨');
       if (authStore.isAuthenticated && authStore.canAccessSecurePage) {
+        console.log('인증됨, 페이지 이동 시도');
         router.push('/mywadiz/supporter');
       } else if (!authStore.isAuthenticated) {
+        console.log('인증되지 않음');
         alert('로그인이 필요합니다.');
         router.push('/login');
       }
