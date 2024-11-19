@@ -51,6 +51,7 @@
                 v-show="showCancelModal" 
                 :show="showCancelModal"
                 :payment-id="collectedPaymentId"
+                :calculated-amount="calculateNetAmount()"
                 title="결제를 취소하시겠어요?"
                 message="리워드 옵션 변경을 원한다면 결제를 취소하지 않고 참여 내역에서 변경 가능해요." 
                 @close="closeCancelModal"
@@ -188,8 +189,18 @@ function closeCancelModal() {
     showCancelModal.value = false;
 }
 
-function cancelReservation() {
+function cancelReservation({paymentId, cancelResponse, response}) {
     // 결제 예약 취소 로직 추가
+    console.log('결제 취소 확인:', paymentId);
+    console.log('취소 응답 데이터:', cancelResponse);
+    console.log('Funding 업데이트 응답:', response);
+
+    if (response.status === 200) {
+        alert('결제가 성공적으로 취소되었습니다.');
+    } else {
+        alert('결제 취소 후 문제가 발생했습니다.');
+    }
+
     console.log("결제 예약 취소됨");
     console.log('취소할 Payment ID:', collectedPaymentId.value);
     showCancelModal.value = false; // 모달 닫기
@@ -229,6 +240,15 @@ const getMaxDeliveryFee = () => {
     if (!paymentDetails.value || !paymentDetails.value.rewards) return 0;
 
     return Math.max(...paymentDetails.value.rewards.map(reward => reward.deliveryFee), 0);
+};
+
+// 펀딩에서 빠져나가는 돈 계산
+const calculateNetAmount = () => {
+    const rewardTotal = calculateTotalRewardPrice(); // 리워드 금액
+    const donation = AdditionalFunding();           // 추가 후원금
+    const discount = calculateDiscountPrice();      // 쿠폰 할인
+
+    return rewardTotal + donation - discount;
 };
 
 // 추가 후원금 계산
