@@ -102,6 +102,7 @@
 import { ref, provide, inject, computed, onMounted } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import apiWrapper from '../../util/axios/axios';
+import { useAuthStore } from '../../util/store/authStore';
 import defaultThumbnail from '../../assets/default_thumbnail.jpeg'
 import defaultProfile from '../../assets/default_profile.png'
 
@@ -110,6 +111,8 @@ const router = useRouter();
 
 const fundingId = ref(route.params.id);
 provide('fundingId', fundingId);
+
+const authStore = useAuthStore();
 
 //////////////////// wishlist start
 const wishlistStore = inject('wishlistStore');
@@ -302,6 +305,34 @@ function formatDeliveryDate(date) {
     const d = new Date(date);
     return `${d.getFullYear()}년 ${d.getMonth() + 1}월 ${d.getDate()}일`;
 }
+
+////////// 작성자 체크
+
+// 프로젝트 작성자 여부를 확인하는 로직
+const isCreator = computed(() => {
+    if (!maker.value?.makerEmail) {
+        console.log("메이커 정보가 없습니다.");
+        return false;
+    }
+
+    const userInfo = authStore.getUserInfo();
+    if (!userInfo?.email) {
+        console.log("사용자 정보가 없습니다.");
+        return false;
+    }
+
+    console.log("현재 사용자 이메일:", userInfo.email);
+    console.log("메이커 이메일:", maker.value.makerEmail);
+
+    const isCreatorResult = userInfo.email === maker.value.makerEmail;
+    console.log("작성자 여부:", isCreatorResult);
+
+    return isCreatorResult;
+});
+
+provide('isCreator', isCreator);
+
+////////// 작성자 체크 끝
 </script>
 
 <style>
