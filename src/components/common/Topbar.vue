@@ -14,7 +14,8 @@
           <!-- 로그인 상태일 때 표시 -->
           <template v-if="isLoggedIn">
             <li class="nav-item">
-              <img src="https://static.wadiz.kr/assets/icon/profile-icon-5.png" class="profile" style="cursor:pointer;" @click="profile">
+              <img src="https://static.wadiz.kr/assets/icon/profile-icon-5.png" class="profile" style="cursor:pointer;"
+                @click="profile">
             </li>
             <li class="nav-item">
               <button type="button" class="btn btn-light" @click="logout">로그아웃</button>
@@ -44,12 +45,15 @@
 <script>
 import { useRouter } from 'vue-router';
 import apiWrapper from "../../util/axios/axios.js"
-import { ref, onMounted, onUnmounted } from 'vue';
+import { ref, onMounted } from 'vue';
+import { useAuthStore } from '../../util/store/authStore.js';
 
 export default {
   setup() {
     const router = useRouter();
     const isLoggedIn = ref(!!localStorage.getItem('jwtToken'));
+
+    const authStore = useAuthStore();
 
     // 로그인 상태를 확인하는 함수
     const checkLoginStatus = () => {
@@ -108,8 +112,11 @@ export default {
     };
 
     const profile = () => {
-      if (isLoggedIn.value) {
-        router.push('/mywadiz/supporter')
+      if (authStore.isAuthenticated && authStore.canAccessSecurePage) {
+        router.push('/mywadiz/supporter');
+      } else if (!authStore.isAuthenticated) {
+        alert('로그인이 필요합니다.');
+        router.push('/login');
       }
     }
 
