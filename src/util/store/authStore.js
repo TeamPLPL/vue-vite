@@ -8,6 +8,7 @@ export const useAuthStore = defineStore("auth", () => {
     const userInfo = ref(null);
 
     const canAccessSecurePage = ref(false);
+    const isInitialized = ref(false); // 상태 복구 여부
     // 컴퓨티드 속성: 인증 상태
     const isAuthenticated = computed(() => !!jwtToken.value);
 
@@ -72,6 +73,7 @@ export const useAuthStore = defineStore("auth", () => {
             canAccessSecurePage.value = true; // 토큰이 있으면 접근 권한 부여
             console.log("Store initialized with user info:", userInfo.value);
         }
+        isInitialized.value = true; // 상태 복구 완료
     }
 
     // 보안 페이지 접근 권한 설정
@@ -79,77 +81,50 @@ export const useAuthStore = defineStore("auth", () => {
         canAccessSecurePage.value = value;
     }
 
-    // 로그아웃 함수 수정
-    async function logout() {
-        try {
-            // 서버에 로그아웃 요청 (필요한 경우)
-            await fetch("/api/logout", {
-                method: "POST",
-                headers: {
-                    Authorization: `Bearer ${getJwtToken()}`,
-                },
-            });
-        } catch (error) {
-            console.error("Logout error:", error);
-        } finally {
-            resetState();
-            localStorage.removeItem("jwtToken");
-        }
+    // 새로고침 전 상태 저장
+    function saveStateBeforeReload() {
+        sessionStorage.setItem("userInfo", JSON.stringify(userInfo.value));
+        sessionStorage.setItem("secureAccess", JSON.stringify(canAccessSecurePage.value));
+
     }
 
-    function resetState() {
+    // 새로고침 후 상태 복구
+    function restoreStateAfterReload() {
+        const savedUserInfo = sessionStorage.getItem("userInfo");
+        const savedSecureAccess = sessionStorage.getItem("secureAccess");
+
+        if (savedUserInfo) {
+            userInfo.value = JSON.parse(savedUserInfo);
+        }
+
+        if (savedSecureAccess) {
+            canAccessSecurePage.value = JSON.parse(savedSecureAccess);
+        }
+
+        isInitialized.value = true; // 상태 복구 완료
+    }
+
+    function logout() {
         jwtToken.value = null;
         userInfo.value = null;
         canAccessSecurePage.value = false;
+        isInitialized.value = false;
+        localStorage.removeItem("jwtToken");
+        sessionStorage.clear(); // 세션 스토리지 초기화
     }
 
-    /////////////////////////
+    // 로그아웃
+    // function logout() {
+    //     resetState();
+    //     localStorage.removeItem("jwtToken");
+    // }
 
-    // JWT 만료 시간 확인 함수
-    function isTokenExpired(token) {
-        if (!token) return true;
-        const decodedToken = parseJwt(token);
-        if (!decodedToken) return true;
-        const currentTime = Date.now() / 1000;
-        return decodedToken.exp < currentTime;
-    }
+    // function resetState() {
+    //     jwtToken.value = null;
+    //     userInfo.value = null;
+    //     canAccessSecurePage.value = false;
+    // }
 
-    // 토큰 유효성 검사 및 갱신 함수
-    async function checkAndRefreshToken() {
-        const token = getJwtToken();
-        if (token && isTokenExpired(token)) {
-            // try {
-            //     // 리프레시 토큰을 사용하여 새 토큰 요청
-            //     const response = await fetch("/api/refresh-token", {
-            //         method: "POST",
-            //         headers: {
-            //             Authorization: `Bearer ${token}`,
-            //         },
-            //     });
-            //     if (response.ok) {
-            //         const { newToken } = await response.json();
-            //         setJwtToken(newToken);
-            //     } else {
-            //         // 리프레시 실패 시 로그아웃 처리
-            //         await handleTokenExpiration();
-            //     }
-            // } catch (error) {
-            //     console.error("Token refresh failed:", error);
-            //     await handleTokenExpiration();
-            // }
-            console.log("TokenExpired");
-            await handleTokenExpiration();
-        }
-    }
-
-    // 토큰 만료 처리 함수
-    async function handleTokenExpiration() {
-        alert("세션이 만료되었습니다. 다시 로그인해주세요.");
-        await logout();
-        router.push("/login");
-    }
-
-    //////////////////////////////
 
     return {
         jwtToken,
@@ -157,9 +132,12 @@ export const useAuthStore = defineStore("auth", () => {
         getJwtToken,
         getUserInfo,
         initializeStore,
+        saveStateBeforeReload,
+        restoreStateAfterReload,
         isAuthenticated,
         canAccessSecurePage,
         setSecurePageAccess,
+        isInitialized,
         logout,
         checkAndRefreshToken,
         handleTokenExpiration,

@@ -23,12 +23,20 @@
           </template>
 
           <!-- 로그아웃 상태일 때 표시 -->
-          <template v-else>
+          <!-- <template v-else>
             <li class="nav-item">
               <button type="button" class="btn btn-light" @click="login">로그인</button>
             </li>
             <li class="nav-item">
               <button type="button" class="btn btn-light" @click="signup">회원가입</button>
+            </li>
+          </template> -->
+          <template v-else-if="authStore.isInitialized">
+            <li class="nav-item">
+              <button @click="login">로그인</button>
+            </li>
+            <li class="nav-item">
+              <button @click="signup">회원가입</button>
             </li>
           </template>
 
@@ -77,8 +85,9 @@ export default {
 
     // 로그아웃 함수
     const logout = () => {
-      localStorage.removeItem('jwtToken'); // 로컬 스토리지에서 jwtToken 삭제
-      isLoggedIn.value = false; // 반응형 상태 업데이트
+      // localStorage.removeItem('jwtToken'); // 로컬 스토리지에서 jwtToken 삭제
+      // isLoggedIn.value = false; // 반응형 상태 업데이트
+      authStore.logout();
       router.push('/'); // 로그아웃 후 메인 페이지로 이동
     };
 
@@ -113,6 +122,7 @@ export default {
 
     const profile = () => {
       console.log('프로필 클릭됨');
+      // if (authStore.isAuthenticated && authStore.canAccessSecurePage) {
       if (authStore.isAuthenticated && authStore.canAccessSecurePage) {
         console.log('인증됨, 페이지 이동 시도');
         router.push('/mywadiz/supporter');
@@ -133,6 +143,7 @@ export default {
     });
 
     return {
+      authStore,
       isLoggedIn,
       login,
       signup,
