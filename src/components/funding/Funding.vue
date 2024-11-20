@@ -4,7 +4,7 @@
             <!-- 좌측 본문 영역 -->
             <div class="main-content col-lg-8">
                 <RouterView v-slot="{ Component }">
-                    <component :is="Component" :fundingId="fundingId" />
+                    <component :is="Component" :fundingId="fundingId" @showNoticeDetail="handleShowNoticeDetail" />
                 </RouterView>
             </div>
 
@@ -106,9 +106,8 @@ import { useAuthStore } from '../../util/store/authStore';
 import defaultThumbnail from '../../assets/default_thumbnail.jpeg'
 import defaultProfile from '../../assets/default_profile.png'
 
-const route = useRoute(); // 현재 경로 정보를 가져오기 위해 useRoute 사용
+const route = useRoute();
 const router = useRouter();
-
 const fundingId = ref(route.params.id);
 provide('fundingId', fundingId);
 
@@ -333,6 +332,21 @@ const isCreator = computed(() => {
 provide('isCreator', isCreator);
 
 ////////// 작성자 체크 끝
+
+const selectedNotice = ref(null);
+provide('selectedNotice', selectedNotice.value);
+provide('setSelectedNotice', (notice) => {
+    selectedNotice.value = notice;
+});
+
+const handleShowNoticeDetail = (noticeId) => {
+    router.push({
+        name: 'NoticeDetail',
+        params: { id: fundingId.value },
+        query: { noticeId: noticeId },
+    });
+
+};
 </script>
 
 <style>

@@ -5,7 +5,7 @@
                 :alt="`${fundingTitle}의 썸네일`" @error="handleImageError">
         </div>
     </div>
-    <div>
+    <div class="expl-container">
         {{ fundingExplanation }}
     </div>
     <div>
@@ -77,8 +77,16 @@ const detailUrlComputed = computed((url) => {
     max-width: 100%;
 }
 
+.expl-container {
+    width: 100%;
+    margin-top: 70px;
+    margin-bottom: 20px;
+    padding-left: 5px;
+    text-align: left;
+}
+
 .detail-img-container {
-    height: 100vh;
+    max-width: 100%;
     overflow-y: auto;
 }
 
