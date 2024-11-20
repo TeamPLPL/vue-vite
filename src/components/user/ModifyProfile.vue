@@ -8,13 +8,22 @@
 
     <!-- 프로필 사진 -->
     <div class="d-flex flex-column align-items-center mb-4">
-      <img
-          src="https://via.placeholder.com/80"
+      <img v-if="!profileImage"
+          src="https://static.wadiz.kr/assets/icon/profile-icon-5.png"
           alt="프로필 사진"
           class="rounded-circle"
-          :style="{ width: profileImageSize + 'px', height: profileImageSize + 'px' }"
+          style="width: 180px; height: 180px; object-fit: cover;"
       />
-      <button class="btn btn-outline-primary btn-sm mt-3">사진 바꾸기</button>
+      <img v-else
+           :src="profileImage"
+           alt="프로필 사진"
+           class="rounded-circle"
+           style="width: 180px; height: 180px; object-fit: cover;"
+      />
+      <label for="file-upload" class="custom-file-upload btn btn-outline-primary btn-sm mt-3" >
+        사진 바꾸기
+      </label>
+      <input id="file-upload" type="file" style="display: none;" @change="onImageUpload">
     </div>
 
     <!-- 기본 정보 설정 -->
@@ -22,21 +31,24 @@
       <h5 class="fw-bold">기본 정보 설정</h5>
     </div>
 
+    <!-- 닉네임 출력 -->
+    <div class="form-group mt-3">
+      <input type="text" class="form-control custom-input" placeholder="이름을 입력하세요"  />
+    </div>
+
     <!-- 이름 입력 -->
     <div class="form-group mt-3">
-      <input type="text" class="form-control custom-input" placeholder="이름을 입력하세요" />
+      <input type="text" class="form-control custom-input" placeholder="닉네임" disabled/>
     </div>
 
     <!-- 이메일 변경 -->
     <div class="input-group mt-3">
-      <input type="email" class="form-control custom-input" placeholder="76768140sa@gmail.com" disabled />
-      <button class="btn btn-secondary">변경</button>
+      <input type="email" class="form-control custom-input" placeholder="이메일" disabled />
     </div>
 
     <!-- 전화번호 변경 -->
     <div class="input-group mt-3">
-      <input type="text" class="form-control custom-input" placeholder="01027385539" disabled />
-      <button class="btn btn-secondary">변경</button>
+      <input type="text" class="form-control custom-input" placeholder="전화번호" disabled />
     </div>
 
     <!-- SNS 연동 -->
@@ -52,19 +64,110 @@
     </div>
 
     <!-- 취소 및 확인 버튼 -->
-    <div class="d-flex justify-content-between">
+    <div class="d-flex justify-content-between mb-5">
       <button class="btn btn-secondary w-48">취소</button>
-      <button class="btn btn-primary w-48">확인</button>
+      <button class="btn btn-primary w-48">저장</button>
     </div>
   </div>
 </template>
 
 <script>
+import { onMounted, ref } from "vue";
+import apiWrapper from "../../util/axios/axios.js";
+
 export default {
+  name: "ModifyProfile",
   data() {
     return {
-      profileImageSize: 150 // 프로필 사진 크기
+      profileImageSize: 170 // 프로필 사진 크기
     };
+  },
+  setup() {
+    const profileImage = ref(null); // 썸네일 URL
+    const fileId = ref(null); // 파일 ID
+    const fileInput = ref(null); // input 요소에 대한 ref
+
+
+    const fetchInitialProfileImage = async () => {
+      try {
+        const response = await apiWrapper.getData(`/api/get/profileimage`);
+        const fileData = response; // 서버 응답이 바로 FileDTO 객체라고 가정
+        console.log(response);
+        profileImage.value = fileData.signedUrl; // 썸네일 URL 설정
+        fileId.value = fileData.fileId; // fileId 저장
+      } catch (error) {
+        console.error("초기 썸네일 가져오기 실패:", error);
+      }
+    };
+
+    // 파일 업로드 처리
+    const onImageUpload = async (event) => {
+      const file = event.target.files[0];
+
+      // 중복 실행 방지
+      if (!file) {
+        console.warn("파일이 선택되지 않았습니다.");
+        return;
+      }
+
+      if (!file || file.size > 10 * 1024 * 1024) {
+        alert("이미지는 10MB 이하의 JPG, JPEG, PNG 파일만 업로드할 수 있습니다.");
+        return;
+      }
+
+      const formData = new FormData();
+      formData.append("file", file);
+
+      try {
+        // 기존 파일이 존재하면 삭제
+        if (fileId.value) {
+          console.log("기존 이미지를 삭제 중...");
+          await removeImage();
+        }
+
+        const response = await apiWrapper.postFileData(`/api/upload/profileimage`, formData);
+        console.log(response);
+        const fileData = response.data; // 서버에서 반환된 데이터가 단순 문자열로 전달됨
+        console.log("Signed URL:", fileData);
+
+        fileId.value = null; // fileId는 필요 없을 수 있으므로 유지할지 확인
+        profileImage.value = fileData; // signedUrl로 설정
+      } catch (error) {
+        console.error("이미지 업로드 실패:", error);
+        alert("이미지 업로드 중 문제가 발생했습니다.");
+      }
+    };
+
+    const removeImage = async () => {
+      if (!fileId.value) {
+        alert("삭제할 이미지가 없습니다.");
+        return;
+      }
+
+      try {
+        await apiWrapper.getData(`/api/${fileId.value}/delete/profileimage`);
+        alert("이미지가 변경되었습니다.");
+        profileImage.value = null; // 화면에서 썸네일 제거
+        fileId.value = null; // fileId 초기화
+        if (fileInput.value) {
+          fileInput.value.value = ""; // 파일 입력 초기화
+        }
+      } catch (error) {
+        console.error("이미지 삭제 실패:", error);
+        alert("이미지 삭제 중 문제가 발생했습니다.");
+      }
+    };
+
+    onMounted(() => {
+      fetchInitialProfileImage(); // 컴포넌트 초기화 시 썸네일 데이터 가져오기
+    });
+
+    return {
+      onImageUpload,
+      removeImage,
+      profileImage,
+      fileId
+    }
   }
 };
 </script>
@@ -91,5 +194,18 @@ export default {
 .custom-badge {
   font-size: 1rem;
   padding: 0.5rem 0.75rem;
+}
+.custom-file-upload {
+  display: inline-block;
+  padding: 6px 12px;
+  cursor: pointer;
+  border: 1px solid #007bff;
+  border-radius: 4px;
+  color: #007bff;
+  background-color: #fff;
+  text-align: center;
+}
+.custom-file-upload:hover {
+  background-color: #0d6efd;
 }
 </style>

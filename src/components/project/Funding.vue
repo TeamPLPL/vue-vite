@@ -7,8 +7,8 @@
 
         <!-- 버튼 자리  -->
         <button
-            class="btn btn-danger mt-2 w-100"
-            @click="exit"
+            class="btn btn-danger w-100"
+            @click="publish"
             :disabled="!completionStatus.isComplete">
           제출 하기
         </button>
@@ -116,6 +116,22 @@ export default defineComponent({
       }
     };
 
+    const publish = async () => {
+        const requestBody = {
+          isPublished: Boolean(true),
+        };
+
+        try{
+          const data = await apiWrapper.postData(`/api/${props.projectId}/ispublished`, requestBody);
+          console.log(requestBody);
+          alert("제출이 완료되었습니다.");
+          router.push(`/mywadiz/maker`);
+        } catch (error){
+          console.error("error 원인 :", error);
+          alert("제출 미완료!!!");
+        }
+    }
+
     // 페이지 로드 시 데이터 가져오기
     onMounted(fetchCompletionStatus);
 
@@ -147,6 +163,7 @@ export default defineComponent({
       info,
       reward,
       policy,
+      publish
     };
   },
 });

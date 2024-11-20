@@ -64,6 +64,12 @@ export default {
     const onImageUpload = async (event) => {
       const file = event.target.files[0];
 
+      // 중복 실행 방지
+      if (!file) {
+        console.warn("파일이 선택되지 않았습니다.");
+        return;
+      }
+
       if (!file || file.size > 10 * 1024 * 1024) {
         alert("이미지는 10MB 이하의 JPG, JPEG, PNG 파일만 업로드할 수 있습니다.");
         return;
