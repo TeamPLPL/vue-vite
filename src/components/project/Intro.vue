@@ -5,6 +5,7 @@
         <!-- ProjectSidebar에 projectId 바인딩 -->
         <ProjectSidebar :projectId="projectId" />
         <button class="btn btn-primary w-100" @click="saveProject">저장 하기</button>
+        <button class="btn btn-secondary mt-2 w-100" @click="exit">나가기</button>
       </div>
 
       <!-- Content -->
@@ -240,16 +241,13 @@ export default defineComponent({
           lowerCategory.name = this.subCategoryName;
         }
 
-        console.log("초기화된 데이터:", {
-          selectedUpperCategory: this.selectedUpperCategory,
-          selectedLowerCategory: this.selectedLowerCategory,
-          mainCategoryName: this.mainCategoryName,
-          subCategoryName: this.subCategoryName,
-        });
+        // 선택된 카테고리 텍스트 초기화
+        if (this.mainCategoryName && this.subCategoryName) {
+          this.selectedCategoryText = `${this.mainCategoryName} > ${this.subCategoryName}`;
+        }
 
         // DOM 업데이트 후 확인
         await this.$nextTick();
-        console.log("DOM 업데이트 완료");
       } catch (error) {
         console.error("프로젝트 데이터 초기화 중 오류:", error);
         alert("프로젝트 데이터를 불러오는 중 문제가 발생했습니다.");
@@ -257,8 +255,6 @@ export default defineComponent({
     },
     closeModal() {
       this.showModal = false;
-      // this.selectedUpperCategory = null;
-      // this.selectedLowerCategory = null;
     },
     selectUpperCategory(idx) {
       this.selectedUpperCategory = idx;
@@ -294,10 +290,18 @@ export default defineComponent({
           ? new Intl.NumberFormat('ko-KR').format(inputValue) + '원'
           : '';
     },
+    exit() {
+      const shouldExit = confirm("저장하지 않고 나가시겠습니까?");
+      if (shouldExit) {
+        this.$router.push(`/studio/${this.projectId}/project/`); // 페이지 이동
+      }
+    }
+
   },
   async mounted() {
     await this.initializeProjectData();
   },
+
 });
 </script>
 

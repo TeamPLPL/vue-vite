@@ -16,9 +16,9 @@
             <div v-for="project in projects" :key="project.id" class="d-flex border mb-3 p-3 rounded" style="min-height: 150px;">
               <div class="position-relative" style="width: 150px; height: 150px;">
                 <!-- 썸네일이 있을 경우 -->
-                <img v-if="project.thumbnail" :src="project.thumbnail" alt="thumbnail" style="object-fit: cover; width: 100%; height: 100%; border-radius: 15px;">
+                <img v-if="project.thumbnail" :src="project.thumbnail.signedUrl" alt="thumbnail" style="object-fit: cover; width: 100%; height: 100%; border-radius: 15px;">
                 <!-- 썸네일이 없을 경우 -->
-                <img  v-if="!project.thumbnail" src="../../assets/noimage.png" alt="no thumbnail" style="object-fit: cover; width: 100%; height: 100%; border-radius: 15px;">
+                <img v-if="!project.thumbnail" src="../../../public/noimage.png" alt="no thumbnail" style="object-fit: cover; width: 100%; height: 100%; border-radius: 15px;">
               </div>
               <!-- 내용 -->
               <div class="ms-3 d-flex flex-column flex-grow-1 position-relative">
@@ -49,7 +49,6 @@
 <script>
 import apiWrapper from "../../util/axios/axios.js"
 import ProfileSidebar from "./userComponents/ProfileSidebar.vue";
-import CustomerService from "./userComponents/CustomerService.vue";
 import {useRouter} from "vue-router";
 import Info from "./userComponents/Info.vue";
 import axios from "../../util/axios/axios.js";
@@ -133,7 +132,7 @@ export default {
       this.projects = response.map((project) => ({
         id: project.id,
         fundingTitle: project.fundingTitle,
-        thumbnail: project.thumbnail || "../../assets/noimage.png",
+        thumbnail: project.thumbnail,
         status: "작성중", // API에서 상태 값이 내려오지 않는다면 기본값
       }));
     } catch (error) {
