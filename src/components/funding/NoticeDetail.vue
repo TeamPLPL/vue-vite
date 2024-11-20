@@ -1,5 +1,6 @@
 <template>
     <div class="notice-detail-container">
+        <!-- 공지사항 상세 정보 -->
         <div v-if="selectedNotice && selectedNotice.noticeTitle">
             <div class="notice-header">
                 <h2 class="notice-title">{{ selectedNotice.noticeTitle }}</h2>
@@ -14,46 +15,47 @@
                 <button class="back-button" @click="goBack">목록보기</button>
                 <div v-if="isCreator" class="maker-button-container">
                     <button class="update-button" @click="toggleWriteModal">
-                        <span class="update-count">수정</span>
+                        수정
                     </button>
                     <button class="delete-button" @click="deleteNotice">
-                        <span class="delete-count">삭제</span>
+                        삭제
                     </button>
                 </div>
             </div>
         </div>
+
+        <!-- 공지사항 데이터가 없을 때 -->
         <div v-else>
-            <p>에러가 발생했습니다.</p>
+            <p>공지사항을 불러오는 중 오류가 발생했습니다. 다시 시도해주세요.</p>
         </div>
 
-
-        <!-- 글쓰기 모달 -->
-        <div class="modal fade" id="writeModal" tabindex="-1" aria-labelledby="writeModalLabel" aria-hidden="true">
+        <!-- 수정 모달 -->
+        <div class="modal fade" id="writeModal" tabindex="-1" aria-hidden="true">
             <div class="modal-dialog modal-lg">
                 <div class="modal-content">
                     <div class="modal-header">
-                        <h5 class="modal-title" id="writeModalLabel">공지사항 수정</h5>
+                        <h5 class="modal-title">공지사항 수정</h5>
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
                     <div class="modal-body">
                         <form @submit.prevent="updateNotice">
-                            <div class="mb-3 row align-items-center">
+                            <div class="mb-3 row">
                                 <label for="noticeTitle" class="col-sm-2 col-form-label">제목</label>
                                 <div class="col-sm-10">
-                                    <input type="text" class="form-control" id="noticeTitle"
-                                        v-model="editingNotice.noticeTitle" required>
+                                    <input type="text" id="noticeTitle" class="form-control"
+                                        v-model="editingNotice.noticeTitle" required />
                                 </div>
                             </div>
-                            <div class="mb-3 row align-items-center">
+                            <div class="mb-3 row">
                                 <label for="noticeContent" class="col-sm-2 col-form-label">내용</label>
                                 <div class="col-sm-10">
-                                    <textarea class="form-control" id="noticeContent" rows="5"
+                                    <textarea id="noticeContent" class="form-control" rows="5"
                                         v-model="editingNotice.noticeContent" required></textarea>
                                 </div>
                             </div>
-                            <div class="modal-footer">
+                            <div class="modal-footer px-0">
                                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">취소</button>
-                                <button type="submit" class="btn btn-primary">등록</button>
+                                <button type="submit" class="btn btn-primary">수정</button>
                             </div>
                         </form>
                     </div>
@@ -63,8 +65,9 @@
     </div>
 </template>
 
+
 <script setup>
-import { ref, onMounted, inject, defineEmits } from 'vue';
+import { ref, onMounted, inject } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import apiWrapper from '../../util/axios/axios';
 import { Modal } from 'bootstrap';
@@ -75,24 +78,12 @@ const fundingId = inject('fundingId');
 const isCreator = inject('isCreator', false);
 
 const writeModal = ref(null);
-const selectedNotice = inject('selectedNotice');
-const setSelectedNotice = inject('setSelectedNotice');
+const selectedNotice = ref({});
+const editingNotice = ref({});
 const formatDate = inject('formatDate', (date) => new Date(date).toLocaleDateString());
 
-const emit = defineEmits(['showNoticeDetail']);
-
-const editingNotice = ref({});
-
-const goBack = () => {
-    router.push({ name: 'FundingNotice', params: { id: fundingId.value } });
-};
-
-// const handleShowNoticeDetail = () => {
-//     emit('showNoticeDetail', selectedNotice.value);  // 이벤트를 부모 컴포넌트로 발송
-// };
-
 onMounted(async () => {
-    const noticeId = route.params.noticeId;
+    const noticeId = route.query.noticeId;
     if (noticeId) {
         await fetchNoticeDetails(noticeId);
     }
@@ -103,27 +94,29 @@ onMounted(async () => {
 const fetchNoticeDetails = async (noticeId) => {
     try {
         const response = await apiWrapper.getNoticeDetail(fundingId.value, noticeId);
-        if (!response || !response.noticeTitle || !response.noticeContent) {
+        if (!response || !response.noticeTitle) {
             console.error('공지사항 데이터가 유효하지 않습니다:', response);
             return;
         }
-        setSelectedNotice(response);
-        editingNotice.value = { ...response }; // 복사
+        selectedNotice.value = response;
     } catch (error) {
         console.error('공지사항 상세 정보를 불러오는 중 오류 발생:', error);
+        alert('공지사항을 불러오는 데 실패했습니다.');
     }
 };
 
+const goBack = () => {
+    router.push({ name: 'FundingNotice', params: { id: fundingId.value } });
+};
 
 const toggleWriteModal = () => {
-    if (selectedNotice && selectedNotice.noticeTitle) {
-        editingNotice.value = { ...selectedNotice };
+    if (selectedNotice.value.noticeTitle) {
+        editingNotice.value = { ...selectedNotice.value };
         writeModal.value.toggle();
     } else {
         console.error('수정할 데이터가 없습니다.');
     }
 };
-
 
 const updateNotice = async () => {
     try {
@@ -132,7 +125,7 @@ const updateNotice = async () => {
         await fetchNoticeDetails(selectedNotice.value.noticeId);
     } catch (error) {
         console.error('공지사항 수정 중 오류 발생:', error);
-        alert('공지사항 수정 중 오류 발생\n다시 시도해주세요.');
+        alert('공지사항 수정 중 오류 발생. 다시 시도해주세요.');
     }
 };
 
@@ -143,10 +136,11 @@ const deleteNotice = async () => {
             router.push({ name: 'FundingNotice', params: { id: fundingId.value } });
         } catch (error) {
             console.error('공지사항 삭제 중 오류 발생:', error);
-            alert('공지사항 삭제 중 오류 발생\n다시 시도해주세요.');
+            alert('공지사항 삭제 중 오류 발생. 다시 시도해주세요.');
         }
     }
 };
+
 </script>
 
 <style scoped>

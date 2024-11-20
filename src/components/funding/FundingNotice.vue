@@ -172,8 +172,8 @@ const setSelectedNotice = inject('setSelectedNotice');
 const emit = defineEmits(['showNoticeDetail']);
 
 const showNoticeDetail = (notice) => {
-    setSelectedNotice(notice);
-    emit('showNoticeDetail', notice.noticeId);
+    setSelectedNotice(notice); // 부모의 selectedNotice를 업데이트
+    emit('showNoticeDetail', notice.noticeId); // 부모에 이벤트 전달
 };
 </script>
 

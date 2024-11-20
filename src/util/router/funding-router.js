@@ -33,7 +33,7 @@ export default [
                 component: NoticeDetail,
                 meta: { hideHeader: true, showDetailHeader: true },
                 props: (route) => ({
-                    noticeId: route.query.noticeId,
+                    noticeId: route.query.noticeId, // query로 전달된 데이터
                 }),
             },
             {

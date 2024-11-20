@@ -504,8 +504,11 @@ const apiWrapper = {
             const response = await apiClient.get(
                 `/api/funding/${id}/notice/${noticeId}`
             );
-            console.log("공지사항 조회 성공: " + response);
-            return response;
+            console.log(
+                "공지사항 조회 성공:",
+                JSON.stringify(response.data, null, 2)
+            );
+            return response.data;
         } catch (error) {
             console.error(`createNewNotice 중 오류 발생`, error);
             throw error; // 에러를 호출자에게 전파
@@ -520,8 +523,8 @@ const apiWrapper = {
                 `/api/funding/${id}/notice/${noticeId}`,
                 {
                     noticeId: notice.noticeId,
-                    noticeTitle: notice.title,
-                    noticeContent: notice.content,
+                    noticeTitle: notice.noticeTitle,
+                    noticeContent: notice.noticeContent,
                 },
                 {
                     headers: {

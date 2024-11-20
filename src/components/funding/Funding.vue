@@ -9,7 +9,7 @@
             </div>
 
             <!-- 우측 사이드바 -->
-            <div id="side-container" class="col-lg-4">
+            <div id="side-container sticky-top" class="col-lg-4" style="top: 300px;">
                 <div v-if="fundingData">
                     <div id="funding-data-container" class="border border-light boarder-1 rounded-3 p-3">
                         <div class="d-flex justify-content-between align-items-center ms-3">
@@ -99,7 +99,7 @@
 </template>
 
 <script setup>
-import { ref, provide, inject, computed, onMounted } from 'vue';
+import { ref, provide, inject, computed, onMounted, onUnmounted } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import apiWrapper from '../../util/axios/axios';
 import { useAuthStore } from '../../util/store/authStore';
@@ -112,6 +112,34 @@ const fundingId = ref(route.params.id);
 provide('fundingId', fundingId);
 
 const authStore = useAuthStore();
+
+
+//////// 사이드바고정
+
+const handleScroll = () => {
+    const sideContainer = document.getElementById('side-container');
+    const rewardContainer = document.getElementById('reward-container');
+    const stickyTop = document.querySelector('.sticky-top');
+
+    if (sideContainer && rewardContainer && stickyTop) {
+        const containerRect = sideContainer.getBoundingClientRect();
+        const stickyRect = stickyTop.getBoundingClientRect();
+
+        if (containerRect.bottom <= window.innerHeight) {
+            rewardContainer.style.position = 'static';
+        } else if (stickyRect.bottom > window.innerHeight) {
+            rewardContainer.style.position = 'absolute';
+            rewardContainer.style.bottom = '0';
+            rewardContainer.style.width = '100%';
+        } else {
+            rewardContainer.style.position = 'relative';
+            rewardContainer.style.bottom = 'auto';
+        }
+    }
+};
+/////////// 사이드바 고정 완
+
+
 
 //////////////////// wishlist start
 const wishlistStore = inject('wishlistStore');
@@ -242,6 +270,9 @@ const defaultProfileUrl = ref(defaultProfile);
 const fundingTitle = ref('');
 provide('fundingTitle', fundingTitle)
 
+onUnmounted(() => {
+    window.removeEventListener('scroll', handleScroll);
+});
 
 onMounted(async () => {
     // Promise.all을 사용하여 두 API 호출을 병렬로 실행
@@ -273,7 +304,9 @@ onMounted(async () => {
     maker.value = data.makerDTO
 
     await checkWishlistStatus();
-})
+},
+    window.addEventListener('scroll', handleScroll)
+)
 
 const getThumbnailUrl = (url) => {
     return url || defaultImageUrl.value
@@ -333,20 +366,38 @@ provide('isCreator', isCreator);
 
 ////////// 작성자 체크 끝
 
-const selectedNotice = ref(null);
+const selectedNotice = inject('selectedNotice', {
+    noticeId: 0,
+    noticeTitle: '',
+    noticeContent: ''
+});
+
 provide('selectedNotice', selectedNotice.value);
 provide('setSelectedNotice', (notice) => {
     selectedNotice.value = notice;
 });
 
+// const handleShowNoticeDetail = (noticeId) => {
+//     console.log("handleShoeNoticeDetail 진입")
+//     console.log("selectedNotice: " + selectedNotice.value)
+//     router.push({
+//         name: 'NoticeDetail',
+//         params: { id: fundingId.value },
+//         query: { noticeId: noticeId },
+//     });
+
+// };
+
 const handleShowNoticeDetail = (noticeId) => {
     router.push({
         name: 'NoticeDetail',
         params: { id: fundingId.value },
-        query: { noticeId: noticeId },
+        query: { noticeId }, // noticeId를 쿼리로 전달
     });
-
 };
+
+
+
 </script>
 
 <style>
@@ -362,10 +413,17 @@ const handleShowNoticeDetail = (noticeId) => {
 }
 
 #side-container {
-    /* min-width: 370px; */
-
     padding: 0;
     text-align: justify;
+    height: 100vh;
+    overflow-y: auto;
+}
+
+.sticky-top {
+    position: sticky;
+    top: 70px;
+    max-height: calc(100vh - 70px);
+    overflow-y: auto;
 }
 
 .maker-info {
@@ -403,11 +461,25 @@ const handleShowNoticeDetail = (noticeId) => {
     font-weight: bold;
 }
 
-#reward-container {
+/* #reward-container {
     position: sticky;
     top: 70px;
-    z-index: 1000;
+    z-index: 2000;
     background-color: #fff;
+} */
+#reward-container {
+    /* position: sticky;
+    max-height: calc(100vh - 70px);
+    overflow-y: auto; */
+    background-color: #fff;
+    /* z-index: 1000; */
+}
+
+/* 리워드 아이템들을 감싸는 새로운 div 추가 */
+.reward-items-wrapper {
+    max-height: calc(100vh - 300px);
+    /* 조정 가능한 값 */
+    overflow-y: auto;
 }
 
 .reward-header {
