@@ -7,7 +7,9 @@ import Info from "../../components/user/userComponents/Info.vue";
 import FindIdPwd from "../../components/user/FindIdPwd.vue";
 import ModifyProfile from "../../components/user/ModifyProfile.vue";
 import UpdatePwd from "../../components/user/UpdatePwd.vue";
+import Address from "../../components/common/Address.vue";
 import DropoutUser from "../../components/user/DropoutUser.vue";
+import CouponPage from "../../components/user/CouponPage.vue";
 
 export default [
     {
@@ -69,6 +71,16 @@ export default [
         },
     },
     {
+        path: "/mywadiz/info/couponPage",
+        name: "couponpage",
+        component: CouponPage,
+        meta: {
+            hideHeader: true,
+            requiresAuth: true,
+            requiresSecureAccess: true,
+        },
+    },
+    {
         path: "/mywadiz/info/modifyprofile",
         name: "modifyprofile",
         component: ModifyProfile,
@@ -87,6 +99,16 @@ export default [
             requiresAuth: true,
             requiresSecureAccess: true,
         },
+    },
+    {
+        path: '/mywadiz/info/deliveryAddress',
+        name: 'address',
+        component: Address,
+        meta: {
+            hideHeader: true,
+            requiresAuth: true,
+            requiresSecureAccess: true,
+        }
     },
     {
         path: "/mywadiz/info/dropoutuser",

@@ -196,6 +196,28 @@ const fetchUserCoupons = async () => {
     }
 };
 
+const updateFundingAmount = async () => {
+    try {
+        const rewardTotal = totalPrice.value; // 리워드 총 금액
+        const donation = donationAmount.value; // 추가 후원금
+        const discount = selectedCoupon.value 
+            ? (totalPrice.value * selectedCoupon.value.discountRate) / 100 
+            : 0; // 쿠폰 할인액
+
+        const calculatedAmount = rewardTotal + donation - discount; // 배송비 제외
+
+        const payload = {
+            calculatedAmount, // 계산된 금액 전달
+        };
+
+        await apiWrapper.postData(`/api/payment/${props.id}/update-current-amount`, payload);
+        console.log('Funding current amount updated successfully.');
+    } catch (error) {
+        console.error('Error updating funding current amount:', error);
+    }
+};
+
+
 async function clientAuth() {
     if (!selectedAddress.value.id) {
         alert('배송지를 선택해주세요!');
@@ -231,6 +253,7 @@ async function clientAuth() {
         console.log('paymentData:', paymentData);
 
         const registerResponse = await apiWrapper.postData('/api/payment/register', paymentData);
+        
         console.log('결제 등록 성공:', registerResponse.data);
         console.log(registerResponse.data.id);
 
@@ -248,7 +271,9 @@ async function clientAuth() {
                 updatePaymentStatus(registerResponse.data.id, 'failed');
             }
         }),
-            await updatePaymentStatus(registerResponse.data.id, 'complete');
+
+        await updatePaymentStatus(registerResponse.data.id, 'complete');
+        await updateFundingAmount();
 
     } catch (error) {
         console.error('결제 등록 실패:', error.response || error);

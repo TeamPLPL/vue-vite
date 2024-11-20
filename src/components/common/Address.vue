@@ -1,13 +1,28 @@
 <template>
     <div id="address-container" class="container">
+        <!-- 주소 정보 설정 -->
+        <div class="text-start">
+            <h4 class="fw-bold">배송지 정보 설정</h4>
+            <br />
+            <h5 class="fw-bold">우편번호 설정</h5>
+        </div>
+
+        <div class="row mb-4">
+            <div class="col-auto zonecode pe-0 flex-grow-1">
+                <input type="text" v-model="zonecode" class="form-control w-100" placeholder="우편번호" readonly>
+            </div>
+            <div class="col-auto zonecode ps-2">
+                <button @click="execDaumPostcode" class="btn btn-light">우편번호 찾기</button>
+            </div>
+        </div>
+
         <div class="row mb-2 align-items-center flex-wrap">
-            <div class="col-12 col-md-auto d-flex align-items-center mb-2 mb-md-0">
-                <div class="col-auto zonecode pe-0">
-                    <input type="text" v-model="zonecode" class="form-control" placeholder="우편번호" readonly>
-                </div>
-                <div class="col-auto zonecode ps-2">
-                    <button @click="execDaumPostcode" class="btn btn-light">우편번호 찾기</button>
-                </div>
+            
+
+            <br />
+            
+            <div class="text-start">
+                <h5 class="fw-bold">주소 입력</h5>
             </div>
             <div class="col-12 col-md d-flex justify-content-between align-items-center flex-wrap">
                 <div class="col-auto d-flex align-items-center mb-2 mb-md-0">
@@ -42,9 +57,11 @@
             </div>
         </div>
 
-
-        <!-- 저장 버튼 -->
-        <button @click="saveAddr" class="btn btn-primary">주소 저장</button>
+        <!-- 취소 및 주소 저장 버튼 -->
+        <div class="d-flex justify-content-between button-width">
+            <button v-if="showCancelButton" class="btn btn-secondary w-100 me-2">취소</button>
+            <button @click="saveAddr" class="btn btn-primary w-100">주소 저장</button>
+        </div>
     </div>
 
     <!-- 모달 부분 수정 -->
@@ -80,8 +97,11 @@
 
 <script setup>
 import { ref, onMounted } from 'vue';
+import { useRoute } from 'vue-router'; // useRoute 가져오기
 import apiWrapper from '../../util/axios/axios';
 import { Modal } from 'bootstrap'
+
+const route = useRoute(); // 현재 경로 정보를 가져옴
 
 // emit 정의
 const emit = defineEmits(['selectedAddress']); // 이벤트 이름 지정
@@ -95,6 +115,9 @@ const isDefault = ref(false);
 
 const addressList = ref([]);
 let addressListModal;
+
+// 현재 라우트가 /mywadiz/info/deliveryAddress 인지 확인하여 취소 버튼 표시 여부 결정
+const showCancelButton = ref(route.path === '/mywadiz/info/deliveryAddress');
 
 const execDaumPostcode = () => {
     new window.daum.Postcode({
@@ -225,7 +248,12 @@ const deleteAddress = async (address) => {
 
 <style scoped>
 #address-container {
-    max-width: 690px;
+    max-width: 500px;
+    margin: auto;
+}
+
+.button-width {
+    width: 100%;
 }
 
 .zonecode {

@@ -19,6 +19,7 @@ const props = defineProps({
     title: String,
     message: String,
     paymentId: Number, // Payment ID 수신
+    calculatedAmount: Number // 계산된 금액
 });
 
 const emit = defineEmits(['close', 'confirm']); // 이벤트 정의
@@ -93,7 +94,11 @@ async function confirmCancellation() {
         const paymentId = props.paymentId;
         await updatePaymentStatus(paymentId, 'refund');
 
-        emit('confirm', { paymentId, cancelResponse }); // Payment ID와 결과 전달
+        const response = await apiWrapper.postData(`/api/payment/${props.paymentId}/cancel`, {
+            amount: props.calculatedAmount // 계산된 금액 전달
+        });
+
+        emit('confirm', { paymentId, cancelResponse, response }); // Payment ID와 결과 전달
         alert('거래가 성공적으로 취소되었습니다.'); // 나중에 사용자 친화적인 알림 컴포넌트로 교체 권장
     } catch (error) {
         handleCancellationError(error); // 에러를 핸들링 함수로 이동

@@ -32,7 +32,7 @@
       </div>
 
       <!-- 두 번째 줄: 배송지 설정, 회원 탈퇴 -->
-      <div class="col-6 mb-3">
+      <div class="col-6 mb-3" @click="setDeliveryAddress">
         <a
             href="#"
             class="list-group-item list-group-item-action d-flex justify-content-between align-items-center"
@@ -68,6 +68,11 @@ export default {
       router.push('/mywadiz/info/updatepwd');
     };
 
+    // 배송지 설정 이동
+    const setDeliveryAddress = () => {
+      router.push('/mywadiz/info/deliveryAddress');
+    }
+
     // 비밀 번호 설정 이동
     const dropoutuser = () => {
       router.push('/mywadiz/info/dropoutuser');
@@ -76,6 +81,7 @@ export default {
     return {
       modifyprofile,
       updatedpwd,
+      setDeliveryAddress,
       dropoutuser
     }
   }
