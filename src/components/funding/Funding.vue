@@ -471,24 +471,28 @@ provide('isCreator', isCreator);
 .share-modal {
     position: absolute;
     top: 100%;
-    /* 공유 아이콘 바로 아래에 위치 */
     left: 0;
     background-color: white;
     border: 1px solid #ccc;
     border-radius: 4px;
     padding: 10px;
     z-index: 1000;
+    display: flex; /* Flexbox를 유지 */
+    flex-direction: column; /* 세로 정렬을 위한 설정 */
+    gap: 10px; /* 버튼 간 간격 설정 */
+    align-items: stretch; /* 버튼이 모달의 너비를 차지하도록 설정 */
 }
 
 .share-modal button {
-    display: block;
-    width: 100%;
-    padding: 5px 10px;
-    margin-bottom: 5px;
+    display: block; /* 각 버튼을 블록 요소로 설정 */
+    width: 100%; /* 버튼이 모달의 전체 너비를 차지 */
+    padding: 8px 12px;
     background-color: #f0f0f0;
     border: none;
     border-radius: 3px;
     cursor: pointer;
+    text-align: center; /* 텍스트 중앙 정렬 */
+    white-space: nowrap; /* 텍스트가 한 줄로 표시되도록 설정 */
 }
 
 .share-modal button:hover {
