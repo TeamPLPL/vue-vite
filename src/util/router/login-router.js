@@ -9,6 +9,7 @@ import ModifyProfile from "../../components/user/ModifyProfile.vue";
 import UpdatePwd from "../../components/user/UpdatePwd.vue";
 import Address from "../../components/common/Address.vue";
 import DropoutUser from "../../components/user/DropoutUser.vue";
+import CouponPage from "../../components/user/CouponPage.vue";
 
 export default [
     {
@@ -63,6 +64,16 @@ export default [
         path: "/mywadiz/supporter",
         name: "mywadiz-supporter",
         component: MySupporter,
+        meta: {
+            hideHeader: true,
+            requiresAuth: true,
+            requiresSecureAccess: true,
+        },
+    },
+    {
+        path: "/mywadiz/info/couponPage",
+        name: "couponpage",
+        component: CouponPage,
         meta: {
             hideHeader: true,
             requiresAuth: true,
