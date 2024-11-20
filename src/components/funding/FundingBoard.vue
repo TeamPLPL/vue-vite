@@ -1,34 +1,37 @@
 <template>
-    <div class="comment-container">
-        <div class="d-flex justify-content-between">
-            <h4>서포터 게시판</h4>
-            <button @click="openModal">글쓰기</button>
+    <div class="funding-board">
+        <div class="board-header">
+            <div class="title-wrapper">
+                <h2 class="funding-board-title">서포터 게시판&nbsp;&nbsp;<span class="total-count">{{ boards.length }}</span>
+                </h2>
+            </div>
+            <button @click="openModal" class="write-button">글쓰기</button>
         </div>
-        <hr />
-        <div v-for="board in boards" :key="board.id" class="comment-box">
-            <div class="comment-header">
-                <div class="user-info">
-                    <img src="../../assets/default_profile.png" class="profile-image">
-                    <div class="flex row ms-2">
-                        <span class="username text-start">{{ board.userNick || '익명' }}</span>
-                        <span class="timestamp text-start">{{ formatDate(board.boardDate) }}</span>
-                    </div>
 
-                </div>
-                <button class="follow-btn">+ 팔로우</button>
-                <div class="menu-container">
-                    <button @click="toggleMenu(board.id)" class="menu-button">
-                        ⋮
-                    </button>
-                    <div v-if="isMenuOpen(board.id)" class="menu-dropdown">
-                        <button @click="confirmDelete(board.id)">삭제</button>
+        <div v-if="isLoading" class="loading">로딩 중...</div>
+        <div v-else-if="error" class="error">{{ error }}</div>
+        <div v-else-if="boards.length > 0">
+            <div v-for="board in boards" :key="board.id" class="board-item">
+                <div class="board-header-row">
+                    <div class="user-info">
+                        <img src="../../assets/default_profile.png" class="profile-image" />
+                        <div class="flex row ms-2">
+                            <span class="username">{{ board.userNick || '익명' }}</span>
+                            <span class="timestamp">{{ formatDate(board.boardDate) }}</span>
+                        </div>
+                    </div>
+                    <div class="menu-container">
+                        <button @click="toggleMenu(board.id)" class="menu-button">⋮</button>
+                        <div v-if="isMenuOpen(board.id)" class="menu-dropdown">
+                            <button @click="confirmDelete(board.id)">삭제</button>
+                        </div>
                     </div>
                 </div>
+                <p class="board-body">{{ board.boardContent }}</p>
             </div>
-            <hr />
-            <div class="comment-body">
-                <p>{{ board.boardContent }}</p>
-            </div>
+        </div>
+        <div v-else class="no-boards">
+            <p>등록된 게시글이 없습니다.</p>
         </div>
 
         <!-- 글쓰기 모달 -->
@@ -44,7 +47,6 @@
                 </div>
             </div>
         </teleport>
-
     </div>
 </template>
 
@@ -53,159 +55,147 @@ import { ref, onMounted } from 'vue';
 import { useRoute } from 'vue-router';
 import apiWrapper from '../../util/axios/axios';
 
-// Route parameter (Funding ID)
 const route = useRoute();
 const fundingId = ref(route.params.id);
 const boards = ref([]);
-const openMenuId = ref(null); // 현재 열려 있는 메뉴 ID
-const showModal = ref(false); // 모달 표시 여부 관리
-const newBoardContent = ref(''); // 새 글 내용
+const openMenuId = ref(null);
+const showModal = ref(false);
+const newBoardContent = ref('');
+const isLoading = ref(false);
+const error = ref(null);
 
-// Modal 열기와 닫기
-const openModal = () => {
-    showModal.value = true;
-};
-const closeModal = () => {
-    showModal.value = false;
-};
+const openModal = () => (showModal.value = true);
+const closeModal = () => (showModal.value = false);
 
-// Fetch boards data
 const fetchBoards = async () => {
+    isLoading.value = true;
     try {
         const data = await apiWrapper.getData(`/api/supporter-boards/funding/${fundingId.value}`);
         boards.value = data;
-        console.log(boards.value);
-    } catch (error) {
-        console.error('Error fetching supporter boards:', error);
+    } catch (err) {
+        error.value = '게시글을 불러오는 중 오류가 발생했습니다.';
+    } finally {
+        isLoading.value = false;
     }
 };
 
-// Format date
-const formatDate = (dateString) => {
-    const options = { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' };
-    return new Date(dateString).toLocaleDateString('ko-KR', options);
-};
+const formatDate = (dateString) => new Date(dateString).toLocaleDateString('ko-KR');
 
-// Toggle menu
 const toggleMenu = (id) => {
     openMenuId.value = openMenuId.value === id ? null : id;
 };
 
-// Check if the menu is open
-const isMenuOpen = (id) => {
-    return openMenuId.value === id;
-};
+const isMenuOpen = (id) => openMenuId.value === id;
 
-// Confirm delete and delete board
 const confirmDelete = (id) => {
-    if (window.confirm('정말로 이 게시글을 삭제하시겠습니까?')) {
-        deleteBoard(id);
-    }
+    if (window.confirm('정말로 이 게시글을 삭제하시겠습니까?')) deleteBoard(id);
 };
 
-// Delete board
 const deleteBoard = async (id) => {
     try {
         await apiWrapper.deleteData(`/api/supporter-boards/${id}`);
         boards.value = boards.value.filter((board) => board.id !== id);
         alert('게시글이 삭제되었습니다.');
-    } catch (error) {
-        console.error('Error deleting board:', error);
+    } catch {
         alert('게시글 삭제 중 오류가 발생했습니다.');
     }
 };
 
-// Submit new board
 const submitBoard = async () => {
     if (newBoardContent.value.length < 10) {
         alert('내용은 최소 10자 이상 입력해주세요.');
         return;
     }
-
     try {
         await apiWrapper.postData(`/api/supporter-boards/${fundingId.value}`, {
             boardContent: newBoardContent.value,
         });
-        alert('게시글이 등록되었습니다.');
-        newBoardContent.value = ''; // 입력 필드 초기화
-        closeModal(); // 모달 닫기
-        fetchBoards(); // 게시판 새로고침
-    } catch (error) {
-        console.error('Error submitting board:', error);
+        newBoardContent.value = '';
+        closeModal();
+        fetchBoards();
+    } catch {
         alert('게시글 등록 중 오류가 발생했습니다.');
     }
 };
 
-onMounted(() => {
-    fetchBoards();
-});
+onMounted(fetchBoards);
 </script>
 
 <style scoped>
-.comment-container {
-    width: 100%;
-    max-width: 600px;
+.funding-board {
+    max-width: 1080px;
     margin: 0 auto;
-    padding: 10px;
+    padding: 20px;
 }
 
-.profile-image {
-    height: 8%;
-    width: 8%;
-}
-
-.comment-box {
-    background: #fef9f4;
-    /* 배경색 */
-    padding: 15px;
-    margin-bottom: 15px;
-    border-radius: 5px;
-}
-
-.comment-header {
+.board-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 8px;
+    margin-bottom: 16px;
+    border-bottom: 1px solid #eee;
+}
+
+.funding-board-title {
+    font-size: 18px;
+    font-weight: 700;
+    color: #333;
+}
+
+.write-button {
+    padding: 8px 16px;
+    background-color: #00c4c4;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    font-size: 14px;
+    cursor: pointer;
+}
+
+.write-button:hover {
+    background-color: #00a1a1;
+}
+
+.board-item {
+    padding: 24px 0;
+    border-bottom: 1px solid #f0f0f0;
+    text-align: left;
+}
+
+.board-header-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
 }
 
 .user-info {
     display: flex;
-    font-weight: bold;
-}
-
-.username {
-    margin-right: 10px;
-}
-
-.timestamp {
-    font-size: 0.9em;
-    color: #999;
-}
-
-.actions {
-    display: flex;
     align-items: center;
 }
 
-.follow-btn {
-    background-color: #ffffff;
-    border: 1px solid #00b2b2;
-    padding: 5px 10px;
-    border-radius: 5px;
-    font-size: 0.9em;
-    color: #00b2b2;
-    cursor: pointer;
-    width: 25%;
+.profile-image {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
 }
 
-.follow-btn:hover {
-    background-color: #00b2b2;
-    color: white;
+.username {
+    font-weight: 700;
+}
+
+.timestamp {
+    font-size: 12px;
+    color: #999;
+}
+
+.board-body {
+    font-size: 14px;
+    line-height: 1.5;
+    color: #666;
+    white-space: pre-line;
 }
 
 .menu-container {
-    margin: 10px;
     position: relative;
 }
 
@@ -214,39 +204,49 @@ onMounted(() => {
     border: none;
     font-size: 1.5em;
     cursor: pointer;
-    padding: 0;
-    margin: 0;
 }
 
 .menu-dropdown {
     position: absolute;
     top: 100%;
     right: 0;
+    display: flex;
+    gap: 10px;
+    /* 버튼 사이 간격 추가 */
     background-color: white;
     border: 1px solid #ddd;
     border-radius: 5px;
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
-    padding: 5px 10px;
+    padding: 5px;
+    transform: translateY(-50%);
     z-index: 10;
 }
 
 .menu-dropdown button {
     background: none;
     border: none;
-    padding: 5px 0;
     cursor: pointer;
-    width: 100%;
-    text-align: left;
+    font-size: 14px;
+    padding: 5px 10px;
+    color: #333;
 }
 
 .menu-dropdown button:hover {
     background-color: #f0f0f0;
 }
 
-.comment-body {
-    font-size: 1em;
-    line-height: 1.6;
-    text-align: start;
+.loading,
+.error {
+    text-align: center;
+    padding: 32px 0;
+    color: #666;
+}
+
+.no-boards {
+    text-align: center;
+    padding: 48px 0;
+    color: #999;
+    font-size: 14px;
 }
 
 .modal-overlay {
@@ -271,8 +271,8 @@ onMounted(() => {
 }
 
 .modal-footer {
-    margin-top: 10px;
     display: flex;
     justify-content: space-between;
+    margin-top: 10px;
 }
 </style>
