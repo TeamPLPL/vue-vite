@@ -14,8 +14,10 @@
           <!-- 로그인 상태일 때 표시 -->
           <template v-if="isLoggedIn">
             <li class="nav-item">
-              <img src="https://static.wadiz.kr/assets/icon/profile-icon-5.png" class="profile" style="cursor:pointer;"
+              <img v-if="!fileId" src="https://static.wadiz.kr/assets/icon/profile-icon-5.png" class="profile" style="cursor:pointer;"
                 @click="profile">
+              <img v-else :src="profileImage" class="profile" style="cursor:pointer;"
+                   @click="profile">
             </li>
             <li class="nav-item">
               <button type="button" class="btn btn-light" @click="logout">로그아웃</button>
@@ -52,6 +54,22 @@ export default {
   setup() {
     const router = useRouter();
     const isLoggedIn = ref(!!localStorage.getItem('jwtToken'));
+
+    // 작성자 : 신은호, 작성 내용 : 프로필 이미지
+    const profileImage = ref(null); // 썸네일 URL
+    const fileId = ref(null); // 파일 ID
+
+    const fetchInitialProfileImage = async () => {
+      try {
+        const response = await apiWrapper.getData(`/api/get/profileimage`);
+        const fileData = response; // 서버 응답이 바로 FileDTO 객체라고 가정
+        console.log(response);
+        profileImage.value = fileData.signedUrl; // 썸네일 URL 설정
+        fileId.value = fileData.fileId; // fileId 저장
+      } catch (error) {
+        console.error("초기 썸네일 가져오기 실패:", error);
+      }
+    };
 
     const authStore = useAuthStore();
 
@@ -130,6 +148,7 @@ export default {
           checkLoginStatus();
         }
       });
+      fetchInitialProfileImage(); // 컴포넌트 초기화 시 썸네일 데이터 가져오기
     });
 
     return {
@@ -139,7 +158,9 @@ export default {
       logout,
       main,
       createProject,
-      profile
+      profile,
+      profileImage,
+      fileId
     };
   }
 };

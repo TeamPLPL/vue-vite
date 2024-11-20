@@ -9,18 +9,39 @@
       </div>
 
       <!-- Profile Section -->
-      <img src="https://static.wadiz.kr/assets/icon/profile-icon-5.png" class="rounded-circle mb-2" style="width: 80px;" alt="Profile Icon">
-      <span class="badge bg-secondary" style="font-size: 1rem; padding: 10px;">아기광어 님</span>
+      <img v-if="!fileId" src="https://static.wadiz.kr/assets/icon/profile-icon-5.png" class="rounded-circle mb-2" style="width: 100px;" alt="Profile Icon">
+      <img else :src="profileImage" class="rounded-circle mb-2" style="width: 120px; height: 120px; object-fit: cover;" alt="Profile Icon">
+      <span class="badge bg-primary mt-2" style="font-size: 1rem; padding: 10px;">아기광어 님</span>
     </div>
   </div>
 </template>
 
 <script>
+import { onMounted, ref } from "vue";
 import { useRouter } from 'vue-router';
+import apiWrapper from "../../../util/axios/axios.js";
 
 export default {
   setup() {
     const router = useRouter();
+    const profileImage = ref(null); // 썸네일 URL
+    const fileId = ref(null); // 파일 ID
+
+    onMounted(() => {
+      fetchInitialProfileImage(); // 컴포넌트 초기화 시 썸네일 데이터 가져오기
+    });
+
+    const fetchInitialProfileImage = async () => {
+      try {
+        const response = await apiWrapper.getData(`/api/get/profileimage`);
+        const fileData = response; // 서버 응답이 바로 FileDTO 객체라고 가정
+        console.log(response);
+        profileImage.value = fileData.signedUrl; // 썸네일 URL 설정
+        fileId.value = fileData.fileId; // fileId 저장
+      } catch (error) {
+        console.error("초기 썸네일 가져오기 실패:", error);
+      }
+    };
 
     const myMaker = async () => {
       router.push('/mywadiz/maker');
@@ -30,10 +51,11 @@ export default {
       router.push('/mywadiz/supporter');
     };
 
-
     return {
       myMaker,
-      mySupporter
+      mySupporter,
+      profileImage,
+      fileId
     };
   }
 };
