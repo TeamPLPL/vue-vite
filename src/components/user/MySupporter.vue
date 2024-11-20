@@ -8,12 +8,12 @@
         <!-- 포인트 및 쿠폰 Section -->
         <div class="row mb-4">
           <h4 class="fw-bold text-start">서포터 홈</h4>
-          <div class="col-md-4 mt-3">
+          <div class="col-md-4 mt-3" @click="setCoupon">
             <div class="border rounded p-3 bg-light">
               <div class="d-flex align-items-start" style="min-height: 57px;">
                 <img src="https://via.placeholder.com/24" alt="쿠폰 아이콘" class="me-2">
                 <span>쿠폰</span>
-                <span class="ms-auto fw-bold">17장</span>
+                <span class="ms-auto fw-bold">{{ count }}장</span>
               </div>
 
               <!--              <hr>-->
@@ -55,11 +55,14 @@
 </template>
 
 <script>
+import { ref, onMounted } from 'vue';
 import { useRouter } from "vue-router";
 import ProfileSidebar from "./userComponents/ProfileSidebar.vue";
 import CustomerService from "./userComponents/CustomerService.vue";
 import Info from "./userComponents/Info.vue";
 import WishsFollows from "./userComponents/WishsFollows.vue";
+
+import apiWrapper from '../../util/axios/axios';
 
 export default {
   components: {
@@ -70,13 +73,34 @@ export default {
   },
   setup() {
     const router = useRouter();
+    const count = ref(0); // 쿠폰 개수를 저장하는 변수
 
     const participation = async () => {
       router.push('/mywadiz/info/participation');
     };
 
+    const setCoupon = async () => {
+      router.push('/mywadiz/info/couponPage');
+    }
+
+    const fetchCouponCount = async () => {
+      try {
+        const response = await apiWrapper.getData('/api/coupons/count');
+        count.value = response; // 쿠폰 개수를 count에 저장
+        console.log(`유저의 쿠폰 개수: ${count.value}`);
+      } catch (error) {
+        console.error('쿠폰 개수 조회 실패:', error);
+      }
+    };
+
+    onMounted(() => {
+      fetchCouponCount();
+    });
+
     return {
+      count,
       participation,
+      setCoupon
     };
   }
 };
