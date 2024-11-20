@@ -104,27 +104,26 @@ export const useAuthStore = defineStore("auth", () => {
         isInitialized.value = true; // 상태 복구 완료
     }
 
-    function logout() {
-        jwtToken.value = null;
-        userInfo.value = null;
-        canAccessSecurePage.value = false;
-        isInitialized.value = false;
-        localStorage.removeItem("jwtToken");
-        sessionStorage.clear(); // 세션 스토리지 초기화
-    }
-
-    // 로그아웃
     // function logout() {
-    //     resetState();
-    //     localStorage.removeItem("jwtToken");
-    // }
-
-    // function resetState() {
     //     jwtToken.value = null;
     //     userInfo.value = null;
     //     canAccessSecurePage.value = false;
+    //     isInitialized.value = false;
+    //     localStorage.removeItem("jwtToken");
+    //     sessionStorage.clear(); // 세션 스토리지 초기화
     // }
 
+    // 로그아웃
+    function logout() {
+        resetState();
+        localStorage.removeItem("jwtToken");
+    }
+
+    function resetState() {
+        jwtToken.value = null;
+        userInfo.value = null;
+        canAccessSecurePage.value = false;
+    }
 
     return {
         jwtToken,
@@ -139,7 +138,7 @@ export const useAuthStore = defineStore("auth", () => {
         setSecurePageAccess,
         isInitialized,
         logout,
-        checkAndRefreshToken,
-        handleTokenExpiration,
+        // checkAndRefreshToken,
+        // handleTokenExpiration,
     };
 });

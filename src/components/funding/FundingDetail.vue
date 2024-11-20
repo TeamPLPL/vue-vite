@@ -25,7 +25,7 @@
 import { ref, inject, onMounted, computed } from 'vue';
 import { useRoute } from 'vue-router';
 import apiWrapper from '../../util/axios/axios';
-import defaultImageUrl from '../../assets/default_thumbnail.jpeg';
+import defaultImageUrl from '../../assets/dowdnload.png';
 
 const props = defineProps({
     fundingId: {

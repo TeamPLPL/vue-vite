@@ -89,6 +89,7 @@ export default {
       // isLoggedIn.value = false; // 반응형 상태 업데이트
       authStore.logout();
       router.push('/'); // 로그아웃 후 메인 페이지로 이동
+      window.location.reload(); // 새로고침 추가
     };
 
     const createProject = () => {
