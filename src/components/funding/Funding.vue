@@ -17,16 +17,16 @@
                                 {{ fundingData.mainCategoryNm }}&nbsp;&nbsp;>&nbsp;&nbsp;{{ fundingData.subCategoryNm }}
                             </div>
                             <div class="me-3 d-flex align-items-center">
-                                <img v-if="isInWishlist" class="wish" src="../../assets/wish.png" alt="찜 되어 있음"
-                                    @click="toggleWishlist(fundingId)">
-                                <img v-else class="wish" src="../../assets/wish-not.png" alt="찜 되어있지 않음"
+                                <img v-if="isInWishlist" class="wish cursor-pointer" src="../../assets/wish.png"
+                                    alt="찜 되어 있음" @click="toggleWishlist(fundingId)">
+                                <img v-else class="wish cursor-pointer" src="../../assets/wish-not.png" alt="찜 되어있지 않음"
                                     @click="toggleWishlist(fundingId)">
                                 &nbsp;&nbsp;
                                 <div class="me-3 share-container">
-                                    <img class="share" src="../../assets/share.png" alt="공유하기"
+                                    <img class="share cursor-pointer" src="../../assets/share.png" alt="공유하기"
                                         @click="toggleShareModal">
 
-                                    <div v-if="showShareModal" class="share-modal">
+                                    <div v-if="showShareModal" class="share-modal d-flex flex-row gap-2">
                                         <button @click="shareKakao">카카오 공유</button>
                                         <button @click="shareNaver">네이버 공유</button>
                                         <button @click="copyUrl">URL 복사</button> <!-- URL 복사 버튼 -->
@@ -42,7 +42,7 @@
                             </div>
                         </div>
                         <!-- <hr class="secondary"> -->
-                        <div class="m-1 mt-3">
+                        <div class="m-1 mt-3 text-start">
                             <div>
                                 <h2 id="funding-title">{{ fundingData.fundingTitle }}</h2>
                                 <span v-for="tag in tagList" :key="tag" class="tag">#{{ tag }}&nbsp;&nbsp;</span>
@@ -62,15 +62,16 @@
                     <div id="maker-container" class="border border-light boarder-1 rounded-3 p-3 mt-2">
                         <div class="maker-info">
                             <img :src="getProfileUrl(maker.profileImgUrl)" alt="펀딩 메이커의 프로필 이미지"
-                                class="maker-profile-img">
+                                class="maker-profile-img cursor-pointer">
                             <div class="maker-nick">
                                 {{ maker.userNick }}
-                                <img v-if="maker.isFollowing" class="wish" src="../../assets/followed.png"
-                                    alt="팔로우 되어 있음">
-                                <img v-else class="wish" src="../../assets/unfollowed.png" alt="팔로우 되어있지 않음">
+                                <img v-if="maker.isFollowing" class="wish cursor-pointer"
+                                    src="../../assets/followed.png" alt="팔로우 되어 있음">
+                                <img v-else class="wish cursor-pointer" src="../../assets/unfollowed.png"
+                                    alt="팔로우 되어있지 않음">
                             </div>
                         </div>
-                        <div class="mt-2">{{ maker.userContent }}</div>
+                        <div class="mt-2 text-start">{{ maker.userContent }}</div>
                     </div>
                 </div>
 
@@ -557,31 +558,47 @@ const handleShowNoticeDetail = (noticeId) => {
 .share-modal {
     position: absolute;
     top: 100%;
-    left: 0;
+    right: 0;
     background-color: white;
     border: 1px solid #ccc;
     border-radius: 4px;
     padding: 10px;
     z-index: 1000;
-    display: flex; /* Flexbox를 유지 */
-    flex-direction: column; /* 세로 정렬을 위한 설정 */
-    gap: 10px; /* 버튼 간 간격 설정 */
-    align-items: stretch; /* 버튼이 모달의 너비를 차지하도록 설정 */
+    display: flex;
+    /* Flexbox를 유지 */
+    flex-direction: column;
+    /* 세로 정렬을 위한 설정 */
+    gap: 10px;
+    /* 버튼 간 간격 설정 */
+    align-items: stretch;
+    /* 버튼이 모달의 너비를 차지하도록 설정 */
+    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+
 }
 
 .share-modal button {
-    display: block; /* 각 버튼을 블록 요소로 설정 */
-    width: 100%; /* 버튼이 모달의 전체 너비를 차지 */
+    display: block;
+    /* 각 버튼을 블록 요소로 설정 */
+    width: 100%;
+    /* 버튼이 모달의 전체 너비를 차지 */
     padding: 8px 12px;
-    background-color: #f0f0f0;
+    background-color: #e0e0e0;
     border: none;
     border-radius: 3px;
     cursor: pointer;
-    text-align: center; /* 텍스트 중앙 정렬 */
-    white-space: nowrap; /* 텍스트가 한 줄로 표시되도록 설정 */
+    text-align: center;
+    /* 텍스트 중앙 정렬 */
+    white-space: nowrap;
+    /* 텍스트가 한 줄로 표시되도록 설정 */
+    color: #fff;
 }
 
 .share-modal button:hover {
-    background-color: #e0e0e0;
+    background-color: #d0d0d0;
+    color: #444;
+}
+
+.cursor-pointer {
+    cursor: pointer;
 }
 </style>

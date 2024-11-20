@@ -13,10 +13,10 @@
             <img :src="detailUrlComputed(detailImg)" :alt="`${fundingTitle}의 설명 이미지${index}`">
         </div> -->
         <div class="detail-img-container d-flex flex-column">
-            <!-- <img :src="detailImgUrlComputed" class="detail-img img-fluid" :alt="`${fundingTitle}의 설명 이미지`"
-                @error="handleImageError"> -->
-            <img src="https://cdn3.wadiz.kr/studio/images/2024/10/25/2ec3384f-b3cf-4358-a80e-44cebf05e0bc.jpeg/wadiz/format/jpg/quality/80/"
-                class="detail-img img-fluid" :alt="`${fundingTitle}의 설명 이미지`" @error="handleImageError">
+            <img :src="detailImgUrlComputed" class="detail-img img-fluid" :alt="`${fundingTitle}의 설명 이미지`"
+                @error="handleImageError">
+            <!-- <img src="https://cdn3.wadiz.kr/studio/images/2024/10/25/2ec3384f-b3cf-4358-a80e-44cebf05e0bc.jpeg/wadiz/format/jpg/quality/80/"
+                class="detail-img img-fluid" :alt="`${fundingTitle}의 설명 이미지`" @error="handleImageError"> -->
         </div>
     </div>
 </template>
@@ -93,7 +93,7 @@ const detailUrlComputed = computed((url) => {
 }
 
 .detail-img {
-    max-width: 100%;
+    max-width: 99%;
     height: auto;
     object-fit: contain;
 }
