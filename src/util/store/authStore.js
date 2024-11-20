@@ -85,6 +85,7 @@ export const useAuthStore = defineStore("auth", () => {
     function saveStateBeforeReload() {
         sessionStorage.setItem("userInfo", JSON.stringify(userInfo.value));
         sessionStorage.setItem("secureAccess", JSON.stringify(canAccessSecurePage.value));
+
     }
 
     // 새로고침 후 상태 복구
@@ -137,5 +138,7 @@ export const useAuthStore = defineStore("auth", () => {
         setSecurePageAccess,
         isInitialized,
         logout,
+        // checkAndRefreshToken,
+        // handleTokenExpiration,
     };
 });
