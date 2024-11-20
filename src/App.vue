@@ -18,6 +18,12 @@ const route = useRoute();
 const authStore = useAuthStore(); // authStore 사용
 const paymentStore = usePaymentStore();
 
+// 새로고침 이벤트 핸들러
+const reloadPage = () => {
+  authStore.saveStateBeforeReload(); // 상태 저장
+  window.location.reload(); // 페이지 새로고침
+};
+
 // Detect if the current route requires a gray background
 const isGrayBackground = computed(() => route.meta.grayBackground);
 
@@ -46,6 +52,9 @@ const checkScroll = () => {
 }
 
 onMounted(() => {
+  window.addEventListener('beforeunload', authStore.saveStateBeforeReload); // 새로고침 전 상태 저장
+  authStore.restoreStateAfterReload(); // 새로고침 후 상태 복구
+  authStore.initializeStore(); // 인증 상태 초기화
   // Check if payment is successful and redirect if needed
   if (paymentStore.isPaymentSuccessful) {
     router.push('/purchase/complete/:id');
@@ -77,7 +86,7 @@ const handleCategorySelected = (category) => {
 <template>
   <div id="app-vue-container">
     <div class="container-fluid">
-      <Topbar class="topbar" v-if="!shouldHideTopbar" :key="$route.path" />
+      <Topbar class="topbar" v-if="!shouldHideTopbar" />
     </div>
     <Header v-if="!shouldHideHeader" @category-selected="handleCategorySelected" />
     <FundingDetailHeader v-if="isDetailPage" />

@@ -8,6 +8,7 @@ export const useAuthStore = defineStore("auth", () => {
     const userInfo = ref(null);
 
     const canAccessSecurePage = ref(false);
+    const isInitialized = ref(false); // 상태 복구 여부
     // 컴퓨티드 속성: 인증 상태
     const isAuthenticated = computed(() => !!jwtToken.value);
 
@@ -72,6 +73,7 @@ export const useAuthStore = defineStore("auth", () => {
             canAccessSecurePage.value = true; // 토큰이 있으면 접근 권한 부여
             console.log("Store initialized with user info:", userInfo.value);
         }
+        isInitialized.value = true; // 상태 복구 완료
     }
 
     // 보안 페이지 접근 권한 설정
@@ -79,17 +81,48 @@ export const useAuthStore = defineStore("auth", () => {
         canAccessSecurePage.value = value;
     }
 
-    // 로그아웃
-    function logout() {
-        resetState();
-        localStorage.removeItem("jwtToken");
+    // 새로고침 전 상태 저장
+    function saveStateBeforeReload() {
+        sessionStorage.setItem("userInfo", JSON.stringify(userInfo.value));
+        sessionStorage.setItem("secureAccess", JSON.stringify(canAccessSecurePage.value));
     }
 
-    function resetState() {
+    // 새로고침 후 상태 복구
+    function restoreStateAfterReload() {
+        const savedUserInfo = sessionStorage.getItem("userInfo");
+        const savedSecureAccess = sessionStorage.getItem("secureAccess");
+
+        if (savedUserInfo) {
+            userInfo.value = JSON.parse(savedUserInfo);
+        }
+
+        if (savedSecureAccess) {
+            canAccessSecurePage.value = JSON.parse(savedSecureAccess);
+        }
+
+        isInitialized.value = true; // 상태 복구 완료
+    }
+
+    function logout() {
         jwtToken.value = null;
         userInfo.value = null;
         canAccessSecurePage.value = false;
+        isInitialized.value = false;
+        localStorage.removeItem("jwtToken");
+        sessionStorage.clear(); // 세션 스토리지 초기화
     }
+
+    // 로그아웃
+    // function logout() {
+    //     resetState();
+    //     localStorage.removeItem("jwtToken");
+    // }
+
+    // function resetState() {
+    //     jwtToken.value = null;
+    //     userInfo.value = null;
+    //     canAccessSecurePage.value = false;
+    // }
 
     return {
         jwtToken,
@@ -97,9 +130,12 @@ export const useAuthStore = defineStore("auth", () => {
         getJwtToken,
         getUserInfo,
         initializeStore,
+        saveStateBeforeReload,
+        restoreStateAfterReload,
         isAuthenticated,
         canAccessSecurePage,
         setSecurePageAccess,
+        isInitialized,
         logout,
     };
 });
