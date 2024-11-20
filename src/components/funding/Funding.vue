@@ -80,17 +80,19 @@
                         <h3 class="reward-title">리워드 선택</h3>
                         <p class="funding-period">{{ fundingStartDate }} ~ {{ fundingEndDate }}</p>
                     </div>
-                    <div v-for="reward in rewardList" :key="reward.id" class="reward-item">
-                        <div class="reward-price">{{ reward.price.toLocaleString() }}원 펀딩</div>
+                    <div v-for="reward in rewardList" :key="reward.id" class="reward-item text-start">
+                        <div class="reward-price">{{ reward.price.toLocaleString() }}원</div>
                         <h4 class="reward-name">{{ reward.rewardName }}</h4>
                         <p class="reward-description">{{ reward.explanation }}</p>
                         <div class="reward-details">
                             <p>배송비: {{ reward.deliveryFee.toLocaleString() }}원</p>
-                            <p>리워드 발송 시작일: {{ formatDeliveryDate(reward.deliveryStartDate) }}</p>
+                            <p>리워드 발송 시작 예정일: {{ formatDeliveryDate(reward.deliveryStartDate) }}</p>
                         </div>
                         <div class="reward-quantity">
-                            <span class="quantity-left">{{ reward.quantityLimit - reward.supportedCnt }}개 남음</span>
-                            <span class="quantity-total">총 {{ reward.quantityLimit }}개</span>
+                            <span class="quantity-left">{{ (reward.quantityLimit > 0 ? reward.quantityLimit -
+                                reward.supportedCnt : 999) }}개 남음</span>
+                            <span class="quantity-total">총 {{ reward.quantityLimit > 0 ? reward.quantityLimit : 999
+                                }}개</span>
                         </div>
                     </div>
                 </div>
