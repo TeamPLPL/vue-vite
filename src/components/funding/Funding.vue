@@ -4,12 +4,12 @@
             <!-- 좌측 본문 영역 -->
             <div class="main-content col-lg-8">
                 <RouterView v-slot="{ Component }">
-                    <component :is="Component" :fundingId="fundingId" />
+                    <component :is="Component" :fundingId="fundingId" @showNoticeDetail="handleShowNoticeDetail" />
                 </RouterView>
             </div>
 
             <!-- 우측 사이드바 -->
-            <div id="side-container" class="col-lg-4">
+            <div id="side-container sticky-top" class="col-lg-4" style="top: 300px;">
                 <div v-if="fundingData">
                     <div id="funding-data-container" class="border border-light boarder-1 rounded-3 p-3">
                         <div class="d-flex justify-content-between align-items-center ms-3">
@@ -17,16 +17,16 @@
                                 {{ fundingData.mainCategoryNm }}&nbsp;&nbsp;>&nbsp;&nbsp;{{ fundingData.subCategoryNm }}
                             </div>
                             <div class="me-3 d-flex align-items-center">
-                                <img v-if="isInWishlist" class="wish" src="../../assets/wish.png" alt="찜 되어 있음"
-                                    @click="toggleWishlist(fundingId)">
-                                <img v-else class="wish" src="../../assets/wish-not.png" alt="찜 되어있지 않음"
+                                <img v-if="isInWishlist" class="wish cursor-pointer" src="../../assets/wish.png"
+                                    alt="찜 되어 있음" @click="toggleWishlist(fundingId)">
+                                <img v-else class="wish cursor-pointer" src="../../assets/wish-not.png" alt="찜 되어있지 않음"
                                     @click="toggleWishlist(fundingId)">
                                 &nbsp;&nbsp;
                                 <div class="me-3 share-container">
-                                    <img class="share" src="../../assets/share.png" alt="공유하기"
+                                    <img class="share cursor-pointer" src="../../assets/share.png" alt="공유하기"
                                         @click="toggleShareModal">
 
-                                    <div v-if="showShareModal" class="share-modal">
+                                    <div v-if="showShareModal" class="share-modal d-flex flex-row gap-2">
                                         <button @click="shareKakao">카카오 공유</button>
                                         <button @click="shareNaver">네이버 공유</button>
                                         <button @click="copyUrl">URL 복사</button> <!-- URL 복사 버튼 -->
@@ -42,7 +42,7 @@
                             </div>
                         </div>
                         <!-- <hr class="secondary"> -->
-                        <div class="m-1 mt-3">
+                        <div class="m-1 mt-3 text-start">
                             <div>
                                 <h2 id="funding-title">{{ fundingData.fundingTitle }}</h2>
                                 <span v-for="tag in tagList" :key="tag" class="tag">#{{ tag }}&nbsp;&nbsp;</span>
@@ -62,15 +62,16 @@
                     <div id="maker-container" class="border border-light boarder-1 rounded-3 p-3 mt-2">
                         <div class="maker-info">
                             <img :src="getProfileUrl(maker.profileImgUrl)" alt="펀딩 메이커의 프로필 이미지"
-                                class="maker-profile-img">
+                                class="maker-profile-img cursor-pointer">
                             <div class="maker-nick">
                                 {{ maker.userNick }}
-                                <img v-if="maker.isFollowing" class="wish" src="../../assets/followed.png"
-                                    alt="팔로우 되어 있음">
-                                <img v-else class="wish" src="../../assets/unfollowed.png" alt="팔로우 되어있지 않음">
+                                <img v-if="maker.isFollowing" class="wish cursor-pointer"
+                                    src="../../assets/followed.png" alt="팔로우 되어 있음">
+                                <img v-else class="wish cursor-pointer" src="../../assets/unfollowed.png"
+                                    alt="팔로우 되어있지 않음">
                             </div>
                         </div>
-                        <div class="mt-2">{{ maker.userContent }}</div>
+                        <div class="mt-2 text-start">{{ maker.userContent }}</div>
                     </div>
                 </div>
 
@@ -79,17 +80,19 @@
                         <h3 class="reward-title">리워드 선택</h3>
                         <p class="funding-period">{{ fundingStartDate }} ~ {{ fundingEndDate }}</p>
                     </div>
-                    <div v-for="reward in rewardList" :key="reward.id" class="reward-item">
-                        <div class="reward-price">{{ reward.price.toLocaleString() }}원 펀딩</div>
+                    <div v-for="reward in rewardList" :key="reward.id" class="reward-item text-start">
+                        <div class="reward-price">{{ reward.price.toLocaleString() }}원</div>
                         <h4 class="reward-name">{{ reward.rewardName }}</h4>
                         <p class="reward-description">{{ reward.explanation }}</p>
                         <div class="reward-details">
                             <p>배송비: {{ reward.deliveryFee.toLocaleString() }}원</p>
-                            <p>리워드 발송 시작일: {{ formatDeliveryDate(reward.deliveryStartDate) }}</p>
+                            <p>리워드 발송 시작 예정일: {{ formatDeliveryDate(reward.deliveryStartDate) }}</p>
                         </div>
                         <div class="reward-quantity">
-                            <span class="quantity-left">{{ reward.quantityLimit - reward.supportedCnt }}개 남음</span>
-                            <span class="quantity-total">총 {{ reward.quantityLimit }}개</span>
+                            <span class="quantity-left">{{ (reward.quantityLimit > 0 ? reward.quantityLimit -
+                                reward.supportedCnt : 999) }}개 남음</span>
+                            <span class="quantity-total">총 {{ reward.quantityLimit > 0 ? reward.quantityLimit : 999
+                                }}개</span>
                         </div>
                     </div>
                 </div>
@@ -99,20 +102,47 @@
 </template>
 
 <script setup>
-import { ref, provide, inject, computed, onMounted } from 'vue';
+import { ref, provide, inject, computed, onMounted, onUnmounted } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import apiWrapper from '../../util/axios/axios';
 import { useAuthStore } from '../../util/store/authStore';
 import defaultThumbnail from '../../assets/default_thumbnail.jpeg'
 import defaultProfile from '../../assets/default_profile.png'
 
-const route = useRoute(); // 현재 경로 정보를 가져오기 위해 useRoute 사용
+const route = useRoute();
 const router = useRouter();
-
 const fundingId = ref(route.params.id);
 provide('fundingId', fundingId);
 
 const authStore = useAuthStore();
+
+
+//////// 사이드바고정
+
+const handleScroll = () => {
+    const sideContainer = document.getElementById('side-container');
+    const rewardContainer = document.getElementById('reward-container');
+    const stickyTop = document.querySelector('.sticky-top');
+
+    if (sideContainer && rewardContainer && stickyTop) {
+        const containerRect = sideContainer.getBoundingClientRect();
+        const stickyRect = stickyTop.getBoundingClientRect();
+
+        if (containerRect.bottom <= window.innerHeight) {
+            rewardContainer.style.position = 'static';
+        } else if (stickyRect.bottom > window.innerHeight) {
+            rewardContainer.style.position = 'absolute';
+            rewardContainer.style.bottom = '0';
+            rewardContainer.style.width = '100%';
+        } else {
+            rewardContainer.style.position = 'relative';
+            rewardContainer.style.bottom = 'auto';
+        }
+    }
+};
+/////////// 사이드바 고정 완
+
+
 
 //////////////////// wishlist start
 const wishlistStore = inject('wishlistStore');
@@ -243,6 +273,9 @@ const defaultProfileUrl = ref(defaultProfile);
 const fundingTitle = ref('');
 provide('fundingTitle', fundingTitle)
 
+onUnmounted(() => {
+    window.removeEventListener('scroll', handleScroll);
+});
 
 onMounted(async () => {
     // Promise.all을 사용하여 두 API 호출을 병렬로 실행
@@ -274,7 +307,9 @@ onMounted(async () => {
     maker.value = data.makerDTO
 
     await checkWishlistStatus();
-})
+},
+    window.addEventListener('scroll', handleScroll)
+)
 
 const getThumbnailUrl = (url) => {
     return url || defaultImageUrl.value
@@ -333,6 +368,39 @@ const isCreator = computed(() => {
 provide('isCreator', isCreator);
 
 ////////// 작성자 체크 끝
+
+const selectedNotice = inject('selectedNotice', {
+    noticeId: 0,
+    noticeTitle: '',
+    noticeContent: ''
+});
+
+provide('selectedNotice', selectedNotice.value);
+provide('setSelectedNotice', (notice) => {
+    selectedNotice.value = notice;
+});
+
+// const handleShowNoticeDetail = (noticeId) => {
+//     console.log("handleShoeNoticeDetail 진입")
+//     console.log("selectedNotice: " + selectedNotice.value)
+//     router.push({
+//         name: 'NoticeDetail',
+//         params: { id: fundingId.value },
+//         query: { noticeId: noticeId },
+//     });
+
+// };
+
+const handleShowNoticeDetail = (noticeId) => {
+    router.push({
+        name: 'NoticeDetail',
+        params: { id: fundingId.value },
+        query: { noticeId }, // noticeId를 쿼리로 전달
+    });
+};
+
+
+
 </script>
 
 <style>
@@ -348,10 +416,17 @@ provide('isCreator', isCreator);
 }
 
 #side-container {
-    /* min-width: 370px; */
-
     padding: 0;
     text-align: justify;
+    height: 100vh;
+    overflow-y: auto;
+}
+
+.sticky-top {
+    position: sticky;
+    top: 70px;
+    max-height: calc(100vh - 70px);
+    overflow-y: auto;
 }
 
 .maker-info {
@@ -389,11 +464,25 @@ provide('isCreator', isCreator);
     font-weight: bold;
 }
 
-#reward-container {
+/* #reward-container {
     position: sticky;
     top: 70px;
-    z-index: 1000;
+    z-index: 2000;
     background-color: #fff;
+} */
+#reward-container {
+    /* position: sticky;
+    max-height: calc(100vh - 70px);
+    overflow-y: auto; */
+    background-color: #fff;
+    /* z-index: 1000; */
+}
+
+/* 리워드 아이템들을 감싸는 새로운 div 추가 */
+.reward-items-wrapper {
+    max-height: calc(100vh - 300px);
+    /* 조정 가능한 값 */
+    overflow-y: auto;
 }
 
 .reward-header {
@@ -471,31 +560,47 @@ provide('isCreator', isCreator);
 .share-modal {
     position: absolute;
     top: 100%;
-    left: 0;
+    right: 0;
     background-color: white;
     border: 1px solid #ccc;
     border-radius: 4px;
     padding: 10px;
     z-index: 1000;
-    display: flex; /* Flexbox를 유지 */
-    flex-direction: column; /* 세로 정렬을 위한 설정 */
-    gap: 10px; /* 버튼 간 간격 설정 */
-    align-items: stretch; /* 버튼이 모달의 너비를 차지하도록 설정 */
+    display: flex;
+    /* Flexbox를 유지 */
+    flex-direction: column;
+    /* 세로 정렬을 위한 설정 */
+    gap: 10px;
+    /* 버튼 간 간격 설정 */
+    align-items: stretch;
+    /* 버튼이 모달의 너비를 차지하도록 설정 */
+    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+
 }
 
 .share-modal button {
-    display: block; /* 각 버튼을 블록 요소로 설정 */
-    width: 100%; /* 버튼이 모달의 전체 너비를 차지 */
+    display: block;
+    /* 각 버튼을 블록 요소로 설정 */
+    width: 100%;
+    /* 버튼이 모달의 전체 너비를 차지 */
     padding: 8px 12px;
-    background-color: #f0f0f0;
+    background-color: #e0e0e0;
     border: none;
     border-radius: 3px;
     cursor: pointer;
-    text-align: center; /* 텍스트 중앙 정렬 */
-    white-space: nowrap; /* 텍스트가 한 줄로 표시되도록 설정 */
+    text-align: center;
+    /* 텍스트 중앙 정렬 */
+    white-space: nowrap;
+    /* 텍스트가 한 줄로 표시되도록 설정 */
+    color: #fff;
 }
 
 .share-modal button:hover {
-    background-color: #e0e0e0;
+    background-color: #d0d0d0;
+    color: #444;
+}
+
+.cursor-pointer {
+    cursor: pointer;
 }
 </style>

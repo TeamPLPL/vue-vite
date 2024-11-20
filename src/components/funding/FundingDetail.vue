@@ -5,7 +5,7 @@
                 :alt="`${fundingTitle}의 썸네일`" @error="handleImageError">
         </div>
     </div>
-    <div>
+    <div class="expl-container">
         {{ fundingExplanation }}
     </div>
     <div>
@@ -15,6 +15,8 @@
         <div class="detail-img-container d-flex flex-column">
             <img :src="detailImgUrlComputed" class="detail-img img-fluid" :alt="`${fundingTitle}의 설명 이미지`"
                 @error="handleImageError">
+            <!-- <img src="https://cdn3.wadiz.kr/studio/images/2024/10/25/2ec3384f-b3cf-4358-a80e-44cebf05e0bc.jpeg/wadiz/format/jpg/quality/80/"
+                class="detail-img img-fluid" :alt="`${fundingTitle}의 설명 이미지`" @error="handleImageError"> -->
         </div>
     </div>
 </template>
@@ -77,13 +79,21 @@ const detailUrlComputed = computed((url) => {
     max-width: 100%;
 }
 
+.expl-container {
+    width: 100%;
+    margin-top: 70px;
+    margin-bottom: 20px;
+    padding-left: 5px;
+    text-align: left;
+}
+
 .detail-img-container {
-    height: 100vh;
+    max-width: 100%;
     overflow-y: auto;
 }
 
 .detail-img {
-    max-width: 100%;
+    max-width: 99%;
     height: auto;
     object-fit: contain;
 }
