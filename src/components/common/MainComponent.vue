@@ -7,7 +7,8 @@
                 </div>
                 <div id="new-funding-list">
                     <h2 id="new-funding-title">최신 프로젝트</h2>
-                    <div id="new-cards" class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-2 ps-3">
+                    <div id="new-cards"
+                        class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-2 ps-3 cursor-pointer">
                         <div class="col" v-for="(funding, index) in newFundingList" :key="index"
                             @click="redirectToFundingDetail(funding.id)">
                             <div class="card mb-3">
@@ -38,7 +39,7 @@
                     <div id="top-cards" class="row row-cols-1 row-cols-sm-2 row-cols-md-2 row-cols-lg-1 ps-3">
                         <div class="col" v-for="(funding, index) in topFundingList" :key="index"
                             @click="redirectToFundingDetail(funding.id)">
-                            <div class="card mb-3">
+                            <div class="card mb-3 cursor-pointer">
                                 <div class="row row-cols-xs-1 row-cols-sm-1 row-cols-md-2 row-cols-lg-2 g-0">
                                     <div class="col-6">
                                         <img :src="getThumbnailUrl(funding.thumbnailImgUrl)"
@@ -119,6 +120,7 @@ const redirectToFundingDetail = (fundingId) => {
 
 /* md 브레이크포인트 이하에서만 min-width 적용 */
 @media (max-width: 767.98px) {
+
     #new-funding-list,
     #top-funding-list {
         min-width: 400px;
@@ -186,5 +188,9 @@ const redirectToFundingDetail = (fundingId) => {
     .card-text {
         font-size: 0.7rem;
     }
+}
+
+.cursor-pointer {
+    cursor: pointer;
 }
 </style>

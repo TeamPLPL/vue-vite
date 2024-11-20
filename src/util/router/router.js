@@ -36,7 +36,7 @@ router.beforeEach((to, from, next) => {
     const token = localStorage.getItem("jwtToken");
 
     // 토큰 검증 및 초기화 함수로 분리
-    const validateToken = () => {
+    const validateToken = async () => {
         if (!token) return false;
 
         try {
@@ -54,7 +54,7 @@ router.beforeEach((to, from, next) => {
             return true;
         } catch (error) {
             console.error("Token validation error:", error);
-            authStore.logout();
+            await authStore.handleTokenExpiration();
             return false;
         }
     };
