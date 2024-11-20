@@ -5,6 +5,7 @@
         <!-- ProjectSidebar에 projectId 바인딩 -->
         <ProjectSidebar :projectId="projectId" />
         <button class="btn btn-primary w-100" @click="saveProject">저장 하기</button>
+        <button class="btn btn-secondary mt-2 w-100" @click="exit">나가기</button>
       </div>
 
       <!-- Content -->
@@ -35,7 +36,7 @@
         <!-- 리워드 리스트 -->
         <div v-for="(reward, index) in rewards" :key="index" class="mb-3 p-3 border rounded" style="width: 50%;">
           <div class="text-start">
-            <h5 class="fw-bold"> {{ reward.price }} 원</h5>
+            <h5 class="fw-bold"> {{ formatPrice(reward.price) }} 원</h5>
             <p><strong>{{ reward.rewardName }}</strong></p>
             <p>{{ reward.rewardDescription }}</p>
             <p>
@@ -185,6 +186,7 @@ import { defineComponent } from "vue";
 import { useRoute } from "vue-router";
 import ProjectSidebar from "./projectComponents/ProjectSidebar.vue";
 import apiWrapper from "../../util/axios/axios.js";
+import lib from '../../util/scripts/lib.js'
 
 export default defineComponent({
   name: "RewardForm",
@@ -213,7 +215,68 @@ export default defineComponent({
       editingIndex: null, // 현재 수정 중인 리워드의 인덱스
     };
   },
+  mounted() {
+    this.fetchRewards(); // 컴포넌트가 마운트될 때 리워드 데이터를 가져옴
+  },
   methods: {
+    async fetchRewards() {
+      try {
+        const response = await apiWrapper.getData(
+            `/api/${this.projectId}/getrewards`
+        );
+
+        // 서버에서 받은 데이터를 rewards 배열에 매핑
+        this.rewards = response.map((reward) => ({
+          id: reward.rewardId,
+          rewardName: reward.rewardName,
+          price: reward.price,
+          rewardDescription: reward.explanation,
+          deliveryFee: reward.deliveryFee,
+          deliveryStartDate: reward.deliveryStartDate
+              ? reward.deliveryStartDate.split("T")[0] // 날짜만 추출
+              : null,
+          limitQuantity: reward.quantityLimit,
+          supportedCnt: reward.supportedCnt,
+          count: reward.count,
+          deliveryOption: reward.deliveryFee > 0 ? "yes" : "no",
+        }));
+
+        console.log("리워드 데이터 초기화 완료:", this.rewards);
+      } catch (error) {
+        console.error("리워드 데이터 가져오기 실패:", error);
+      }
+    },
+    async deleteReward(index) {
+      const reward = this.rewards[index];
+
+      console.log(reward);
+      console.log(reward.id);
+
+      // reward.id가 null인 경우, 서버와 통신 없이 UI에서만 삭제
+      if (!reward || !reward.id) {
+        console.log("로컬에서만 삭제 처리:", reward);
+        this.rewards.splice(index, 1); // 배열에서 제거
+        return;
+      }
+
+      // reward.id가 null이 아닌 경우, 서버 요청 처리
+      try {
+        const response = await apiWrapper.getData(`/api/${reward.id}/deletereward`);
+        console.log("응답 데이터:" + response);
+
+        // 응답 본문을 확인하여 처리
+        if (response === "success") {
+          alert("해당 리워드가 삭제되었습니다.");
+          this.rewards.splice(index, 1); // 배열에서 제거
+        } else {
+          alert("해당 리워드가 삭제할 수 없습니다.");
+        }
+      } catch (error) {
+        console.error("리워드 삭제 요청 중 오류:", error);
+        alert("리워드 삭제 중 서버 오류가 발생했습니다.");
+      }
+    }
+    ,
     openModal() {
       this.resetForm();
       this.showModal = true;
@@ -234,9 +297,6 @@ export default defineComponent({
       this.showModal = true;
       this.editingIndex = index;
     },
-    deleteReward(index) {
-      this.rewards.splice(index, 1);
-    },
     closeModal() {
       this.resetForm();
       this.showModal = false;
@@ -254,23 +314,23 @@ export default defineComponent({
     },
     async saveProject() {
       try {
+        console.log("저장 전 rewards 상태:", this.rewards); // 삭제 후 배열 확인
         const requestBody = this.rewards.map(reward => ({
           id: reward.id || null,
           rewardName: reward.rewardName,
           price: reward.price,
           explanation: reward.rewardDescription,
           deliveryFee: reward.deliveryOption === "yes" ? reward.deliveryFee : 0,
-          // ISO 8601 형식으로 변환
           deliveryStartDate: reward.deliveryStartDate
               ? `${reward.deliveryStartDate}T00:00:00`
               : null,
           quantityLimit: reward.limitQuantity,
         }));
-
         console.log("전송 데이터:", requestBody);
-
-        const response = await apiWrapper.postData(`/api/studio/${this.projectId}/reward`, requestBody);
-
+        const response = await apiWrapper.postData(
+            `/api/studio/${this.projectId}/reward`,
+            requestBody
+        );
         if (response.status === 200) {
           alert("리워드가 성공적으로 저장되었습니다.");
           this.$router.push(`/studio/${this.projectId}/project/`);
@@ -280,6 +340,15 @@ export default defineComponent({
         alert("리워드 저장 중 오류가 발생했습니다.");
       }
     },
+    formatPrice(val) {
+      return lib.getNumberFormatted(val);
+    },
+    exit() {
+      const shouldExit = confirm("저장하지 않고 나가시겠습니까?");
+      if (shouldExit) {
+        this.$router.push(`/studio/${this.projectId}/project/`); // 페이지 이동
+      }
+    }
   },
 });
 </script>

@@ -36,10 +36,36 @@
 import { ref, watch } from 'vue';
 
 export default {
+  props: {
+    initialData: {
+      type: Array,
+      default: () => [], // 초기 데이터를 빈 배열로 설정
+    },
+  },
   emits: ['updateTags'], // 상위로 데이터를 전달하는 이벤트 정의
   setup(props, { emit }) {
     const tagInput = ref(''); // 태그 입력을 위한 v-model 변수
-    const tags = ref([]); // 태그 저장을 위한 배열
+    const tags = ref([]);
+
+    // 초기화: props.initialData를 tags 배열로 변환
+    const initializeTags = () => {
+      if (Array.isArray(props.initialData)) {
+        tags.value = [...props.initialData];
+      } else if (typeof props.initialData === "string") {
+        tags.value = props.initialData.split(",").map((tag) => tag.trim()).filter(Boolean);
+      } else {
+        tags.value = [];
+      }
+    };
+
+    // props.initialData 변경 시 동기화
+    watch(
+        () => props.initialData,
+        () => {
+          initializeTags(); // 초기화 로직 호출
+        },
+        { immediate: true } // 컴포넌트 초기화 시에도 실행
+    );
 
     const addTag = () => {
       const trimmedTag = tagInput.value.trim();

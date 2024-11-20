@@ -5,6 +5,7 @@
       <!-- ProjectSidebar에 projectId 바인딩 -->
       <ProjectSidebar :projectId="projectId" />
         <button class="btn btn-primary w-100" @click="saveProject">저장 하기</button>
+        <button class="btn btn-secondary mt-2 w-100" @click="exit">나가기</button>
       </div>
 
       <!-- Content -->
@@ -81,8 +82,20 @@ export default defineComponent({
     async saveProject() {
       try {
         // LocalDateTime 형식으로 변환
-        const startDateTime = new Date(this.startDate).toISOString().slice(0, 19); // 'YYYY-MM-DDTHH:mm:ss'로 변환
-        const endDateTime = new Date(this.endDate).toISOString().slice(0, 19); // 'YYYY-MM-DDTHH:mm:ss'로 변환
+        let startDateTime = null;
+        let endDateTime = null;
+
+        if (this.startDate) {
+          startDateTime = new Date(this.startDate).toISOString().slice(0, 19); // 'YYYY-MM-DDTHH:mm:ss'로 변환
+        } else {
+          console.warn("startDate가 비어 있습니다.");
+        }
+
+        if (this.endDate) {
+          endDateTime = new Date(this.endDate).toISOString().slice(0, 19); // 'YYYY-MM-DDTHH:mm:ss'로 변환
+        } else {
+          console.warn("endDate가 비어 있습니다.");
+        }
 
         // DTO 객체 생성
         const requestBody = {
@@ -104,7 +117,14 @@ export default defineComponent({
         console.error("저장 중 오류 발생:", error);
         alert("프로젝트 일정 저장 중 오류가 발생했습니다.");
       }
-    },
+    }
+    ,
+    exit() {
+      const shouldExit = confirm("저장하지 않고 나가시겠습니까?");
+      if (shouldExit) {
+        this.$router.push(`/studio/${this.projectId}/project/`); // 페이지 이동
+      }
+    }
   },
   setup() {
     // 라우트에서 projectId 가져오기
