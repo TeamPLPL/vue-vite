@@ -136,6 +136,8 @@ const selectedCoupon = ref(null);
 const steps = ref(["리워드 선택", "결제 화면", "결제 완료"]);
 const purchaseStore = usePurchaseStore();
 
+const fundingData = ref(null); // 펀딩 데이터를 저장할 변수
+
 const recipientName = ref('');
 const phoneNumber = ref('');
 const deliveryRequest = ref('');
@@ -217,8 +219,61 @@ const updateFundingAmount = async () => {
     }
 };
 
+// 펀딩 데이터를 가져오는 함수
+const fetchFundingDetails = async (fundingId) => {
+    try {
+        const data = await apiWrapper.fetchFundingData(fundingId);
+        fundingData.value = data;
+        console.log("펀딩 데이터 로드 성공:", fundingData.value);
+    } catch (error) {
+        console.error("펀딩 데이터 로드 중 오류 발생:", error);
+    }
+};
+
+// 구매 검증
+async function validateMultiplePurchases(rewards) {
+    try {
+        const response = await apiWrapper.postData('/api/payment/validate-purchase', {
+            rewards,
+        });
+
+        if (!response.valid) {
+            response.details.forEach(detail => {
+                if (!detail.valid) {
+                    alert(`리워드 ${detail.rewardId}: ${detail.message}`);
+                }
+            });
+            return false;
+        }
+
+        console.log("모든 리워드 구매 가능");
+        return true;
+    } catch (error) {
+        console.error("구매 검증 실패:", error);
+        alert(error.response?.data?.message || "구매 검증 중 오류가 발생했습니다.");
+        return false;
+    }
+}
 
 async function clientAuth() {
+    if (purchaseStore.selectedRewards.length === 0) {
+        alert("구매할 리워드를 선택해주세요.");
+        return;
+    }
+
+    const rewards = purchaseStore.selectedRewards.map(reward => ({
+        rewardId: reward.rewardId,
+        fundingId: props.id, // 펀딩 ID
+        purchaseQuantity: reward.quantity, // 구매하려는 수량
+    }));
+
+    const isPurchaseValid = await validateMultiplePurchases(rewards);
+
+    if (!isPurchaseValid) {
+        console.log("구매 불가능. 로직 종료.");
+        return; // 구매 시도 중단
+    }
+
     if (!selectedAddress.value.id) {
         alert('배송지를 선택해주세요!');
         return;
@@ -228,6 +283,8 @@ async function clientAuth() {
         alert('카드 번호를 입력해야 합니다.');
         return;
     }
+
+    console.log("구매 가능. 결제 로직 실행.");
 
     try {
         const paymentData = {
@@ -262,9 +319,10 @@ async function clientAuth() {
             buyerTel: phoneNumber.value,
             clientId: import.meta.env.VITE_NICEPAY_KEY,
             method: paymentMethod.value,
-            orderId: `test_1115_${registerResponse.data.id}`, // 서버에서 결제 내역 확인용 ID, 최종 시연할 때 test_xxxx_를 제거할 예정
+            // ModalConfirm.vue에 있는 orderId의 양식과 똑같아야 한다.
+            orderId: `test_1121_${registerResponse.data.id}`, // 서버에서 결제 내역 확인용 ID, 최종 시연할 때 test_xxxx_를 제거할 예정
             amount: wholePrice.value,
-            goodsName: '나이스페이-상품',
+            goodsName: fundingData.value.fundingTitle,
             returnUrl: `http://localhost:8080/api/payment/complete?id=${props.id}`,
             fnError: function (result) {
                 alert('결제 오류: ' + result.errorMsg);
@@ -320,6 +378,8 @@ onMounted(async () => {
             return;
         }
         await fetchUserCoupons();
+
+        fetchFundingDetails(props.id); // 펀딩 데이터를 가져옴
 
         await loadScript("https://pay.nicepay.co.kr/v1/js/", "nicepay-script");
         // 추가적인 스크립트를 로드하려면 같은 방식으로 호출
