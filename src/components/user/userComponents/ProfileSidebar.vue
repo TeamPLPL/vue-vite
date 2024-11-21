@@ -9,15 +9,15 @@
       </div>
 
       <!-- Profile Section -->
-      <img v-if="!fileId" src="https://static.wadiz.kr/assets/icon/profile-icon-5.png" class="rounded-circle mb-2" style="width: 100px;" alt="Profile Icon">
-      <img else :src="profileImage" class="rounded-circle mb-2" style="width: 120px; height: 120px; object-fit: cover;" alt="Profile Icon">
-      <span class="badge bg-primary mt-2" style="font-size: 1rem; padding: 10px;">아기광어 님</span>
+      <img v-if="fileId" :src="profileImage" class="rounded-circle mb-2" style="width: 120px; height: 120px; object-fit: cover;" alt="Profile Icon">
+      <img v-else src="https://static.wadiz.kr/assets/icon/profile-icon-5.png" class="rounded-circle mb-2" style="width: 120px; height: 120px; object-fit: cover;" alt="Profile Icon">
+      <span class="badge bg-primary mt-2" style="font-size: 1rem; padding: 10px;"> {{ userInfo.userNick }} 님</span>
     </div>
   </div>
 </template>
 
 <script>
-import { onMounted, ref } from "vue";
+import { onMounted, ref, reactive } from "vue";
 import { useRouter } from 'vue-router';
 import apiWrapper from "../../../util/axios/axios.js";
 
@@ -26,22 +26,51 @@ export default {
     const router = useRouter();
     const profileImage = ref(null); // 썸네일 URL
     const fileId = ref(null); // 파일 ID
+    const userInfo = reactive({
+      id: null,
+      email: '',
+      userNick: '',
+      provider: ''
+    });
 
     onMounted(() => {
       fetchInitialProfileImage(); // 컴포넌트 초기화 시 썸네일 데이터 가져오기
+      fetchInitialUserInfo();
     });
 
     const fetchInitialProfileImage = async () => {
       try {
         const response = await apiWrapper.getData(`/api/get/profileimage`);
+
+        if (response.status === 204 ) {
+          console.warn("초기 프로필 이미지가 없습니다.");
+          return;
+        }
+
         const fileData = response; // 서버 응답이 바로 FileDTO 객체라고 가정
         console.log(response);
         profileImage.value = fileData.signedUrl; // 썸네일 URL 설정
         fileId.value = fileData.fileId; // fileId 저장
       } catch (error) {
-        console.error("초기 썸네일 가져오기 실패:", error);
+        console.error("프로필 가져오기 실패:", error);
       }
     };
+
+    const fetchInitialUserInfo = async () => {
+      try {
+        const response = await apiWrapper.getData(`/api/get/user`);
+        const data = response;
+        console.log(data);
+
+        // reactive 상태 업데이트
+        userInfo.id = data.id;
+        userInfo.email = data.email;
+        userInfo.userNick = data.userNick;
+        userInfo.provider = data.provider;
+      } catch (error) {
+        console.error("사용자 정보 가져오기 실패", error);
+      }
+    }
 
     const myMaker = async () => {
       router.push('/mywadiz/maker');
@@ -55,7 +84,8 @@ export default {
       myMaker,
       mySupporter,
       profileImage,
-      fileId
+      fileId,
+      userInfo
     };
   }
 };

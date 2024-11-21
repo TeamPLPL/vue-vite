@@ -29,14 +29,15 @@
     <!-- 기본 정보 설정 -->
     <div class="text-start">
       <h5 class="fw-bold">기본 정보 설정</h5>
+      <p class="text-muted small">이름은 한 번 입력하면 바꿀 수 없어요.</p>
     </div>
 
-    <!-- 닉네임 출력 -->
+    <!-- 이름 출력 -->
     <div class="form-group mt-3">
       <input type="text" class="form-control custom-input" placeholder="이름을 입력하세요"  />
     </div>
 
-    <!-- 이름 입력 -->
+    <!-- 닉네임 입력 -->
     <div class="form-group mt-3">
       <input type="text" class="form-control custom-input" placeholder="닉네임" disabled/>
     </div>
@@ -54,7 +55,7 @@
     <!-- SNS 연동 -->
     <div class="text-start">
       <h5 class="fw-bold mt-4">SNS 연동</h5>
-      <p class="text-muted">카카오를 연동하시면 피드에서 친구의 활동을 확인할 수 있어요</p>
+      <p class="text-muted small">Naver, Google 연동을 확인할 수 있어요.</p>
     </div>
 
     <!-- SNS 버튼 (배지 크기 증가) -->
@@ -72,7 +73,7 @@
 </template>
 
 <script>
-import { onMounted, ref } from "vue";
+import {onMounted, reactive, ref} from "vue";
 import apiWrapper from "../../util/axios/axios.js";
 
 export default {
@@ -86,18 +87,49 @@ export default {
     const profileImage = ref(null); // 썸네일 URL
     const fileId = ref(null); // 파일 ID
     const fileInput = ref(null); // input 요소에 대한 ref
-
+    const userInfo = reactive({
+      id: null,
+      email: '',
+      userNick: '',
+      provider: ''
+    });
 
     const fetchInitialProfileImage = async () => {
       try {
         const response = await apiWrapper.getData(`/api/get/profileimage`);
+
+        if (response.status === 204 ) {
+          console.warn("초기 프로필 이미지가 없습니다.");
+          return;
+        }
+
         const fileData = response; // 서버 응답이 바로 FileDTO 객체라고 가정
         console.log(response);
         profileImage.value = fileData.signedUrl; // 썸네일 URL 설정
         fileId.value = fileData.fileId; // fileId 저장
       } catch (error) {
-        console.error("초기 썸네일 가져오기 실패:", error);
+        console.error("프로필 가져오기 실패:", error);
       }
+    };
+
+    const fetchInitialUserInfo = async () => {
+      try {
+        const response = await apiWrapper.getData(`/api/get/user`);
+        const data = response;
+        console.log(data);
+
+        // reactive 상태 업데이트
+        userInfo.id = data.id;
+        userInfo.email = data.email;
+        userInfo.userNick = data.userNick;
+        userInfo.provider = data.provider;
+      } catch (error) {
+        console.error("사용자 정보 가져오기 실패", error);
+      }
+    }
+
+    const myMaker = async () => {
+      router.push('/mywadiz/maker');
     };
 
     // 파일 업로드 처리
@@ -166,7 +198,8 @@ export default {
       onImageUpload,
       removeImage,
       profileImage,
-      fileId
+      fileId,
+      userInfo
     }
   }
 };

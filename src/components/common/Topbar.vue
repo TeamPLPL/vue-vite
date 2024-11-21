@@ -70,12 +70,18 @@ export default {
     const fetchInitialProfileImage = async () => {
       try {
         const response = await apiWrapper.getData(`/api/get/profileimage`);
+
+        if (response.status === 204 ) {
+          console.warn("초기 프로필 이미지가 없습니다.");
+          return;
+        }
+
         const fileData = response; // 서버 응답이 바로 FileDTO 객체라고 가정
         console.log(response);
         profileImage.value = fileData.signedUrl; // 썸네일 URL 설정
         fileId.value = fileData.fileId; // fileId 저장
       } catch (error) {
-        console.error("초기 썸네일 가져오기 실패:", error);
+        console.error("프로필 가져오기 실패:", error);
       }
     };
 
@@ -159,7 +165,11 @@ export default {
           checkLoginStatus();
         }
       });
-      fetchInitialProfileImage(); // 컴포넌트 초기화 시 썸네일 데이터 가져오기
+      // jwtToken이 null이 아닐 때만 fetchInitialProfileImage 호출
+      const jwtToken = localStorage.getItem('jwtToken');
+      if (jwtToken) {
+        fetchInitialProfileImage();
+      }
     });
 
     return {
