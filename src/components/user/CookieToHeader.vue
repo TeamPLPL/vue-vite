@@ -4,7 +4,7 @@
   </template>
 
 <script>
-import axios from 'axios';
+import axios from "axios";
 import { ref, computed } from 'vue';
 import { useRouter } from 'vue-router';
 
@@ -21,7 +21,7 @@ export default {
     const getJwtFromBackend = async () => {
       try {
         // 백엔드로 요청하여 JWT를 헤더로 받아옴
-        const response = await axios.get("http://localhost:8080/api/cookie-to-header", { withCredentials: true });
+        const response = await axios(`http://localhost:8080/api/cookie-to-header`, { withCredentials: true });
 
         // 헤더에서 JWT 추출
         const token = response.headers['authorization']?.split(" ")[1];
