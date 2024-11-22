@@ -2,100 +2,125 @@
     <div id="funding" class="container-xxl">
         <div class="row">
             <!-- 좌측 본문 영역 -->
-            <div class="main-content col-lg-8">
+            <div class="main-content col-xl">
                 <RouterView v-slot="{ Component }">
                     <component :is="Component" :fundingId="fundingId" @showNoticeDetail="handleShowNoticeDetail" />
                 </RouterView>
             </div>
 
             <!-- 우측 사이드바 -->
-            <div id="side-container sticky-top" class="col-lg-4" style="top: 300px;">
-                <div v-if="fundingData">
-                    <div id="funding-data-container" class="border border-light boarder-1 rounded-3 p-3">
-                        <div class="d-flex justify-content-between align-items-center ms-3">
-                            <div>
-                                {{ fundingData.mainCategoryNm }}&nbsp;&nbsp;>&nbsp;&nbsp;{{ fundingData.subCategoryNm }}
-                            </div>
-                            <div class="me-3 d-flex align-items-center">
-                                <img v-if="isInWishlist" class="wish cursor-pointer" src="../../assets/wish.png"
-                                    alt="찜 되어 있음" @click="toggleWishlist(fundingId)">
-                                <img v-else class="wish cursor-pointer" src="../../assets/wish-not.png" alt="찜 되어있지 않음"
-                                    @click="toggleWishlist(fundingId)">
-                                &nbsp;&nbsp;
-                                <div class="me-3 share-container">
-                                    <img class="share cursor-pointer" src="../../assets/share.png" alt="공유하기"
-                                        @click="toggleShareModal">
+            <div class="col-12 col-xl-5">
+                <div id="side-container" class="sticky-top" style="top: 20px;">
+                    <div v-if="fundingData">
+                        <!-- 펀딩 정보 컨테이너 -->
+                        <div id="funding-data-container" class="border border-light boarder-1 rounded-3 p-3 mb-3">
+                            <div class="d-flex justify-content-between align-items-center ms-3">
+                                <div>
+                                    {{ fundingData.mainCategoryNm }}&nbsp;&nbsp;>&nbsp;&nbsp;{{
+                                        fundingData.subCategoryNm }}
+                                </div>
+                                <div class="me-3 d-flex align-items-center">
+                                    <img v-if="isInWishlist" class="wish cursor-pointer" src="../../assets/wish.png"
+                                        alt="찜 되어 있음" @click="toggleWishlist(fundingId)">
+                                    <img v-else class="wish cursor-pointer" src="../../assets/wish-not.png"
+                                        alt="찜 되어있지 않음" @click="toggleWishlist(fundingId)">
+                                    &nbsp;&nbsp;
+                                    <div class="me-3 share-container">
+                                        <img class="share cursor-pointer" src="../../assets/share.png" alt="공유하기"
+                                            @click="toggleShareModal">
 
-                                    <div v-if="showShareModal" class="share-modal d-flex flex-row gap-2">
-                                        <button @click="shareKakao">카카오 공유</button>
-                                        <button @click="shareNaver">네이버 공유</button>
-                                        <button @click="copyUrl">URL 복사</button> <!-- URL 복사 버튼 -->
+                                        <div v-if="showShareModal" class="share-modal d-flex flex-row gap-2">
+                                            <button @click="shareKakao">카카오 공유</button>
+                                            <button @click="shareNaver">네이버 공유</button>
+                                            <button @click="copyUrl">URL 복사</button> <!-- URL 복사 버튼 -->
+                                        </div>
                                     </div>
                                 </div>
-                                <!-- <img class="share" src="../../assets/share.png" alt="공유하기" @click="toggleShareModal">
-
-                                <div v-if="showShareModal" class="share-modal">
-                                    <button @click="shareKakao">카카오 공유</button>
-                                    <button @click="shareNaver">네이버 공유</button>
-                                    <button @click="copyUrl">URL 복사</button>
-                                </div> -->
+                            </div>
+                            <div class="m-1 mt-3 text-start">
+                                <div>
+                                    <h2 id="funding-title">{{ fundingData.fundingTitle }}</h2>
+                                    <span v-for="tag in tagList" :key="tag" class="tag">#{{ tag }}&nbsp;&nbsp;</span>
+                                </div>
+                                <div class="row mt-3">
+                                    <div class="col">{{ fundingData.supportCnt }}명 참여</div>
+                                    <div class="col">{{ leftDate }}일 남음</div>
+                                </div>
+                                <div class="row">
+                                    <div class="col">{{ fundingData.currentAmount }}원 달성</div>
+                                    <div class="col">{{ fundingData.achievementRate }}% 달성</div>
+                                </div>
+                                <div>펀딩 목표금액: {{ fundingData.targetAmount }}</div>
                             </div>
                         </div>
-                        <!-- <hr class="secondary"> -->
-                        <div class="m-1 mt-3 text-start">
-                            <div>
-                                <h2 id="funding-title">{{ fundingData.fundingTitle }}</h2>
-                                <span v-for="tag in tagList" :key="tag" class="tag">#{{ tag }}&nbsp;&nbsp;</span>
+
+                        <!-- 메이커 정보 컨테이너  -->
+                        <div id="maker-container" class="border border-light boarder-1 rounded-3 p-3 mb-3">
+                            <div class="maker-info">
+                                <img :src="getProfileUrl(maker.profileImgUrl)" alt="펀딩 메이커의 프로필 이미지"
+                                    class="maker-profile-img cursor-pointer">
+                                <div class="maker-nick">
+                                    {{ maker.userNick }}
+                                    <img v-if="maker.isFollowing" class="wish cursor-pointer"
+                                        src="../../assets/followed.png" alt="팔로우 되어 있음">
+                                    <img v-else class="wish cursor-pointer" src="../../assets/unfollowed.png"
+                                        alt="팔로우 되어있지 않음">
+                                </div>
                             </div>
-                            <div class="row mt-3">
-                                <div class="col">{{ fundingData.supportCnt }}명 참여</div>
-                                <div class="col">{{ leftDate }}일 남음</div>
-                            </div>
-                            <div class="row">
-                                <div class="col">{{ fundingData.currentAmount }}원 달성</div>
-                                <div class="col">{{ fundingData.achievementRate }}% 달성</div>
-                            </div>
-                            <div>펀딩 목표금액: {{ fundingData.targetAmount }}</div>
+                            <div class="mt-2 text-start">{{ maker.userContent }}</div>
                         </div>
                     </div>
 
-                    <div id="maker-container" class="border border-light boarder-1 rounded-3 p-3 mt-2">
-                        <div class="maker-info">
-                            <img :src="getProfileUrl(maker.profileImgUrl)" alt="펀딩 메이커의 프로필 이미지"
-                                class="maker-profile-img cursor-pointer">
-                            <div class="maker-nick">
-                                {{ maker.userNick }}
-                                <img v-if="maker.isFollowing" class="wish cursor-pointer"
-                                    src="../../assets/followed.png" alt="팔로우 되어 있음">
-                                <img v-else class="wish cursor-pointer" src="../../assets/unfollowed.png"
-                                    alt="팔로우 되어있지 않음">
+                    <div id="reward-container" class="border border-light boarder-1 rounded-3 p-3">
+                        <div class="reward-header">
+                            <h3 class="reward-title">리워드 선택</h3>
+                            <p class="funding-period">{{ fundingStartDate }} ~ {{ fundingEndDate }}</p>
+                        </div>
+                        <div class="reward-items-wrapper">
+                            <div v-for="reward in rewardList" :key="reward.rewardId"
+                                class="reward-item text-start mb-3 w-100" @click="selectReward(reward)"
+                                :class="{ 'selected': isRewardSelected(reward.rewardId) }">
+                                <div class="reward-price">{{ reward.price.toLocaleString() }}원</div>
+                                <h4 class="reward-name">{{ reward.rewardName }}</h4>
+                                <div class="reward-quantity">
+                                    <span class="quantity-left">
+                                        {{ (reward.quantityLimit > 0 ? reward.quantityLimit - reward.supportedCnt : 999)
+                                        }}개
+                                        남음
+                                    </span>
+                                </div>
                             </div>
                         </div>
-                        <div class="mt-2 text-start">{{ maker.userContent }}</div>
-                    </div>
-                </div>
 
-                <div id="reward-container" class="mt-4">
-                    <div class="reward-header">
-                        <h3 class="reward-title">리워드 선택</h3>
-                        <p class="funding-period">{{ fundingStartDate }} ~ {{ fundingEndDate }}</p>
-                    </div>
-                    <!-- 스크롤 가능한 컨테이너 추가 -->
-                    <div class="reward-items-wrapper sticky-reward">
-                        <div v-for="reward in rewardList" :key="reward.id" class="reward-item text-start">
-                            <div class="reward-price">{{ reward.price.toLocaleString() }}원</div>
-                            <h4 class="reward-name">{{ reward.rewardName }}</h4>
-                            <p class="reward-description">{{ reward.explanation }}</p>
-                            <div class="reward-details">
-                                <p>배송비: {{ reward.deliveryFee.toLocaleString() }}원</p>
-                                <p>리워드 발송 시작 예정일: {{ formatDeliveryDate(reward.deliveryStartDate) }}</p>
+                        <div v-if="selectedRewards.length > 0" class="selected-rewards-container mt-3">
+                            <div v-for="selectedReward in selectedRewards" :key="selectedReward.id"
+                                class="selected-reward-item p-3 mb-2 w-100">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <h5 class="mb-0">{{ selectedReward.rewardName }}</h5>
+                                    <button class="btn-close"
+                                        @click.stop="removeSelectedReward(selectedReward)"></button>
+                                </div>
+                                <div class="quantity-selector mt-2 d-flex align-items-center">
+                                    <button class="btn btn-outline-secondary btn-sm"
+                                        @click.stop="decreaseQuantity(selectedReward)"
+                                        :disabled="selectedReward.quantity <= 1">-</button>
+                                    <input type="text" class="form-control form-control-sm mx-2 text-center"
+                                        style="width: 60px;" v-model="selectedReward.quantity" readonly>
+                                    <button class="btn btn-outline-secondary btn-sm"
+                                        @click.stop="increaseQuantity(selectedReward)"
+                                        :disabled="!canIncreaseQuantity(selectedReward)">+</button>
+                                    <span class="ms-3">
+                                        {{ (selectedReward.price * selectedReward.quantity).toLocaleString() }}원
+                                    </span>
+                                </div>
                             </div>
-                            <div class="reward-quantity">
-                                <span class="quantity-left">{{ (reward.quantityLimit > 0 ? reward.quantityLimit -
-                                    reward.supportedCnt : 999) }}개 남음</span>
-                                <span class="quantity-total">총 {{ reward.quantityLimit > 0 ? reward.quantityLimit : 999
-                                    }}개</span>
-                            </div>
+                        </div>
+                        <!-- 후원하기 버튼 -->
+                        <div class="mt-3 mx-2">
+                            <button id="support-button" class="btn btn-primary btn-lg w-100"
+                                @click="handleSupportPurchase">
+                                후원하기
+                            </button>
                         </div>
                     </div>
                 </div>
@@ -126,60 +151,86 @@ const wishlistStore = useWishlistStore();
 
 const handleScroll = () => {
     const rewardContainer = document.getElementById('reward-container');
-    const rewardItemsWrapper = document.querySelector('.reward-items-wrapper');
     const fundingDataContainer = document.getElementById('funding-data-container');
     const footer = document.querySelector('footer');
 
-    if (!rewardContainer || !rewardItemsWrapper || !fundingDataContainer || !footer) return;
+    if (!rewardContainer || !fundingDataContainer || !footer) return;
 
-    const fundingDataBottom = fundingDataContainer.getBoundingClientRect().bottom + window.scrollY;
-    const footerTop = footer.getBoundingClientRect().top + window.scrollY;
-    const footerHeight = footer.offsetHeight; // 푸터 높이
-    const rewardContainerHeight = rewardContainer.offsetHeight;
-    const windowScrollTop = window.scrollY;
+    // xl 브레이크포인트 체크 (1200px)
+    if (window.innerWidth >= 1200) {
+        const fundingDataBottom = fundingDataContainer.getBoundingClientRect().bottom;
+        const footerTop = footer.getBoundingClientRect().top;
+        const windowHeight = window.innerHeight;
+        const scrollY = window.scrollY;
 
-    const desiredSpacing = 30; // 상단 여백
-    const footerBuffer = footerHeight + 20; // 푸터와의 거리 설정 (푸터 높이 + 추가 여백)
-    const initialHeight = 300; // 초기 높이
-    const viewportHeight = window.innerHeight;
-    const wrapperScrollHeight = rewardItemsWrapper.scrollHeight; // .reward-items-wrapper의 실제 스크롤 높이
+        if (fundingDataBottom > 0) {
+            rewardContainer.style.position = 'static';
+        } else if (footerTop > windowHeight) {
+            rewardContainer.style.position = 'fixed';
+            rewardContainer.style.top = '20px';
+            rewardContainer.style.width = rewardContainer.parentElement.offsetWidth + 'px';
+        } else {
+            const bottomPosition = windowHeight - footerTop;
+            rewardContainer.style.position = 'absolute';
+            rewardContainer.style.bottom = bottomPosition + 'px';
+            rewardContainer.style.top = 'auto';
+        }
 
-    // 스크롤에 따른 reward-container의 높이 계산
-    const availableHeight = footerTop - windowScrollTop - footerBuffer;
-
-    if (windowScrollTop < fundingDataBottom) {
-        // 1. 맨 위: rewardContainer가 fundingDataContainer에 붙음
-        rewardContainer.style.position = 'sticky';
-        rewardContainer.style.top = `${fundingDataContainer.offsetHeight}px`;
-        rewardItemsWrapper.style.maxHeight = `${initialHeight}px`;
-    } else if (windowScrollTop >= fundingDataBottom && footerTop > windowScrollTop + viewportHeight) {
-        // 2. fundingDataContainer가 화면에서 벗어남: rewardContainer가 화면 높이를 기준으로 확장
-        rewardContainer.style.position = 'fixed';
-        rewardContainer.style.top = `${desiredSpacing}px`;
-        rewardItemsWrapper.style.maxHeight = `${Math.min(wrapperScrollHeight, viewportHeight - desiredSpacing)}px`;
-    } else if (footerTop <= windowScrollTop + viewportHeight && footerTop > windowScrollTop + rewardContainerHeight) {
-        // 3. 푸터와 가까워질 때: rewardContainer 높이를 줄임
-        rewardContainer.style.position = 'fixed';
-        rewardContainer.style.top = `${desiredSpacing}px`;
-
-        const shrinkingHeight = footerTop - windowScrollTop - footerBuffer;
-        rewardItemsWrapper.style.maxHeight = `${Math.max(initialHeight, Math.min(wrapperScrollHeight, shrinkingHeight))}px`;
-    } else if (footerTop <= windowScrollTop + footerBuffer) {
-        // 4. 푸터 근처: 푸터에서 footerBuffer만큼 떨어진 위치에 고정
-        rewardContainer.style.position = 'absolute';
+        updateRewardContainerWidth();
+    } else {
+        // xl 미만일 때는 모든 스타일 초기화
+        rewardContainer.style.position = 'static';
         rewardContainer.style.top = 'auto';
-        rewardContainer.style.bottom = `${footerBuffer}px`; // 푸터에서 footerBuffer만큼 떨어짐
-        const maxHeight = footerTop - windowScrollTop - footerBuffer;
-        rewardItemsWrapper.style.maxHeight = `${Math.max(initialHeight, Math.min(wrapperScrollHeight, maxHeight))}px`; // 최소 높이 보장
-    }
-
-    // ** 위로 스크롤 시 높이 복구 로직 추가 **
-    if (windowScrollTop < fundingDataBottom) {
-        rewardContainer.style.position = 'sticky';
-        rewardContainer.style.top = `${fundingDataContainer.offsetHeight}px`;
-        rewardItemsWrapper.style.maxHeight = `${Math.min(wrapperScrollHeight, viewportHeight - desiredSpacing)}px`;
+        rewardContainer.style.bottom = 'auto';
+        rewardContainer.style.width = 'auto';
     }
 };
+
+const updateSidebarPosition = () => {
+    const sideContainer = document.getElementById('side-container');
+    const footer = document.querySelector('footer');
+    const mainContent = document.querySelector('.main-content');
+
+    if (!sideContainer || !footer || !mainContent) return;
+
+    // xl 브레이크포인트 체크 (1200px)
+    if (window.innerWidth >= 1200) {
+        const sideContainerRect = sideContainer.getBoundingClientRect();
+        const footerRect = footer.getBoundingClientRect();
+        const mainContentRect = mainContent.getBoundingClientRect();
+        const sideContainerBottom = sideContainerRect.bottom + window.scrollY;
+        const footerTop = footerRect.top + window.scrollY;
+        const mainContentBottom = mainContentRect.bottom + window.scrollY;
+
+        if (sideContainerBottom + 20 > footerTop) {
+            sideContainer.style.position = 'absolute';
+            sideContainer.style.top = `${mainContentBottom - sideContainer.offsetHeight}px`;
+        } else if (window.scrollY > mainContentRect.top) {
+            sideContainer.style.position = 'fixed';
+            sideContainer.style.top = '20px';
+            sideContainer.style.width = `${sideContainer.offsetWidth}px`;
+        } else {
+            sideContainer.style.position = 'static';
+            sideContainer.style.width = 'auto';
+        }
+
+        updateRewardContainerWidth();
+    } else {
+        // xl 미만일 때는 모든 스타일 초기화
+        sideContainer.style.position = 'static';
+        sideContainer.style.top = 'auto';
+        sideContainer.style.width = 'auto';
+    }
+};
+
+const updateRewardContainerWidth = () => {
+    const sideContainer = document.getElementById('side-container');
+    const rewardContainer = document.getElementById('reward-container');
+    if (sideContainer && rewardContainer) {
+        rewardContainer.style.width = `${sideContainer.offsetWidth}px`;
+    }
+};
+
 /////////// 사이드바 고정 완
 
 
@@ -318,6 +369,11 @@ provide('fundingTitle', fundingTitle)
 
 onUnmounted(() => {
     window.removeEventListener('scroll', handleScroll);
+    window.removeEventListener('resize', handleScroll);
+    window.removeEventListener('scroll', updateSidebarPosition);
+    window.removeEventListener('resize', updateSidebarPosition);
+
+    window.removeEventListener('resize', updateRewardContainerWidth);
 });
 
 onMounted(async () => {
@@ -329,6 +385,7 @@ onMounted(async () => {
     ])
 
     fundingData.value = data
+    console.log("rewards: " + rewards)
     rewardList.value = rewards
 
     fundingExplanation.value = fundingData.value.fundingExplanation;
@@ -350,7 +407,18 @@ onMounted(async () => {
     maker.value = data.makerDTO
 
     await checkWishlistStatus();
-    window.addEventListener('scroll', handleScroll)
+
+
+    window.addEventListener('scroll', handleScroll);
+    window.addEventListener('resize', handleScroll);
+    window.addEventListener('scroll', updateSidebarPosition);
+    window.addEventListener('resize', updateSidebarPosition);
+
+    window.addEventListener('resize', updateRewardContainerWidth);
+    updateRewardContainerWidth(); // 초기 로드 시 실행
+
+    handleScroll();
+    updateSidebarPosition();
 },
     // window.addEventListener('scroll', handleScroll)
 )
@@ -445,9 +513,120 @@ const handleShowNoticeDetail = (noticeId) => {
 
 
 
+
+
+////////// 리워드 선택 시작
+
+const selectedRewards = ref([]);
+
+
+const selectReward = (reward) => {
+    if (!isAuthenticated.value) {
+        alert("로그인이 필요한 기능입니다.")
+        return;
+    }
+
+    if (!validateRewardSelection(reward)) return;
+
+    const existingRewardIndex = selectedRewards.value.findIndex(r => r.rewardId === reward.rewardId);
+    if (existingRewardIndex === -1) {
+        // 새로운 리워드 추가
+        const newReward = {
+            rewardId: reward.rewardId,
+            rewardName: reward.rewardName,
+            price: reward.price,
+            quantity: 1,
+            quantityLimit: reward.quantityLimit || Infinity,
+            supportedCnt: reward.supportedCnt,
+            deliveryFee: reward.deliveryFee
+        };
+        selectedRewards.value.push(newReward);
+    } else {
+        // 이미 선택된 리워드라면 수량 증가
+        increaseQuantity(selectedRewards.value[existingRewardIndex]);
+    }
+};
+
+const validateRewardSelection = (reward) => {
+    const remainingQuantity = reward.quantityLimit ? reward.quantityLimit - reward.supportedCnt : Infinity;
+    if (remainingQuantity <= 0) {
+        alert('이 리워드의 수량이 모두 소진되었습니다.');
+        return false;
+    }
+    return true;
+};
+
+const removeSelectedReward = (reward) => {
+    const index = selectedRewards.value.findIndex(r => r.rewardId === reward.rewardId);
+    if (index !== -1) {
+        selectedRewards.value.splice(index, 1);
+    }
+};
+
+const increaseQuantity = (reward) => {
+    if (canIncreaseQuantity(reward)) {
+        reward.quantity++;
+    }
+};
+
+const decreaseQuantity = (reward) => {
+    if (reward.quantity > 1) {
+        reward.quantity--;
+    } else {
+        removeSelectedReward(reward);
+    }
+};
+
+const canIncreaseQuantity = (reward) => {
+    const remainingQuantity = reward.quantityLimit ? reward.quantityLimit - reward.supportedCnt : Infinity;
+    return reward.quantity < remainingQuantity;
+};
+
+const isRewardSelected = (rewardId) => {
+    return selectedRewards.value.some(r => r.rewardId === rewardId);
+};
+
+
+
+
+////////// 리워드 선택 끝
+
+
+/////// 구매하기
+
+const handleSupportPurchase = () => {
+    if (!isAuthenticated.value) {
+        alert('로그인이 필요한 기능입니다.')
+        return;
+    }
+
+    if (selectedRewards.value.length === 0) {
+        alert('리워드를 선택해주세요.');
+        return;
+    }
+
+    console.log('selectedRewards:', selectedRewards.value);
+
+    // selectedRewards에서 rewardId와 count만 추출
+    const simplifiedRewards = selectedRewards.value.map(reward => ({
+        rewardId: reward.rewardId,
+        count: reward.quantity
+    }));
+
+    console.log('simplifiedRewards:', simplifiedRewards);
+
+    router.push({
+        name: 'ChooseReward',
+        params: { id: fundingId.value },
+        // state: { selectedRewards: simplifiedRewards }
+        query: { selectedRewards: JSON.stringify(simplifiedRewards) }
+    });
+};
+
+////////
 </script>
 
-<style>
+<style scoped>
 #funding {
     padding: 0;
     padding-bottom: 20px;
@@ -460,10 +639,32 @@ const handleShowNoticeDetail = (noticeId) => {
 }
 
 #side-container {
-    padding: 0;
+    /* padding: 0;
     text-align: justify;
     height: 100vh;
     overflow-y: auto;
+    transition: all 0.3s ease;
+    position: relative; */
+
+    padding: 0;
+    text-align: justify;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow-x: hidden;
+}
+
+@media (min-width: 1200px) {
+    #side-container {
+        height: 100vh;
+        overflow-y: auto;
+        overflow-x: hidden;
+    }
+
+    #reward-container {
+        max-height: calc(100vh - 40px);
+        overflow-y: auto;
+        overflow-x: hidden;
+    }
 }
 
 .sticky-top {
@@ -471,6 +672,7 @@ const handleShowNoticeDetail = (noticeId) => {
     top: 70px;
     max-height: calc(100vh - 70px);
     overflow-y: auto;
+    overflow-x: hidden;
 }
 
 .maker-info {
@@ -521,55 +723,57 @@ const handleShowNoticeDetail = (noticeId) => {
     font-weight: bold;
 }
 
-/* #reward-container {
-    position: sticky;
-    top: 70px;
-    z-index: 2000;
-    background-color: #fff;
-} */
 #reward-container {
-    position: sticky;
-    top: 20px;
-    /* 페이지 상단에서 20px 떨어진 위치에서 고정 */
-    max-height: calc(100vh - 40px);
-    /* 화면 높이에서 여유 공간 확보 */
-    overflow-y: auto;
-    /* 내부 스크롤 활성화 */
-    background-color: #fff;
-    /* 배경색 설정 */
+    background-color: #f8f9fa;
     padding: 10px;
-    /* 여백 추가 */
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-    /* 시각적인 구분을 위한 그림자 효과 */
 }
 
-/* 리워드 아이템들을 감싸는 새로운 div 추가 */
 .reward-items-wrapper {
-    max-height: 300px;
-    /* 조정 가능한 값 */
-    overflow-y: auto;
+    /* max-height: calc(100vh - 300px);
+    overflow-y: auto;*/
+    overflow-y: visible;
+    overflow-x: hidden;
     scrollbar-width: thin;
-    /* Firefox에서 얇은 스크롤바 */
     scrollbar-color: #cccccc #ffffff;
-    /* Firefox에서 스크롤바 색상 */
     transition: max-height 0.3s ease;
-    /* 부드러운 높이 변경 효과 */
+    padding-right: 10px;
 }
 
+/* 스크롤바 스타일링
 .reward-items-wrapper::-webkit-scrollbar {
-    width: 8px;
-    /* 스크롤바 너비 */
-}
-
-.reward-items-wrapper::-webkit-scrollbar-thumb {
-    background-color: #cccccc;
-    /* 스크롤바 색상 */
-    border-radius: 4px;
+    width: 6px;
 }
 
 .reward-items-wrapper::-webkit-scrollbar-track {
-    background-color: #ffffff;
-    /* 트랙 색상 */
+    background: #f1f1f1;
+}
+
+.reward-items-wrapper::-webkit-scrollbar-thumb {
+    background: #888;
+    border-radius: 3px;
+}
+
+.reward-items-wrapper::-webkit-scrollbar-thumb:hover {
+    background: #555;
+}
+     */
+
+#side-container::-webkit-scrollbar {
+    width: 6px;
+}
+
+#side-container::-webkit-scrollbar-track {
+    background: #f1f1f1;
+}
+
+#side-container::-webkit-scrollbar-thumb {
+    background: #888;
+    border-radius: 3px;
+}
+
+#side-container::-webkit-scrollbar-thumb:hover {
+    background: #555;
 }
 
 .reward-header {
@@ -578,7 +782,7 @@ const handleShowNoticeDetail = (noticeId) => {
     align-items: center;
     margin-bottom: 15px;
     padding-bottom: 15px;
-    border-bottom: 1px solid #e0e0e0;
+    border-bottom: 1px solid #dee2e6;
 }
 
 .reward-title {
@@ -593,11 +797,164 @@ const handleShowNoticeDetail = (noticeId) => {
     margin: 0;
 }
 
-.reward-item {
+
+
+
+
+
+
+
+
+@media (min-width: 576px) {
+
+    .reward-item,
+    .selected-reward-item {
+        width: 100%;
+    }
+}
+
+@media (min-width: 768px) {
+
+    .reward-item,
+    .selected-reward-item {
+        width: 100%;
+    }
+}
+
+@media (min-width: 992px) {
+
+    .reward-item,
+    .selected-reward-item {
+        width: 100%;
+    }
+}
+
+@media (min-width: 1200px) {
+
+    .reward-item,
+    .selected-reward-item {
+        width: 100%;
+    }
+}
+
+@media (min-width: 1400px) {
+
+    .reward-item,
+    .selected-reward-item {
+        width: 100%;
+    }
+}
+
+.selected-rewards-container {
+    padding-right: 10px;
+}
+
+
+
+
+.reward-item,
+.selected-reward-item {
+    width: 100%;
+    padding: 15px;
+    background-color: #ffffff;
     border: 1px solid #e0e0e0;
     border-radius: 8px;
-    padding: 20px;
-    margin-bottom: 15px;
+    margin-bottom: 10px;
+    box-sizing: border-box;
+}
+
+.reward-item {
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.reward-item:hover {
+    background-color: #f8f9fa;
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+}
+
+.reward-item.selected {
+    border: 2px solid #00b2b2;
+    background-color: #f0ffff;
+}
+
+.selected-reward-item {
+    background-color: #f8f9fa;
+    border: 1px solid #dee2e6;
+    border-radius: 8px;
+}
+
+.quantity-selector {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: 10px;
+}
+
+.quantity-selector input {
+    width: 60px;
+    text-align: center;
+}
+
+.quantity-selector button {
+    width: 30px;
+    height: 30px;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+
+
+
+
+
+
+/*
+.reward-item {
+    padding: 15px;
+    background-color: #ffffff;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.reward-item:hover {
+    background-color: #f8f9fa;
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+}
+
+.reward-item.selected {
+    border: 2px solid #00b2b2;
+    background-color: #f0ffff;
+}
+
+.selected-reward-item {
+    background-color: #f8f9fa;
+    border: 1px solid #dee2e6;
+    border-radius: 8px;
+}
+
+
+.quantity-selector input {
+    border: 1px solid #dee2e6;
+    border-radius: 4px;
+}
+
+.quantity-selector button {
+    width: 30px;
+    height: 30px;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+        */
+
+.btn-close {
+    font-size: 0.8rem;
 }
 
 .reward-price {
@@ -689,5 +1046,23 @@ const handleShowNoticeDetail = (noticeId) => {
 
 .cursor-pointer {
     cursor: pointer;
+}
+
+#suppport-button {
+    background-color: #00b2b2;
+    border-color: #00b2b2;
+    font-weight: bold;
+    transition: background-color 0.3s ease;
+}
+
+#suppport-button:hover:not(:disabled) {
+    background-color: #009999;
+    border-color: #009999;
+}
+
+#suppport-button:disabled {
+    background-color: #cccccc;
+    border-color: #cccccc;
+    cursor: not-allowed;
 }
 </style>
