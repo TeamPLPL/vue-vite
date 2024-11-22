@@ -14,10 +14,9 @@
           <!-- 로그인 상태일 때 표시 -->
           <template v-if="isLoggedIn">
             <li class="nav-item">
-              <img v-if="!fileId" src="https://static.wadiz.kr/assets/icon/profile-icon-5.png" class="profile" style="cursor:pointer;"
-                @click="profile">
-              <img v-else :src="profileImage" class="profile" style="cursor:pointer;"
-                   @click="profile">
+              <img v-if="!fileId" src="https://static.wadiz.kr/assets/icon/profile-icon-5.png" class="profile"
+                style="cursor:pointer;" @click="profile">
+              <img v-else :src="profileImage" class="profile" style="cursor:pointer;" @click="profile">
             </li>
             <li class="nav-item">
               <button type="button" class="btn btn-light" @click="logout">로그아웃</button>
@@ -35,10 +34,10 @@
           </template> -->
           <template v-else-if="authStore.isInitialized">
             <li class="nav-item">
-              <button @click="login">로그인</button>
+              <button class="btn btn-light" @click="login">로그인</button>
             </li>
             <li class="nav-item">
-              <button @click="signup">회원가입</button>
+              <button class="btn btn-light" @click="signup">회원가입</button>
             </li>
           </template>
 
@@ -71,7 +70,7 @@ export default {
       try {
         const response = await apiWrapper.getData(`/api/get/profileimage`);
 
-        if (response.status === 204 ) {
+        if (response.status === 204) {
           console.warn("초기 프로필 이미지가 없습니다.");
           return;
         }

@@ -6,7 +6,7 @@
         </div>
     </div>
     <div class="expl-container">
-        {{ fundingExplanation }}
+        <div v-html="fundingExplanation"></div>
     </div>
     <div>
         <!-- <div v-for="(detailImg, index) in detailImgList" :key="index">
@@ -71,6 +71,13 @@ const handleImageError = (event) => {
 const detailUrlComputed = computed((url) => {
     return url || defaultImageUrl;
 })
+
+////////// FundingExplanation Start
+
+
+
+//////////FundingExplanation End
+
 
 </script>
 

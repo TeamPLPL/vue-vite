@@ -1,4 +1,3 @@
-text
 <template>
     <div class="funding-notice">
         <div class="notice-header">

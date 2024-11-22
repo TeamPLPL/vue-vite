@@ -1,68 +1,68 @@
 <template>
-  <nav class="navbar sticky-top navbar-light bg-light">
-    <div class="container-sm ps-0">
-      <div class="container-fluid pe-3">
-        <div class="d-flex align-items-center w-100">
-          <!-- 왼쪽 화살표 버튼 -->
-          <button class="btn btn-link nav-arrow" @click="scrollLeft" :disabled="isScrolledLeft">
-            <i class="bi bi-chevron-left"></i>
-          </button>
+  <div class="navbar-wrapper">
+    <nav class="navbar sticky-top navbar-light bg-light">
+      <div class="container-sm ps-0">
+        <div class="container-fluid pe-3">
+          <div class="d-flex align-items-center w-100">
+            <!-- 왼쪽 화살표 버튼 -->
+            <button class="btn btn-link nav-arrow" @click="scrollLeft" :disabled="isScrolledLeft">
+              <i class="bi bi-chevron-left"></i>
+            </button>
 
-          <!-- 메인 카테고리 네비게이션 -->
-          <div class="nav-scroll me-3" ref="navScroll">
-            <ul class="nav nav-underline flex-nowrap">
-              <li class="nav-item" v-for="(item, index) in menuItems" :key="index"
-                @mouseenter="handleNavItemMouseEnter(item.mainCategoryId)">
-                <a class="nav-link" href="#" :class="{ active: activeCategory === item.mainCategoryId }"
-                  @click.prevent="setActiveCategory(item.mainCategoryId)">
-                  {{ item.mainCategoryName }}
-                </a>
-              </li>
-            </ul>
-          </div>
-
-          <!-- 오른쪽 화살표 버튼 -->
-          <button class="btn btn-link nav-arrow" @click="scrollRight" :disabled="isScrolledRight">
-            <i class="bi bi-chevron-right"></i>
-          </button>
-
-          <!-- 검색 폼 -->
-          <form class="d-flex ms-auto search-form" role="search" @submit.prevent="handleSearch">
-            <div class="input-group">
-              <input class="form-control border-end-0" type="search" v-model="searchQuery" placeholder="Search"
-                aria-label="Search" @keyup.enter="handleSearch">
-              <button class="btn border-start-0 search-button" type="submit">
-                <i class="bi bi-search"></i>
-              </button>
+            <!-- 메인 카테고리 네비게이션 -->
+            <div class="nav-scroll me-3" ref="navScroll">
+              <ul class="nav nav-underline flex-nowrap">
+                <li class="nav-item" v-for="(item, index) in menuItems" :key="index"
+                  @mouseenter="handleNavItemMouseEnter(item.mainCategoryId)">
+                  <a class="nav-link" href="#" :class="{ active: activeCategory === item.mainCategoryId }"
+                    @click.prevent="setActiveCategory(item.mainCategoryId)">
+                    {{ item.mainCategoryName }}
+                  </a>
+                </li>
+              </ul>
             </div>
-          </form>
-        </div>
-      </div>
 
-      <!-- 서브 카테고리 리스트 표시 영역 -->
-      <div class="sub-category-container" v-if="shouldShowSubCategories" @mouseenter="handleSubCategoryMouseEnter"
-        @mouseleave="handleSubCategoryMouseLeave">
-        <div class="container-sm">
-          <div class="container-fluid px-3">
-            <ul class="sub-category-list">
-              <li class="main-category-item">
-                <a href="#" @click.prevent="handleMainCategoryClick(activeMainCategory.mainCategoryId)">
-                  {{ activeMainCategory.mainCategoryName }} 전체
-                </a>
-              </li>
-              <li v-for="(subCategory, index) in subCategoryList" :key="index">
-                <a href="#" @click.prevent="handleSubCategoryClick(subCategory.subCategoryId)">
-                  {{ subCategory.subCategoryName }}
-                </a>
-              </li>
-            </ul>
+            <!-- 오른쪽 화살표 버튼 -->
+            <button class="btn btn-link nav-arrow" @click="scrollRight" :disabled="isScrolledRight">
+              <i class="bi bi-chevron-right"></i>
+            </button>
+
+            <!-- 검색 폼 -->
+            <form class="d-flex ms-auto search-form" role="search" @submit.prevent="handleSearch">
+              <div class="input-group">
+                <input class="form-control border-end-0" type="search" v-model="searchQuery" placeholder="Search"
+                  aria-label="Search" @keyup.enter="handleSearch">
+                <button class="btn border-start-0 search-button" type="submit">
+                  <i class="bi bi-search"></i>
+                </button>
+              </div>
+            </form>
           </div>
         </div>
       </div>
-
+    </nav>
+    <!-- 서브 카테고리 리스트 표시 영역 -->
+    <div class="sub-category-container" v-if="shouldShowSubCategories" @mouseenter="handleSubCategoryMouseEnter"
+      @mouseleave="handleSubCategoryMouseLeave">
+      <div class="container-sm">
+        <div class="container-fluid px-3">
+          <ul class="sub-category-list">
+            <li class="main-category-item">
+              <a href="#" @click.prevent="handleMainCategoryClick(activeMainCategory.mainCategoryId)">
+                {{ activeMainCategory.mainCategoryName }} 전체
+              </a>
+            </li>
+            <li v-for="(subCategory, index) in subCategoryList" :key="index">
+              <a href="#" @click.prevent="handleSubCategoryClick(subCategory.subCategoryId)">
+                {{ subCategory.subCategoryName }}
+              </a>
+            </li>
+          </ul>
+        </div>
+      </div>
     </div>
 
-  </nav>
+  </div>
 </template>
 
 
@@ -255,6 +255,12 @@ const handleSubCategoryClick = (subCategoryId) => {
   border-color: #dee2e6;
 }
 
+.navbar-wrapper {
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+}
+
 .sub-category-container {
   width: 100%;
   min-height: 20px;
@@ -266,6 +272,7 @@ const handleSubCategoryClick = (subCategoryId) => {
   z-index: 999;
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
 }
+
 
 .main-category-item {
   font-weight: bold;

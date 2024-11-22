@@ -109,6 +109,7 @@ import { ref, provide, inject, computed, onMounted, onUnmounted } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import apiWrapper from '../../util/axios/axios';
 import { useAuthStore } from '../../util/store/authStore';
+import { useWishlistStore } from '../../util/store/wishlistStore';
 import defaultThumbnail from '../../assets/default_thumbnail.jpeg'
 import defaultProfile from '../../assets/default_profile.png'
 
@@ -118,6 +119,7 @@ const fundingId = ref(route.params.id);
 provide('fundingId', fundingId);
 
 const authStore = useAuthStore();
+const wishlistStore = useWishlistStore();
 
 
 //////// 사이드바고정
@@ -183,33 +185,28 @@ const handleScroll = () => {
 
 
 //////////////////// wishlist start
-const wishlistStore = inject('wishlistStore');
 const isInWishlist = ref(false);
-const isAuthenticated = computed(() => wishlistStore.getters.getIsAuthenticated());
+const isAuthenticated = computed(() => authStore.isAuthenticated);
 const isInitialLoad = ref(true);
 
 // 인증 에러 처리를 위한 별도의 함수
-const handleAuthError = () => {
-    alert('인증이 만료되었습니다. 다시 로그인해 주세요.');
-    router.push('/login');
-};
+// const handleAuthError = () => {
+//     alert('인증이 만료되었습니다. 다시 로그인해 주세요.');
+//     router.push('/login');
+// };
 
 const checkWishlistStatus = async () => {
-    // try {
-    //     isInWishlist.value = await wishlistStore.actions.checkWishlistStatus(fundingId.value);
-    // } catch (error) {
-    //     console.error('찜 상태 확인 중 오류 발생:', error);
-    // }
     if (!isAuthenticated.value) {
         isInWishlist.value = false;
         return;
     }
 
     try {
-        isInWishlist.value = await wishlistStore.actions.checkWishlistStatus(fundingId.value);
+        const response = await wishlistStore.checkWishlistStatus(fundingId.value);
+        console.log("checkWishlistStatus: " + response)
+        isInWishlist.value = response;
     } catch (error) {
         console.error('찜 상태 확인 중 오류 발생:', error);
-        // 초기 로딩 시 401 에러를 무시
         if (!isInitialLoad.value && error.response && error.response.status === 401) {
             handleAuthError();
         }
@@ -225,19 +222,27 @@ const toggleWishlist = async () => {
     }
 
     try {
+        console.log("isInWishlist.value: " + isInWishlist.value)
         if (isInWishlist.value) {
-            await wishlistStore.actions.removeFromWishlist(fundingId.value);
+            await wishlistStore.removeFromWishlist(fundingId.value);
         } else {
-            await wishlistStore.actions.addToWishlist(fundingId.value);
+            await wishlistStore.addToWishlist(fundingId.value);
         }
         isInWishlist.value = !isInWishlist.value;
+        console.log("처리 후 isInWishlist.value: " + isInWishlist.value)
     } catch (error) {
         if (error.response && error.response.status === 401) {
-            alert('로그인 된 사용자만 이용 가능한 기능입니다.');
+            handleAuthError();
         } else {
             console.error('찜 토글 중 오류 발생:', error);
+            alert('찜 기능 처리 중 오류가 발생했습니다.');
         }
     }
+};
+
+const handleAuthError = () => {
+    alert('인증이 만료되었습니다. 다시 로그인해 주세요.');
+    authStore.logout(); // 로그아웃 처리
 };
 
 ////////////////////// wishlist end
@@ -500,11 +505,15 @@ const handleShowNoticeDetail = (noticeId) => {
 
 .sticky-reward {
     position: sticky;
-    top: 100px; /* 화면 상단에서의 거리 (조정 가능) */
-    z-index: 10; /* 다른 요소 위로 올라오도록 설정 */
-    background-color: white; /* 배경색 추가 (투명하지 않게) */
+    top: 100px;
+    /* 화면 상단에서의 거리 (조정 가능) */
+    z-index: 10;
+    /* 다른 요소 위로 올라오도록 설정 */
+    background-color: white;
+    /* 배경색 추가 (투명하지 않게) */
     padding-bottom: 10px;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); /* 약간의 그림자 효과 */
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    /* 약간의 그림자 효과 */
 }
 
 #funding-title {
@@ -520,12 +529,18 @@ const handleShowNoticeDetail = (noticeId) => {
 } */
 #reward-container {
     position: sticky;
-    top: 20px; /* 페이지 상단에서 20px 떨어진 위치에서 고정 */
-    max-height: calc(100vh - 40px); /* 화면 높이에서 여유 공간 확보 */
-    overflow-y: auto; /* 내부 스크롤 활성화 */
-    background-color: #fff; /* 배경색 설정 */
-    padding: 10px; /* 여백 추가 */
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* 시각적인 구분을 위한 그림자 효과 */
+    top: 20px;
+    /* 페이지 상단에서 20px 떨어진 위치에서 고정 */
+    max-height: calc(100vh - 40px);
+    /* 화면 높이에서 여유 공간 확보 */
+    overflow-y: auto;
+    /* 내부 스크롤 활성화 */
+    background-color: #fff;
+    /* 배경색 설정 */
+    padding: 10px;
+    /* 여백 추가 */
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    /* 시각적인 구분을 위한 그림자 효과 */
 }
 
 /* 리워드 아이템들을 감싸는 새로운 div 추가 */
@@ -533,22 +548,28 @@ const handleShowNoticeDetail = (noticeId) => {
     max-height: 300px;
     /* 조정 가능한 값 */
     overflow-y: auto;
-    scrollbar-width: thin; /* Firefox에서 얇은 스크롤바 */
-    scrollbar-color: #cccccc #ffffff; /* Firefox에서 스크롤바 색상 */
-    transition: max-height 0.3s ease; /* 부드러운 높이 변경 효과 */
+    scrollbar-width: thin;
+    /* Firefox에서 얇은 스크롤바 */
+    scrollbar-color: #cccccc #ffffff;
+    /* Firefox에서 스크롤바 색상 */
+    transition: max-height 0.3s ease;
+    /* 부드러운 높이 변경 효과 */
 }
 
 .reward-items-wrapper::-webkit-scrollbar {
-    width: 8px; /* 스크롤바 너비 */
+    width: 8px;
+    /* 스크롤바 너비 */
 }
 
 .reward-items-wrapper::-webkit-scrollbar-thumb {
-    background-color: #cccccc; /* 스크롤바 색상 */
+    background-color: #cccccc;
+    /* 스크롤바 색상 */
     border-radius: 4px;
 }
 
 .reward-items-wrapper::-webkit-scrollbar-track {
-    background-color: #ffffff; /* 트랙 색상 */
+    background-color: #ffffff;
+    /* 트랙 색상 */
 }
 
 .reward-header {

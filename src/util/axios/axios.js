@@ -552,5 +552,19 @@ const apiWrapper = {
             throw error; // 에러를 호출자에게 전파
         }
     },
+
+    // checkAuthStatus: async () => {
+    //     try {
+    //         const response = await apiClient.get("/api/auth/status");
+    //         console.log("Auth status response:", response.data);
+    //         return response.data;
+    //     } catch (error) {
+    //         console.error("인증 상태 확인 중 오류 발생:", error);
+    //         if (error.response && error.response.status === 401) {
+    //             return { isAuthenticated: false };
+    //         }
+    //         throw error;
+    //     }
+    // },
 };
 export default apiWrapper;
