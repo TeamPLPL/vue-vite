@@ -16,7 +16,12 @@ export default [
         path: "/purchase/choose/:id",
         name: "ChooseReward",
         component: ChooseReward,
-        props: true,
+        props: (route) => ({
+            id: route.params.id,
+            selectedRewards: route.query.selectedRewards
+                ? JSON.parse(route.query.selectedRewards)
+                : [],
+        }),
         meta: {
             requiresAuth: true,
             requiresSecureAccess: true,

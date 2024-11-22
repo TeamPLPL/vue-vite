@@ -136,6 +136,7 @@ export const useAuthStore = defineStore("auth", () => {
         } finally {
             resetState();
             localStorage.removeItem("jwtToken");
+            sessionStorage.clear();
             location.reload();
         }
     }

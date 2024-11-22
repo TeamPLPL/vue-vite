@@ -566,5 +566,20 @@ const apiWrapper = {
     //         throw error;
     //     }
     // },
+
+    getSelectedRewardList: async (rewards) => {
+        try {
+            const response = await apiClient.post(`/api/reward-list`, rewards, {
+                headers: {
+                    "Content-Type": "application/json",
+                },
+            });
+            console.log("선택된 리워드 목록 조회 성공:", response);
+            return response.data;
+        } catch (error) {
+            console.error(`getSelectedRewardList 중 오류 발생`, error);
+            throw error;
+        }
+    },
 };
 export default apiWrapper;

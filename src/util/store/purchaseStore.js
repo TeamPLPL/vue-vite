@@ -1,7 +1,7 @@
 // purchaseStore.js
-import { defineStore } from 'pinia';
+import { defineStore } from "pinia";
 
-export const usePurchaseStore = defineStore('purchase', {
+export const usePurchaseStore = defineStore("purchase", {
     state: () => ({
         selectedRewards: [], // 선택된 리워드
         totalPrice: 0, // 총 리워드 가격
@@ -14,11 +14,12 @@ export const usePurchaseStore = defineStore('purchase', {
             this.selectedRewards = rewards;
             this.totalPrice = totalPrice;
             this.donationAmount = donationAmount;
-            
+
             // 배송비는 가장 비싼 배송비를 가진 상품 하나의 배송비로 설정
-            this.deliveryFee = rewards.reduce((maxFee, reward) => {
-                return Math.max(maxFee, reward.deliveryFee || 0);
-            }, 0);
+            // this.deliveryFee = rewards.reduce((maxFee, reward) => {
+            //     return Math.max(maxFee, reward.deliveryFee || 0);
+            // }, 0);
+            this.deliveryFee = deliveryFee;
         },
         setOrderId(orderId) {
             this.orderId = orderId;
@@ -30,9 +31,8 @@ export const usePurchaseStore = defineStore('purchase', {
                 console.error("Order ID is not set");
             }
         },
-    }
+    },
 });
-
 
 // import { defineStore } from 'pinia';
 // import { ref, watch } from 'vue';
