@@ -2,7 +2,7 @@
 
 
     <div class="top-bar">
-        <RouterLink :to="`/funding/detail/${id}`">
+        <RouterLink :to="`/funding/${id}/detail`">
             < 스토리로 돌아가기 </RouterLink>
                 <h6>Looper 공항에서 여권을 찾느라 가방을 뒤집는 당신을 위해</h6>
     </div>
@@ -26,7 +26,7 @@
                 <p class="fw-bold">나만 알고 있기 아까운 프로젝트라면?</p>
                 <p>친구에게 소개하고 | 포인트를 받아보세요</p>
             </div>
-            <RouterLink to="/mywadiz/supporter/participation">
+            <RouterLink to="/mywadiz/info/participation">
                 <button class="next-button">다음</button>
             </RouterLink>
 

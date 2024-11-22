@@ -147,7 +147,7 @@
             </p>
             <div class="footer-notice">
                 <button class="back-button">
-                    <router-link to="/mywadiz/supporter/participation">목록으로 돌아가기</router-link>
+                    <router-link to="/mywadiz/info/participation">목록으로 돌아가기</router-link>
                 </button>
             </div>
         </div>
