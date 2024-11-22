@@ -12,7 +12,7 @@
             <div class="border rounded p-3 bg-light">
               <div class="d-flex align-items-start" style="min-height: 57px;">
                 <img src="https://via.placeholder.com/24" alt="쿠폰 아이콘" class="me-2">
-                <span>쿠폰</span>
+                <span style="cursor: pointer">쿠폰</span>
                 <span class="ms-auto fw-bold">{{ count }}장</span>
               </div>
 
