@@ -46,7 +46,7 @@ import { useRoute } from "vue-router"; // useRoute 훅 가져오기
 import apiWrapper from "../../../util/axios/axios.js";
 
 export default {
-  name: "Thumbnail",
+  name: "IntroductionImages",
   setup() {
     const route = useRoute(); // 현재 라우트 정보 가져오기
     const projectId = route.params.projectId; // 라우트 params에서 projectId 가져오기
@@ -57,11 +57,12 @@ export default {
     const fetchInitialThumbnail = async () => {
       try {
         const response = await apiWrapper.getData(`/api/${projectId}/detailiamge`);
+        console.log(response);
         const fileData = response; // 서버 응답이 바로 FileDTO 객체라고 가정
         thumbnail.value = fileData.signedUrl; // 썸네일 URL 설정
         fileId.value = fileData.fileId; // fileId 저장
       } catch (error) {
-        console.error("초기 썸네일 가져오기 실패:", error);
+        console.error("초기 디테일 이미지 가져오기 실패:", error);
       }
     };
 
@@ -78,6 +79,7 @@ export default {
 
       try {
         const response = await apiWrapper.postFileData(`/api/${projectId}/detailiamge`, formData);
+        console.log(response);
         const fileData = response.data; // FileDTO 데이터를 받음
         fileId.value = fileData.fileId; // fileId 저장
         thumbnail.value = fileData.signedUrl; // signedUrl로 썸네일 URL 설정
@@ -146,9 +148,13 @@ export default {
 }
 
 .btn-close {
-  position: absolute; /* 위치 설정 */
-  top: 0; /* 부모의 상단 */
-  right: 0; /* 부모의 오른쪽 */
-  transform: translate(-50%, 50%); /* 위치 조정 (필요 시 추가) */
+  position: absolute;
+  top: 8px; /* 상단 간격 */
+  right: 8px; /* 오른쪽 간격 */
+  width: 24px; /* 버튼 크기 */
+  height: 24px;
+  padding: 0;
+  color: #6c757d; /* 아이콘 색상 */
+  cursor: pointer;
 }
 </style>

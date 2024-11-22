@@ -36,14 +36,14 @@
         <!-- 리워드 리스트 -->
         <div v-for="(reward, index) in rewards" :key="index" class="mb-3 p-3 border rounded" style="width: 50%;">
           <div class="text-start">
-            <h5 class="fw-bold"> {{ formatPrice(reward.price) }} 원</h5>
-            <p><strong>{{ reward.rewardName }}</strong></p>
-            <p>{{ reward.rewardDescription }}</p>
+             <h5 class="fw-bold">{{ formatPrice(reward.price) }} 원</h5>
+            <p><strong>리워드 명 : {{ reward.rewardName }}</strong></p>
+            <p><b>리워드 설명 :</b> {{ reward.rewardDescription }}</p>
             <p>
-              <strong>제한 수량:</strong> {{ reward.limitQuantity }} 개
+              <strong>제한 수량 :</strong> {{ reward.limitQuantity }} 개
             </p>
             <p v-if="reward.deliveryOption === 'yes'">
-              <strong>배송비:</strong> {{ reward.deliveryFee }} 원
+              <strong>배송비 :</strong> {{ formatPrice(reward.deliveryFee) }} 원
             </p>
             <div class="d-flex gap-2 mt-2">
               <button @click="editReward(index)" class="btn btn-outline-secondary">

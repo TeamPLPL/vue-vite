@@ -44,19 +44,7 @@
       </div>
     </div>
 
-    <!-- 닉네임 입력 -->
-    <div class="form-group mt-3">
-      <div class="row align-items-center">
-        <div class="col-3 ">
-          <h2 class="mb-0 ms-0 fs-5"><span class="badge text-bg-primary w-100">닉네임</span></h2>
-        </div>
-        <div class="col-9">
-          <input type="text" class="form-control custom-input" v-model="userInfo.userNick" placeholder="닉네임" disabled/>
-        </div>
-      </div>
-    </div>
-
-    <!-- 이메일 변경 -->
+    <!-- 이메일 변경 X -->
     <div class="form-group mt-3">
       <div class="row align-items-center">
         <div class="col-3 ">
@@ -64,6 +52,18 @@
         </div>
         <div class="col-9">
           <input type="email" class="form-control custom-input" v-model="userInfo.email" placeholder="이메일" disabled/>
+        </div>
+      </div>
+    </div>
+
+    <!-- 닉네임 변경 o -->
+    <div class="form-group mt-3">
+      <div class="row align-items-center">
+        <div class="col-3 ">
+          <h2 class="mb-0 ms-0 fs-5"><span class="badge text-bg-primary w-100">닉네임</span></h2>
+        </div>
+        <div class="col-9">
+          <input type="text" class="form-control custom-input" v-model="userInfo.userNick" placeholder="닉네임을 입력하세요." />
         </div>
       </div>
     </div>
@@ -85,8 +85,8 @@
     <!--      <input type="text" class="form-control custom-input" placeholder="전화번호" disabled />-->
     <!--    </div>-->
 
-    <!-- SNS 연동 -->
-    <div class="text-start mt-5">
+    <!-- SNS 가입여부 -->
+    <div class="text-start mt-4">
       <h5 class="fw-bold mt-4">SNS 가입여부</h5>
       <p class="text-muted small">Naver, Google 연동을 확인할 수 있어요.</p>
     </div>
@@ -95,19 +95,40 @@
 
     <!-- SNS 버튼 (배지 크기 증가) -->
     <div class="d-flex mb-4">
-      <span v-if="userInfo.provider" class="badge bg-success me-2 custom-badge">Naver</span>
-      <span v-if="userInfo.provider" class="badge bg-light text-dark border custom-badge">Google</span>
+      <span v-if="userInfo.provider === 'naver'" class="badge bg-success me-2 custom-badge">Naver</span>
+      <span v-if="userInfo.provider === 'google'" class="badge bg-light text-dark border custom-badge">Google</span>
       <span v-if="!userInfo.provider" class="small">❌연동된 SNS가 없습니다.</span>
     </div>
 
     <!-- 비밀번호 검증 -->
-    <div class="form-group mt-3">
+<!--    <div class="form-group mt-3">
       <div class="row align-items-center">
         <div class="col-9 ">
           <input type="password" class="form-control custom-input" v-model="userInfo.password" placeholder="비밀번호를 입력하세요."/>
         </div>
         <div class="col-3">
-          <button class="btn btn-outline-primary fs-7" style="font-size: 11px;" @click="verifyPassword">비밀번호 확인</button>
+          <button class="btn btn-outline-primary fs-7" style="font-size: 11px;" @click="verifyEmail">비밀번호 확인</button>
+        </div>
+      </div>
+    </div>-->
+
+    <div class="text-start mt-4">
+      <h5 class="fw-bold mt-4">이메일 인증 <span style="color: red">*</span> </h5>
+      <p class="text-muted small">등록된 이메일 인증 후 수정이 가능해요.</p>
+    </div>
+
+    <!-- 이메일 인증  -->
+
+    <div class="form-group mt-3">
+      <div class="row align-items-center">
+        <div class="col-8">
+          <input type="password" class="form-control custom-input" v-model="state.verificationKey" placeholder="인증 번호를 입력하세요."/>
+        </div>
+        <div class="col-2">
+          <button class="btn btn-outline-primary fs-7" style="font-size: 11px;" @click="sendEmail">인증 발송</button>
+        </div>
+        <div class="col-2">
+          <button class="btn btn-outline-primary fs-7" style="font-size: 11px;" @click="verifyKey">인증 확인</button>
         </div>
       </div>
     </div>
@@ -115,7 +136,7 @@
     <!-- 취소 및 확인 버튼 -->
     <div class="d-flex justify-content-between mt-4 mb-5">
       <button class="btn btn-secondary w-48" @click="supportPage">취소</button>
-      <button class="btn btn-primary w-48" :disabled="!isPasswordValid" @click="updateUserInfo">저장</button>
+      <button class="btn btn-primary w-48" :disabled="!state.isVerified" @click="updateUserInfo">저장</button>
     </div>
   </div>
 </template>
@@ -145,6 +166,14 @@ export default {
       userContent: '',
     });
 
+    const state = reactive({
+      email: '',
+      key: null, // // 이메일 발송 후 서버에서 받은 key 저장
+      verificationKey: "", // 사용자가 입력한 인증 키
+      isVerified: false,
+      isLoading: false,
+    });
+
     // 라우터를 통해 '/mywadiz/support' 경로로 이동
     const supportPage = () => {
       if (window.confirm("마이페이지로 돌아가시겠습니까?")) {
@@ -159,7 +188,8 @@ export default {
       try {
         await apiWrapper.postData("/api/input/userinfo", {
           userName: userInfo.userName,
-          userContent: userInfo.userContent
+          userContent: userInfo.userContent,
+          userNick: userInfo.userNick
         });
         alert("유저 정보가 저장되었습니다.");
         router.push("/mywadiz/supporter"); // 경로 이동
@@ -171,7 +201,7 @@ export default {
 
     // 비밀번호 검증 로직
     const isPasswordValid = ref(false); // 저장 버튼 활성화 여부
-    const verifyPassword = async () => {
+    const verifyPassowrd = async () => {
       try {
         const response = await apiWrapper.postData("/api/auth/password", {
           password: userInfo.password
@@ -190,6 +220,43 @@ export default {
       }
     };
 
+    const sendEmail = async () => {
+      try {
+        state.isLoading = true; // 로딩 상태 활성화
+
+        const response = await apiWrapper.getData(`api/auth/useremail`);
+        console.log("Response.data:", response.key);
+
+        // 성공적으로 이메일이 발송된 경우
+        if (response.key) {
+          state.key = response.key; // 인증 키 저장
+          alert("인증 키가 이메일로 발송되었습니다.");
+        }
+      } catch (error) {
+        // 서버에서 오류 응답을 반환한 경우
+        if (error.response && error.response.status === 409) {
+          alert("이미 존재하는 이메일입니다.");
+        } else {
+          // 기타 오류 처리
+          console.error("이메일 발송 중 오류:", error);
+          alert("이메일 발송에 실패했습니다.");
+        }
+      } finally {
+        state.isLoading = false; // 로딩 상태 비활성화
+      }
+    };
+
+    // 이메일 인증 확인 로직
+    const verifyKey = () => {
+      if (state.key === state.verificationKey) {
+        state.isVerified = true; // 인증 성공 시 상태 변경
+        alert("인증 성공!");
+      } else {
+        alert("인증 키가 일치하지 않습니다.");
+      }
+    };
+
+    // 프로필 이미지 초기화
     const fetchInitialProfileImage = async () => {
       try {
         const response = await apiWrapper.getData(`/api/get/profileimage`);
@@ -208,6 +275,7 @@ export default {
       }
     };
 
+    // 프로필 정보 초기화
     const fetchInitialUserInfo = async () => {
       try {
         const response = await apiWrapper.getData(`/api/get/user/isms`);
@@ -224,10 +292,6 @@ export default {
         console.error("사용자 정보 가져오기 실패", error);
       }
     }
-
-    const myMaker = async () => {
-      router.push('/mywadiz/maker');
-    };
 
     // 파일 업로드 처리
     const onImageUpload = async (event) => {
@@ -298,10 +362,13 @@ export default {
       profileImage,
       fileId,
       userInfo,
+      state,
       supportPage,
       isPasswordValid,
-      verifyPassword,
-      updateUserInfo
+      verifyPassowrd,
+      updateUserInfo,
+      sendEmail,
+      verifyKey
     }
   }
 };
