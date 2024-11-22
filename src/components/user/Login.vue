@@ -106,7 +106,8 @@ export default {
           // localStorage.setItem('jwtToken', token);
 
           // 로그인 후 메인 페이지로 이동
-          router.push('/');
+          window.location.href = '/';
+          // router.push('/');
         } else {
           console.error('JWT 토큰을 찾을 수 없습니다.');
         }
@@ -119,7 +120,7 @@ export default {
         authStore.setJwtToken(null);
         localStorage.removeItem('jwtToken');
         authStore.setSecurePageAccess(false);
-        // window.location.reload();
+
         router.push('/login');
       }
     };

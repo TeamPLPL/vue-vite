@@ -9,14 +9,13 @@ import Topbar from './components/common/Topbar.vue'
 import Footer from './components/common/Footer.vue'
 import FundingDetailHeader from './components/funding/FundingDetailHeader.vue'; // Import FundingDetailHeader
 import Example from "./components/Example.vue";
-import wishlistStore from "./util/scripts/wishlistStore"
 
-provide('wishlistStore', wishlistStore);
 
 const router = useRouter();
 const route = useRoute();
 const authStore = useAuthStore(); // authStore 사용
 const paymentStore = usePaymentStore();
+// const wishlistStore = useWishlistStore();
 
 // 새로고침 이벤트 핸들러
 const reloadPage = () => {
@@ -65,7 +64,7 @@ onMounted(() => {
 
 onUnmounted(() => {
   window.removeEventListener('scroll', checkScroll)
-})
+});
 
 //////////////
 
