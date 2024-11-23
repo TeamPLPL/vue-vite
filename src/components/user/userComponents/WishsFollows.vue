@@ -77,7 +77,7 @@
                     </div>
                     <div class="modal-body">
                         <ul class="list-group">
-                            <li v-for="(follow, index) in followList" :key="index" class="list-group-item">
+                            <li v-for="(follow, index) in followModalList" :key="index" class="list-group-item">
                                 <div class="d-flex align-items-center">
                                     <img :src="follow.avatar" alt="Avatar" class="me-3 rounded-circle"
                                         style="width: 60px; height: 60px; object-fit: cover;">
@@ -99,6 +99,7 @@
 <script setup>
 import { ref, onMounted } from 'vue';
 import { Modal } from 'bootstrap';
+import apiWrapper from '../../../util/axios/axios';
 
 const wishlist = ref([
     { image: 'https://via.placeholder.com/60', title: '프로젝트 1', category: '테크/가전' },
@@ -106,17 +107,44 @@ const wishlist = ref([
     { image: 'https://via.placeholder.com/60', title: '프로젝트 3', category: '푸드' },
 ]);
 
-const followList = ref([
-    { avatar: 'https://via.placeholder.com/50', name: '메이커 1', description: '테크 스타트업' },
-    { avatar: 'https://via.placeholder.com/50', name: '메이커 2', description: '패션 디자이너' },
-    { avatar: 'https://via.placeholder.com/50', name: '메이커 3', description: '푸드 크리에이터' },
-]);
+// const followList = ref([
+//     { avatar: 'https://via.placeholder.com/50', name: '메이커 1', description: '테크 스타트업' },
+//     { avatar: 'https://via.placeholder.com/50', name: '메이커 2', description: '패션 디자이너' },
+//     { avatar: 'https://via.placeholder.com/50', name: '메이커 3', description: '푸드 크리에이터' },
+// ]);
+
+const followList = ref([]); // 최근 3명의 팔로우
+const followModalList = ref([]); // 전체 팔로우
 
 let wishlistModal, followListModal;
+
+// 최근 팔로우 리스트 가져오기
+const fetchLatestFollows = async () => {
+    try {
+        const response = await apiWrapper.getData('/api/follow/latest/3');
+        followList.value = response || [];
+        console.log('최신 팔로우 리스트:', followList.value);
+    } catch (error) {
+        console.error('최신 팔로우 리스트 조회 중 오류 발생:', error);
+    }
+};
+
+// 전체 팔로우 리스트 가져오기
+const fetchAllFollows = async () => {
+    try {
+        const response = await apiWrapper.getData('/api/follow/list');
+        followModalList.value = response || [];
+        console.log('전체 팔로우 리스트:', followModalList.value);
+    } catch (error) {
+        console.error('전체 팔로우 리스트 조회 중 오류 발생:', error);
+    }
+};
 
 onMounted(() => {
     wishlistModal = new Modal(document.getElementById('wishlistModal'));
     followListModal = new Modal(document.getElementById('followListModal'));
+
+    fetchLatestFollows();
 });
 
 const showWishlistModal = () => {
@@ -124,6 +152,9 @@ const showWishlistModal = () => {
 };
 
 const showFollowListModal = () => {
+    if (followModalList.value.length === 0) {
+        fetchAllFollows();
+    }
     followListModal.show();
 };
 </script>

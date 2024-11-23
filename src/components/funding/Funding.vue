@@ -329,7 +329,7 @@ const checkFollowStatus = async () => {
     try {
         const response = await apiWrapper.getData(`/api/follow/list`);
         const followList = response || [];
-        isFollowing.value = followList.some(follow => follow.followedUser.id === maker.value.makerId);
+        isFollowing.value = followList.some(follow => follow.name === maker.value.userNick);
         console.log('팔로우 상태', isFollowing.value);
     } catch (error) {
         console.error('팔로우 상태 확인 중 오류 발생:', error);
