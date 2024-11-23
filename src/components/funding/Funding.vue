@@ -63,10 +63,10 @@
                                         class="maker-profile-img cursor-pointer">
                                     <div class="maker-nick">
                                         {{ maker.userNick }}
-                                        <img v-if="maker.isFollowing" class="wish cursor-pointer"
-                                            src="../../assets/followed.png" alt="팔로우 되어 있음">
+                                        <img v-if="isFollowing" class="wish cursor-pointer"
+                                            src="../../assets/followed.png" alt="팔로우 되어 있음" @click="toggleFollow">
                                         <img v-else class="wish cursor-pointer" src="../../assets/unfollowed.png"
-                                            alt="팔로우 되어있지 않음">
+                                            alt="팔로우 되어있지 않음" @click="toggleFollow">
                                     </div>
                                 </div>
                                 <div class="mt-2 text-start">{{ maker.userContent }}</div>
@@ -321,6 +321,48 @@ const copyUrl = () => {
 
 ////////////////////// share end
 
+///////////////////// follow start
+const isFollowing = ref(false);
+
+// 팔로잉 상태 
+const checkFollowStatus = async () => {
+    try {
+        const response = await apiWrapper.getData(`/api/follow/list`);
+        const followList = response || [];
+        isFollowing.value = followList.some(follow => follow.name === maker.value.userNick);
+        console.log('팔로우 상태', isFollowing.value);
+    } catch (error) {
+        console.error('팔로우 상태 확인 중 오류 발생:', error);
+    }
+};
+
+const toggleFollow = async () => {
+    if (!isAuthenticated.value) {
+        alert('로그인이 필요한 기능입니다.');
+        return;
+    }
+
+    if (!maker.value?.makerId) {
+        console.error('maker.id가 유효하지 않습니다.');
+        alert('메이커 정보를 불러오지 못했습니다. 잠시 후 다시 시도해주세요.');
+        return;
+    }
+
+    try {
+        if (isFollowing.value) {
+            await apiWrapper.deleteData(`/api/follow/remove/${maker.value.makerId}`);
+        } else {
+            await apiWrapper.postData(`/api/follow/add/${maker.value.makerId}`, null);
+        }
+        isFollowing.value = !isFollowing.value;
+    } catch (error) {
+        console.error('팔로우 상태 변경 중 오류 발생:', error);
+        alert('팔로우 처리 중 문제가 발생했습니다.');
+    }
+};
+
+///////////////////// follow end
+
 const fundingData = ref();
 const rewardList = ref([]);
 
@@ -378,8 +420,10 @@ onMounted(async () => {
     // wishlist.value = data.isWishlist
 
     maker.value = data.makerDTO
+    console.log('메이커', maker.value);
 
     await checkWishlistStatus();
+    await checkFollowStatus();
 
     window.addEventListener('scroll', handleScroll, { passive: true });
     window.addEventListener('resize', handleScroll, { passive: true });
