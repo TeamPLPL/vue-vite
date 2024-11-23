@@ -11,7 +11,9 @@
       <!-- Profile Section -->
       <img v-if="fileId" :src="profileImage" class="rounded-circle mb-2" style="width: 120px; height: 120px; object-fit: cover;" alt="Profile Icon">
       <img v-else src="https://static.wadiz.kr/assets/icon/profile-icon-5.png" class="rounded-circle mb-2" style="width: 120px; height: 120px; object-fit: cover;" alt="Profile Icon">
-      <span class="badge bg-primary mt-2" style="font-size: 1rem; padding: 10px;"> {{ userInfo.userNick }} 님</span>
+      <span v-if="userInfo.userNick" class="badge bg-primary mt-2" style="font-size: 1rem; padding: 10px;"> {{ userInfo.userNick }} 님</span>
+      <span v-else class="badge bg-primary mt-2" style="font-size: 1rem; padding: 10px;"> {{ userInfo.userName }} 님</span>
+      <div v-if="!userInfo.userNick" class="text-muted mt-2" style="font-size: 12px"><span style="color: red">* </span>닉네임 설정 전에는 이름이 표시돼요!</div>
     </div>
   </div>
 </template>
@@ -29,6 +31,7 @@ export default {
     const userInfo = reactive({
       id: null,
       email: '',
+      userName: '',
       userNick: '',
       provider: ''
     });
@@ -65,6 +68,7 @@ export default {
         // reactive 상태 업데이트
         userInfo.id = data.id;
         userInfo.email = data.email;
+        userInfo.userName = data.userName;
         userInfo.userNick = data.userNick;
         userInfo.provider = data.provider;
       } catch (error) {

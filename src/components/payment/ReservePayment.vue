@@ -202,8 +202,8 @@ const updateFundingAmount = async () => {
     try {
         const rewardTotal = totalPrice.value; // 리워드 총 금액
         const donation = donationAmount.value; // 추가 후원금
-        const discount = selectedCoupon.value 
-            ? (totalPrice.value * selectedCoupon.value.discountRate) / 100 
+        const discount = selectedCoupon.value
+            ? (totalPrice.value * selectedCoupon.value.discountRate) / 100
             : 0; // 쿠폰 할인액
 
         const calculatedAmount = rewardTotal + donation - discount; // 배송비 제외
@@ -233,23 +233,31 @@ const fetchFundingDetails = async (fundingId) => {
 // 구매 검증
 async function validateMultiplePurchases(rewards) {
     try {
-        const response = await apiWrapper.postData('/api/payment/validate-purchase', {
-            rewards,
-        });
+        const response = await apiWrapper.postData('/api/payment/validate-purchase', rewards);
 
-        if (!response.valid) {
-            response.details.forEach(detail => {
-                if (!detail.valid) {
-                    alert(`리워드 ${detail.rewardId}: ${detail.message}`);
-                }
-            });
+        // 응답 데이터 로깅
+        console.log("API 응답 데이터:", response);
+
+        // 응답 데이터 검증
+        if (!response.data || typeof response.data.valid === 'undefined') {
+            console.warn("API 응답 형식이 다릅니다:", response);
+            alert("구매 검증 중 문제가 발생했습니다. 다시 시도해주세요.");
             return false;
         }
 
+        // 검증 실패 처리
+        if (!response.data.valid) {
+            alert(response.data.message || "구매 검증 실패.");
+            return false;
+        }
+
+        // 검증 성공
         console.log("모든 리워드 구매 가능");
         return true;
     } catch (error) {
         console.error("구매 검증 실패:", error);
+
+        // 에러 메시지 처리
         alert(error.response?.data?.message || "구매 검증 중 오류가 발생했습니다.");
         return false;
     }
@@ -267,7 +275,14 @@ async function clientAuth() {
         purchaseQuantity: reward.quantity, // 구매하려는 수량
     }));
 
-    const isPurchaseValid = await validateMultiplePurchases(rewards);
+    // API 요청에서 배열로 전달
+    const rewardsPayload = Array.isArray(rewards) ? rewards : [rewards];
+
+    // rewards 데이터 구조 확인
+    // console.log("clientAuth에서 rewards 데이터:", rewards);
+    console.log("API 호출 payload:", rewardsPayload);
+
+    const isPurchaseValid = await validateMultiplePurchases(rewardsPayload);
 
     if (!isPurchaseValid) {
         console.log("구매 불가능. 로직 종료.");
@@ -310,7 +325,7 @@ async function clientAuth() {
         console.log('paymentData:', paymentData);
 
         const registerResponse = await apiWrapper.postData('/api/payment/register', paymentData);
-        
+
         console.log('결제 등록 성공:', registerResponse.data);
         console.log(registerResponse.data.id);
 
@@ -330,7 +345,7 @@ async function clientAuth() {
             }
         }),
 
-        await updatePaymentStatus(registerResponse.data.id, 'complete');
+            await updatePaymentStatus(registerResponse.data.id, 'complete');
         await updateFundingAmount();
 
     } catch (error) {

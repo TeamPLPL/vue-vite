@@ -23,16 +23,19 @@
               <!-- 내용 -->
               <div class="ms-3 d-flex flex-column flex-grow-1 position-relative">
                 <!-- 배지 -->
-                <span class="badge bg-primary position-absolute" style="top: 0; left: 0;">{{ project.status }}</span>
+                <span class="badge position-absolute" :class="{'bg-primary': !project.isPublished, 'bg-success': project.isPublished}" style="top: 0; left: 0;">{{ project.status }}</span>
 
                 <!-- 내용 -->
                 <div class="d-flex flex-column text-start mt-4">
                   <h6 class="mt-2 mb-1">프로젝트 번호: <span class="text-primary">{{ project.id }}</span></h6>
                   <p class="mt-2 mb-0">프로젝트 제목: {{ project.fundingTitle }}</p>
                 </div>
-                <div class="mt-auto d-flex justify-content-end">
-                  <button class="btn btn-primary me-2" style="width: 150px;" @click="continueProject(project.id)">이어서 작성</button>
-                  <button class="btn btn-danger" style="width: 150px;" @click="deleteProject(project.id)">삭제</button>
+                <div v-if="!project.isPublished" class="mt-auto d-flex justify-content-end">
+                  <button class="btn btn-primary me-2" style="width: 100px; font-size: small;" @click="continueProject(project.id)">이어서 작성</button>
+                  <button class="btn btn-danger" style="width: 100px; font-size: small;" @click="deleteProject(project.id)">삭제</button>
+                </div>
+                <div v-if="project.isPublished" class="mt-auto d-flex justify-content-end">
+                  <button class="btn btn-success" style="width: 100px; font-size: small;" @click="fundingdetail(project.id)">발행글 이동</button>
                 </div>
               </div>
             </div>
@@ -47,6 +50,7 @@
 </template>
 
 <script>
+import { ref } from "vue";
 import apiWrapper from "../../util/axios/axios.js"
 import ProfileSidebar from "./userComponents/ProfileSidebar.vue";
 import {useRouter} from "vue-router";
@@ -65,6 +69,11 @@ export default {
   },
   setup() {
     const router = useRouter();
+    const ispublished = ref('false');
+
+    const fundingdetail = (projectId) => {
+      router.push(`/funding/${projectId}/detail`);
+    }
 
     const createProject = () => {
       // 프로젝트 생성 여부 확인
@@ -123,18 +132,23 @@ export default {
       createProject,
       deleteProject,
       continueProject,
+      ispublished,
+      fundingdetail
     }
   },
   async mounted() {
     try {
       const response = await apiWrapper.getData("/api/studio/projectslist"); // 프로젝트 리스트 API 호출
       console.log(response);
-      this.projects = response.map((project) => ({
-        id: project.id,
-        fundingTitle: project.fundingTitle,
-        thumbnail: project.thumbnail,
-        status: "작성중", // API에서 상태 값이 내려오지 않는다면 기본값
-      }));
+      this.projects = response.map((project) => {
+        return {
+          id: project.id,
+          fundingTitle: project.fundingTitle,
+          thumbnail: project.thumbnail,
+          status: project.published ? "발행됨" : "작성중", // isPublished에 따라 상태 설정
+          isPublished: project.published || false, // isPublished 값을 추가
+        };
+      });
     } catch (error) {
       console.error("프로젝트 데이터를 불러오는 중 오류 발생:", error);
     }

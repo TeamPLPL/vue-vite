@@ -37,28 +37,22 @@
                     </p>
                 </div>
             </div>
-            
+
             <!-- 결제 예약 취소 버튼 -->
-            <button 
-                v-if="paymentDetails.paymentStatus !== 'refund' && paymentDetails.paymentStatus !== 'failed'" 
-                class="change-button" 
+            <button v-if="(paymentDetails.paymentStatus !== 'refund' && paymentDetails.paymentStatus !== 'failed')
+                && isRefundEligible(paymentDetails.fundingEndDate)" class="change-button"
                 @click="openCancelModal(paymentDetails.paymentId)">
                 결제 예약 취소
             </button>
 
             <!-- 모달 컴포넌트 -->
-            <ModalConfirm 
-                v-show="showCancelModal" 
-                :show="showCancelModal"
-                :payment-id="collectedPaymentId"
-                :calculated-amount="calculateNetAmount()"
-                title="결제를 취소하시겠어요?"
-                message="리워드 옵션 변경을 원한다면 결제를 취소하지 않고 참여 내역에서 변경 가능해요." 
-                @close="closeCancelModal"
-                @confirm="cancelReservation" 
-            />
+            <ModalConfirm v-show="showCancelModal" :show="showCancelModal" :payment-id="collectedPaymentId"
+                :calculated-amount="calculateNetAmount()" title="결제를 취소하시겠어요?"
+                message="리워드 옵션 변경을 원한다면 결제를 취소하지 않고 참여 내역에서 변경 가능해요." @close="closeCancelModal"
+                @confirm="cancelReservation" />
 
-            <div v-if="paymentDetails.paymentStatus !== 'refund' && paymentDetails.paymentStatus !== 'failed'" class="notice">
+            <div v-if="paymentDetails.paymentStatus !== 'refund' && paymentDetails.paymentStatus !== 'failed'"
+                class="notice">
                 <h6 class="fw-bold text-start">결제 예약 유의 사항</h6>
                 <p class="reservation-notice">
                     - 프로젝트 참여 즉시 결제되며, 결제 취소는 프로젝트 종료 시점인 {{ formatDate(paymentDetails.fundingEndDate) }}까지 가능합니다.
@@ -153,7 +147,7 @@
             </p>
             <div class="footer-notice">
                 <button class="back-button">
-                    <router-link to="/mywadiz/supporter/participation">목록으로 돌아가기</router-link>
+                    <router-link to="/mywadiz/info/participation">목록으로 돌아가기</router-link>
                 </button>
             </div>
         </div>
@@ -189,7 +183,7 @@ function closeCancelModal() {
     showCancelModal.value = false;
 }
 
-function cancelReservation({paymentId, cancelResponse, response}) {
+function cancelReservation({ paymentId, cancelResponse, response }) {
     // 결제 예약 취소 로직 추가
     console.log('결제 취소 확인:', paymentId);
     console.log('취소 응답 데이터:', cancelResponse);
@@ -219,6 +213,55 @@ function getRefundStatus(fundingEndDate) {
     const endDate = new Date(fundingEndDate);
 
     return now < endDate ? '환불 가능' : '환불 불가능';
+
+    // ISO 8601 형식의 날짜를 Date 객체로 변환
+    // const endDate = new Date(fundingEndDate);
+    // const now = new Date();
+
+    // // 날짜 변환 유효성 검증
+    // if (isNaN(endDate.getTime())) {
+    //     console.error("Invalid fundingEndDate:", fundingEndDate);
+    //     return "날짜 오류";
+    // }
+
+    // // 종료일로부터 14일 후 계산
+    // const refundDeadline = new Date(endDate);
+    // refundDeadline.setDate(endDate.getDate() + 14);
+
+    // if (now < endDate) {
+    //     return "환불 가능 (진행 중)";
+    // } else if (now >= endDate && now <= refundDeadline) {
+    //     return "환불 가능 (14일 이내)";
+    // } else {
+    //     return "환불 불가능 (14일 초과)";
+    // }
+}
+
+function isRefundEligible(fundingEndDate) {
+    // const now = new Date();
+    // const endDate = new Date(fundingEndDate);
+
+    // // 종료일로부터 14일 후 계산
+    // const refundDeadline = new Date(endDate);
+    // refundDeadline.setDate(endDate.getDate() + 14);
+
+    // // 현재 날짜가 종료일과 환불 마감일 사이에 있는지 확인
+    // return now <= refundDeadline;
+    console.log('This is', fundingEndDate)
+
+    const now = new Date(); // 현재 날짜
+    const endDate = new Date(fundingEndDate); // 종료일을 Date 객체로 변환
+
+    // 종료일이 유효한지 확인
+    if (isNaN(endDate)) {
+        console.error("유효하지 않은 종료일:", fundingEndDate);
+        return false;
+    }
+
+    const refundDeadline = new Date(endDate);
+    refundDeadline.setDate(endDate.getDate()); // 종료일로부터 14일 후 계산
+
+    return now <= refundDeadline;;
 }
 
 // 리워드 총 금액 계산
@@ -537,9 +580,12 @@ onMounted(async () => {
 /* 부모 컨테이너에 대해 설정하려면: */
 .footer-notice {
     display: flex;
-    justify-content: center; /* 가로로 가운데 정렬 */
-    align-items: center; /* 세로로 가운데 정렬 */
-    flex-direction: column; /* 세로 정렬 */
+    justify-content: center;
+    /* 가로로 가운데 정렬 */
+    align-items: center;
+    /* 세로로 가운데 정렬 */
+    flex-direction: column;
+    /* 세로 정렬 */
     padding: 20px;
 }
 
