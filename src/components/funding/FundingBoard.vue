@@ -114,12 +114,14 @@ const submitBoard = async () => {
         closeModal();
         fetchBoards();
     } catch (error) {
-        if (error.response && error.response.status === 403) {
-            // 서버에서 Forbidden 상태 반환 시 경고 메시지
-            alert('펀딩에 참여하지 않은 사용자는 게시글을 작성할 수 없습니다.');
-        } else {
-            alert('게시글 등록 중 오류가 발생했습니다.');
-        }
+        closeModal();
+        setTimeout(() => {
+            if (error.response && error.response.status === 403) {
+                alert('펀딩에 참여하지 않은 사용자는 게시글을 작성할 수 없습니다.');
+            } else {
+                alert('게시글 등록 중 오류가 발생했습니다.');
+            }
+        }, 100); // `setTimeout`으로 alert를 비동기 처리
     }
 };
 
