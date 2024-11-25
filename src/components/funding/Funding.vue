@@ -80,49 +80,57 @@
                             <p class="funding-period">{{ fundingStartDate }} ~ {{ fundingEndDate }}</p>
                         </div>
                         <div class="reward-items-wrapper">
-                            <div v-for="reward in rewardList" :key="reward.rewardId"
-                                class="reward-item text-start mb-3 w-100" @click="selectReward(reward)"
-                                :class="{ 'selected': isRewardSelected(reward.rewardId) }">
-                                <div class="reward-price">{{ reward.price.toLocaleString() }}원 펀딩</div>
-                                <h4 class="reward-name">{{ reward.rewardName }}</h4>
-                                <div class="reward-description">{{ reward.explanation }}</div>
-                                <div class="reward-quantity">
-                                    <span class="quantity-left">
-                                        {{ (reward.quantityLimit > 0 ? reward.quantityLimit - reward.supportedCnt : 999)
-                                        }}개 남음
-                                    </span>
+                            <!-- 스크롤 가능한 영역 -->
+                            <div class="scrollable-rewards">
+                                <div v-for="reward in rewardList" :key="reward.rewardId"
+                                    class="reward-item text-start mb-3 w-100" @click="selectReward(reward)"
+                                    :class="{ 'selected': isRewardSelected(reward.rewardId) }">
+                                    <div v-for="reward in rewardList" :key="reward.rewardId"
+                                        class="reward-item text-start mb-3 w-100" @click="selectReward(reward)"
+                                        :class="{ 'selected': isRewardSelected(reward.rewardId) }">
+                                        <div class="reward-price">{{ reward.price.toLocaleString() }}원 펀딩</div>
+                                        <h4 class="reward-name">{{ reward.rewardName }}</h4>
+                                        <div class="reward-description">{{ reward.explanation }}</div>
+                                        <div class="reward-quantity">
+                                            <span class="quantity-left">
+                                                {{ (reward.quantityLimit > 0 ? reward.quantityLimit -
+                                                    reward.supportedCnt : 999)
+                                                }}개 남음
+                                            </span>
+                                        </div>
+                                        <div class="reward-delivery">배송비: {{ reward.deliveryFee }}원</div>
+                                    </div>
                                 </div>
-                                <div class="reward-delivery">배송비: {{ reward.deliveryFee }}원</div>
+                                <div v-if="selectedRewards.length > 0" class="selected-rewards-container mt-3">
+                                    <div v-for="selectedReward in selectedRewards" :key="selectedReward.rewardId"
+                                        class="selected-reward-item p-3 mb-2 w-100">
+                                        <div class="d-flex justify-content-between align-items-center">
+                                            <h5 class="mb-0">{{ selectedReward.rewardName }}</h5>
+                                            <button class="btn-close"
+                                                @click.stop="removeSelectedReward(selectedReward)"></button>
+                                        </div>
+                                        <div class="quantity-selector mt-2 d-flex align-items-center">
+                                            <button class="btn btn-outline-secondary btn-sm"
+                                                @click.stop="decreaseQuantity(selectedReward)"
+                                                :disabled="selectedReward.quantity <= 1">-</button>
+                                            <input type="text" class="form-control form-control-sm mx-2 text-center"
+                                                style="width: 60px;" v-model="selectedReward.quantity" readonly>
+                                            <button class="btn btn-outline-secondary btn-sm"
+                                                @click.stop="increaseQuantity(selectedReward)"
+                                                :disabled="!canIncreaseQuantity(selectedReward)">+</button>
+                                            <span class="ms-3">
+                                                {{ (selectedReward.price * selectedReward.quantity).toLocaleString() }}원
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="mt-3 mx-2">
+                                    <button id="support-button" class="btn btn-primary btn-lg w-100"
+                                        @click="handleSupportPurchase">
+                                        펀딩하기
+                                    </button>
+                                </div>
                             </div>
-                        </div>
-                        <div v-if="selectedRewards.length > 0" class="selected-rewards-container mt-3">
-                            <div v-for="selectedReward in selectedRewards" :key="selectedReward.rewardId"
-                                class="selected-reward-item p-3 mb-2 w-100">
-                                <div class="d-flex justify-content-between align-items-center">
-                                    <h5 class="mb-0">{{ selectedReward.rewardName }}</h5>
-                                    <button class="btn-close"
-                                        @click.stop="removeSelectedReward(selectedReward)"></button>
-                                </div>
-                                <div class="quantity-selector mt-2 d-flex align-items-center">
-                                    <button class="btn btn-outline-secondary btn-sm"
-                                        @click.stop="decreaseQuantity(selectedReward)"
-                                        :disabled="selectedReward.quantity <= 1">-</button>
-                                    <input type="text" class="form-control form-control-sm mx-2 text-center"
-                                        style="width: 60px;" v-model="selectedReward.quantity" readonly>
-                                    <button class="btn btn-outline-secondary btn-sm"
-                                        @click.stop="increaseQuantity(selectedReward)"
-                                        :disabled="!canIncreaseQuantity(selectedReward)">+</button>
-                                    <span class="ms-3">
-                                        {{ (selectedReward.price * selectedReward.quantity).toLocaleString() }}원
-                                    </span>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="mt-3 mx-2">
-                            <button id="support-button" class="btn btn-primary btn-lg w-100"
-                                @click="handleSupportPurchase">
-                                펀딩하기
-                            </button>
                         </div>
                     </div>
                 </div>
