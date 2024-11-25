@@ -259,7 +259,9 @@ const toggleWishlist = async () => {
         isInWishlist.value = !isInWishlist.value;
         console.log("처리 후 isInWishlist.value: " + isInWishlist.value)
     } catch (error) {
-        if (error.response && error.response.status === 401) {
+        if (error.response && error.response.status === 400) {
+            alert('자신이 만든 펀딩은 위시리스트에 추가할 수 없습니다.');
+        } else if (error.response && error.response.status === 401) {
             handleAuthError();
         } else {
             console.error('찜 토글 중 오류 발생:', error);
@@ -357,7 +359,15 @@ const toggleFollow = async () => {
         isFollowing.value = !isFollowing.value;
     } catch (error) {
         console.error('팔로우 상태 변경 중 오류 발생:', error);
-        alert('팔로우 처리 중 문제가 발생했습니다.');
+        
+        // 서버에서 반환된 에러 메시지 처리
+        if (error.response && error.response.status === 400) {
+            alert(error.response.data); // "You cannot follow yourself." 등의 메시지 표시
+        } else if (error.response && error.response.status === 409) {
+            alert(error.response.data); // "Already following this user." 등의 메시지 표시
+        } else {
+            alert('팔로우 처리 중 문제가 발생했습니다.');
+        }
     }
 };
 
