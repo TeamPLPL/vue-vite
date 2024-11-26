@@ -2,7 +2,7 @@
     <div class="funding-notice">
         <div class="notice-header">
             <div class="title-wrapper">
-                <h2 class="funding-notice-title">새소식&nbsp;&nbsp;<span class="total-count">{{ totalElements }}</span>
+                <h2 class="funding-notice-title">새소식&nbsp;&nbsp;<span class="total-count">{{ noticeList.length }}</span>
                 </h2>
 
             </div>
@@ -21,7 +21,7 @@
                 </div>
             </div>
 
-            <nav aria-label="Page navigation" class="mt-4">
+            <!-- <nav aria-label="Page navigation" class="mt-4">
                 <ul class="pagination justify-content-center">
                     <li class="page-item" :class="{ disabled: currentPage === 0 }">
                         <a class="page-link" href="#" @click.prevent="changePage(currentPage - 1)">이전</a>
@@ -36,7 +36,7 @@
                         <a class="page-link" href="#" @click.prevent="changePage(currentPage + 1)">다음</a>
                     </li>
                 </ul>
-            </nav>
+            </nav> -->
         </div>
         <div v-else class="no-notices">
             <p>등록된 새소식이 없습니다.</p>
@@ -90,12 +90,12 @@ const isCreator = inject('isCreator', false);
 const noticeList = ref([]);
 const currentPage = ref(0);
 const totalPages = ref(0);
-const totalElements = ref(0);
+const totalElements = ref([]);
 const isLoading = ref(false);
 const error = ref(null);
 const writeModal = ref(null);
 const newNotice = ref({ title: '', content: '' });
-const pageSize = 5;
+// const pageSize = 5;
 
 const fetchNotices = async (page = 0) => {
     if (!fundingId || !fundingId.value) {
@@ -105,11 +105,9 @@ const fetchNotices = async (page = 0) => {
     isLoading.value = true;
     error.value = null;
     try {
-        const response = await apiWrapper.getNoticeList(fundingId.value, page, pageSize);
-        noticeList.value = response.content || [];
-        currentPage.value = response.number;
-        totalPages.value = response.totalPages;
-        totalElements.value = response.totalElements;
+        const response = await apiWrapper.getNoticeList(fundingId.value);
+        console.log("response: ", response)
+        noticeList.value = response || [];
     } catch (err) {
         error.value = err.response?.data?.message || '새소식을 불러오는 중 오류가 발생했습니다. 다시 시도해 주세요.';
         console.error('새소식을 불러오는 중 오류가 발생했습니다:', err);

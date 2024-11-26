@@ -264,10 +264,11 @@ const toggleWishlist = async () => {
             await wishlistStore.addToWishlist(fundingId.value);
         }
         isInWishlist.value = !isInWishlist.value;
-        console.log("처리 후 isInWishlist.value: " + isInWishlist.value)
     } catch (error) {
         if (error.response && error.response.status === 401) {
             handleAuthError();
+        } else if (error.response && error.response.status === 400) {
+            alert('자신의 글은 찜할 수 없습니다.');
         } else {
             console.error('찜 토글 중 오류 발생:', error);
             alert('찜 기능 처리 중 오류가 발생했습니다.');
@@ -366,7 +367,7 @@ const toggleFollow = async () => {
         isFollowing.value = !isFollowing.value;
     } catch (error) {
         console.error('팔로우 상태 변경 중 오류 발생:', error);
-        
+
         // 서버에서 반환된 에러 메시지 처리
         if (error.response && error.response.status === 400) {
             alert(error.response.data); // "You cannot follow yourself." 등의 메시지 표시
