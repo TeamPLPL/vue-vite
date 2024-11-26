@@ -1,114 +1,119 @@
 <template>
-    <div class="progress-steps my-5">
-        <div v-for="(step, index) in steps" :key="index" class="step-container">
-            <div :class="['step-circle', { 'step-completed': index === 1, 'step-pending': index !== 1 }]">
-                {{ step }}
+    <div class="container mb-4">
+        <div class="progress-steps my-5">
+            <div v-for="(step, index) in steps" :key="index" class="step-container">
+                <div :class="['step-circle', { 'step-completed': index === 1, 'step-pending': index !== 1 }]">
+                    {{ step }}
+                </div>
+                <div v-if="index < steps.length - 1" class="dashed-line"></div>
             </div>
-            <div v-if="index < steps.length - 1" class="dashed-line"></div>
         </div>
-    </div>
 
-    <h5 class="fw-bold">선택한 리워드</h5>
-    <div v-for="reward in selectedRewards" :key="reward.rewardId" class="reward-item">
-        <h6 class="reward-title">{{ reward.rewardName }}</h6>
-        <p>수량: {{ reward.quantity }}개</p>
-        <p>가격: {{ (reward.price * reward.quantity).toLocaleString() }}원</p>
-    </div>
+        <h5 class="fw-bold text-start">선택한 리워드</h5>
+        <div v-for="reward in selectedRewards" :key="reward.rewardId" class="reward-item">
+            <h6 class="reward-title">{{ reward.rewardName }}</h6>
+            <p>수량: {{ reward.quantity }}개</p>
+            <p>가격: {{ (reward.price * reward.quantity).toLocaleString() }}원</p>
+        </div>
 
-    <hr />
+        <hr />
 
-    <h5 class="fw-bold">결제 요약</h5>
-    <ul class="list-unstyled">
-        <li class="d-flex justify-content-between">
-            <span>리워드 금액</span>
-            <span>{{ totalPrice.toLocaleString() }}원</span>
-        </li>
-        <li class="d-flex justify-content-between">
-            <span>배송비</span>
-            <span>{{ deliveryFee.toLocaleString() }}원</span>
-        </li>
-        <li class="d-flex justify-content-between">
-            <span>추가 후원금</span>
-            <span>{{ donationAmount.toLocaleString() }}원</span>
-        </li>
-        <li v-if="selectedCoupon" class="d-flex justify-content-between text-danger">
-            <span>쿠폰 할인 ({{ selectedCoupon.discountRate }}%)</span>
-            <span>-{{ ((totalPrice * selectedCoupon.discountRate) / 100).toLocaleString() }}원</span>
-        </li>
-        <li class="d-flex justify-content-between fw-bold">
-            <span>총 결제 금액</span>
-            <span>{{ wholePrice.toLocaleString() }}원</span>
-        </li>
-    </ul>
+        <h5 class="fw-bold text-start">결제 요약</h5>
+        <ul class="list-unstyled">
+            <li class="d-flex justify-content-between">
+                <span>리워드 금액</span>
+                <span>{{ totalPrice.toLocaleString() }}원</span>
+            </li>
+            <li class="d-flex justify-content-between">
+                <span>배송비</span>
+                <span>{{ deliveryFee.toLocaleString() }}원</span>
+            </li>
+            <li class="d-flex justify-content-between">
+                <span>추가 후원금</span>
+                <span>{{ donationAmount.toLocaleString() }}원</span>
+            </li>
+            <li v-if="selectedCoupon" class="d-flex justify-content-between text-danger">
+                <span>쿠폰 할인 ({{ selectedCoupon.discountRate }}%)</span>
+                <span>-{{ ((totalPrice * selectedCoupon.discountRate) / 100).toLocaleString() }}원</span>
+            </li>
+            <li class="d-flex justify-content-between fw-bold">
+                <span>총 결제 금액</span>
+                <span>{{ wholePrice.toLocaleString() }}원</span>
+            </li>
+        </ul>
 
-    <div class="d-flex input-group mb-3">
-        <h6>쿠폰 사용</h6>
-        <br />
-        <select v-model="selectedCoupon" class="form-select">
-            <option disabled value="">쿠폰을 선택하세요</option>
-            <option v-for="coupon in coupons" :key="coupon.id" :value="coupon">
-                {{ coupon.couponName }} ({{ coupon.discountRate }}% 할인)
-            </option>
-        </select>
+        <div class="d-flex align-items-center input-group mb-3">
+            <h6 class="text-start w-25">쿠폰 사용</h6>
+            <br />
+            <select v-model="selectedCoupon" class="form-select w-50">
+                <option disabled value="">쿠폰을 선택하세요</option>
+                <option v-for="coupon in coupons" :key="coupon.id" :value="coupon">
+                    {{ coupon.couponName }} ({{ coupon.discountRate }}% 할인)
+                </option>
+            </select>
+            <br />
+
+        </div>
         <p v-if="selectedCoupon">
             선택된 쿠폰: {{ selectedCoupon.couponName }} ({{ selectedCoupon.discountRate }}%)
         </p>
+
+        <hr />
+
+        <h5 class="fw-bold text-start">배송지 정보</h5>
+        <div class="mb-3 d-flex">
+            <label for="recipientName" class="form-label w-25 text-start">이름</label>
+            <input v-model="recipientName" type="text" class="form-control" id="recipientName"
+                placeholder="이름을 입력하세요" />
+        </div>
+        <div class="mb-3 d-flex">
+            <label for="phoneNumber" class="form-label w-25 text-start">휴대폰 번호</label>
+            <input v-model="phoneNumber" type="text" class="form-control" id="phoneNumber"
+                placeholder="휴대폰 번호를 입력하세요" />
+        </div>
+
+        <div class="mb-3">
+            <!-- Address 컴포넌트 추가 -->
+            <Address @selectedAddress="handleAddressSelection" />
+        </div>
+
+        <button @click="saveAddressToPayment">선택한 주소 확인 및 저장</button>
+
+        <div class="mb-3">
+            <h5 for="deliveryRequest" class="form-label w-50 text-start">배송 시 요청사항 (선택)</h5>
+            <input v-model="deliveryRequest" type="text" class="form-control" id="deliveryRequest"
+                placeholder="요청사항을 입력하세요" />
+        </div>
+
+        <hr />
+
+        <h5 class="fw-bold text-start">결제 방법</h5>
+        <div class="form-check mb-3">
+            <input class="form-check-input" type="radio" name="paymentMethod" id="creditCard" value="card"
+                v-model="paymentMethod" />
+            <label class="form-check-label w-100 text-start" for="creditCard">신용/체크카드</label>
+        </div>
+
+        <div v-if="paymentMethod === 'card'" class="mb-3">
+            <label for="cardNumber" class="form-label w-100 text-start">카드번호</label>
+            <input v-model="cardNumber" type="text" class="form-control" id="cardNumber" placeholder="카드번호를 입력하세요" />
+        </div>
+
+        <hr />
+
+        <h5 class="fw-bold text-start">약관 동의</h5>
+        <div class="form-check mb-2">
+            <input class="form-check-input" type="checkbox" id="terms1" v-model="termsAccepted" />
+            <label for="terms1" class="form-check-label w-100 text-start">결제 진행 필수 동의</label>
+        </div>
+
+        <RouterLink :to="`/purchase/choose/${id}`">
+            <button type="button" class="btn prev-btn w-100 my-1">이전 단계</button>
+        </RouterLink>
+        <RouterLink :to="`/purchase/reserve/${id}`">
+            <button @click="clientAuth" class="btn pay-btn w-100 my-1">결제하기</button>
+        </RouterLink>
     </div>
-
-
-    <hr />
-
-    <h5 class="fw-bold">배송지 정보</h5>
-    <div class="mb-3">
-        <label for="recipientName" class="form-label">이름</label>
-        <input v-model="recipientName" type="text" class="form-control" id="recipientName" placeholder="이름을 입력하세요" />
-    </div>
-    <div class="mb-3">
-        <label for="phoneNumber" class="form-label">휴대폰 번호</label>
-        <input v-model="phoneNumber" type="text" class="form-control" id="phoneNumber" placeholder="휴대폰 번호를 입력하세요" />
-    </div>
-
-    <div class="mb-3">
-        <!-- Address 컴포넌트 추가 -->
-        <Address @selectedAddress="handleAddressSelection" />
-    </div>
-
-    <button @click="saveAddressToPayment">선택한 주소 확인 및 저장</button>
-
-    <div class="mb-3">
-        <label for="deliveryRequest" class="form-label">배송 시 요청사항 (선택)</label>
-        <input v-model="deliveryRequest" type="text" class="form-control" id="deliveryRequest"
-            placeholder="요청사항을 입력하세요" />
-    </div>
-
-    <hr />
-
-    <h5 class="fw-bold">결제 방법</h5>
-    <div class="form-check mb-3">
-        <input class="form-check-input" type="radio" name="paymentMethod" id="creditCard" value="card"
-            v-model="paymentMethod" />
-        <label class="form-check-label" for="creditCard">신용/체크카드</label>
-    </div>
-
-    <div v-if="paymentMethod === 'card'" class="mb-3">
-        <label for="cardNumber" class="form-label">카드번호</label>
-        <input v-model="cardNumber" type="text" class="form-control" id="cardNumber" placeholder="카드번호를 입력하세요" />
-    </div>
-
-    <hr />
-
-    <h5 class="fw-bold">약관 동의</h5>
-    <div class="form-check mb-2">
-        <input class="form-check-input" type="checkbox" id="terms1" v-model="termsAccepted" />
-        <label for="terms1" class="form-check-label">결제 진행 필수 동의</label>
-    </div>
-
-    <RouterLink :to="`/purchase/choose/${id}`">
-        <button type="button" class="btn btn-primary w-100 my-1">이전 단계</button>
-    </RouterLink>
-    <RouterLink :to="`/purchase/reserve/${id}`">
-        <button @click="clientAuth" class="btn btn-primary w-100 my-1">clientAuth 결제하기</button>
-    </RouterLink>
 </template>
 
 <script setup>
@@ -335,7 +340,7 @@ async function clientAuth() {
             clientId: import.meta.env.VITE_NICEPAY_KEY,
             method: paymentMethod.value,
             // ModalConfirm.vue에 있는 orderId의 양식과 똑같아야 한다.
-            orderId: `prod_1126_${registerResponse.data.id}`, // 서버에서 결제 내역 확인용 ID, 최종 시연할 때 test_xxxx_를 제거할 예정
+            orderId: `prod_1127_${registerResponse.data.id}`, // 서버에서 결제 내역 확인용 ID, 최종 시연할 때 test_xxxx_를 제거할 예정
             amount: wholePrice.value,
             goodsName: fundingData.value.fundingTitle,
             returnUrl: `http://localhost:8080/api/payment/complete?id=${props.id}`,
@@ -407,19 +412,55 @@ onMounted(async () => {
 </script>
 
 <style scoped>
+/* 선택한 리워드와 결제 화면의 너비를 ChooseReward.vue와 동일하게 설정 */
+.container {
+    max-width: 550px;
+    /* ChooseReward.vue의 기준 너비와 동일하게 설정 */
+    margin: 0 auto;
+    /* 중앙 정렬 */
+    padding: 0 20px;
+    /* 여백 추가로 가독성 향상 */
+}
+
+.prev-btn {
+    background-color: #00c4c4;
+    color: #fff;
+}
+
+.pay-btn {
+    background-color: #00c4c4;
+    color: #fff;
+}
+
 .reward-item {
-    background-color: #f9f9f9;
-    border: 1px solid #ddd;
-    padding: 15px;
-    margin-bottom: 15px;
-    border-radius: 10px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    background-color: #fff;
+    border: 1px solid #e7e7e7;
+    border-radius: 8px;
+    padding: 20px;
+    margin-bottom: 20px;
+    transition: all 0.2s ease;
+}
+
+.reward-item:hover {
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+.reward-header h6 {
+    font-size: 16px;
+    font-weight: bold;
+    color: #333;
+    margin-bottom: 10px;
+}
+
+.reward-item p {
     font-size: 14px;
+    color: #666;
+    margin-bottom: 10px;
 }
 
 .reward-title {
     font-weight: bold;
-    color: #007bff;
+    color: #00c4c4;
     margin-bottom: 8px;
 }
 
@@ -446,17 +487,21 @@ onMounted(async () => {
 
 .progress-steps {
     display: flex;
+    justify-content: space-between;
     align-items: center;
-    justify-content: center;
-    white-space: normal;
-    /* 일반적인 줄바꿈 허용 */
-    word-break: keep-all;
-    /* 단어 단위로 줄바꿈 */
+    /* 요소를 수직으로 중앙 정렬 */
+    margin: 40px 0;
+    width: 100%;
+    /* 부모 컨테이너의 전체 폭 사용 */
 }
 
 .step-container {
     display: flex;
+    flex-direction: column;
     align-items: center;
+    /* 각 스텝을 중앙 정렬 */
+    text-align: center;
+    /* 원 아래의 텍스트 정렬 */
 }
 
 .step-circle {
@@ -468,21 +513,31 @@ onMounted(async () => {
     justify-content: center;
     font-weight: bold;
     color: white;
+    font-size: 14px;
+    margin-bottom: 10px;
+    /* 원과 아래 텍스트 간의 간격 */
 }
 
 .step-completed {
-    background-color: #4db4d7;
+    background-color: #00c4c4;
     /* Example color for completed step */
 }
 
 .step-pending {
     background-color: #e9ecef;
+    color: #666;
 }
 
 .dashed-line {
-    border-top: 2px dashed #000000;
-    width: 80px;
+    flex-grow: 1;
+    border-top: 2px dashed #ccc;
     margin: 0 10px;
-    /* 필요시 약간의 여백을 추가 */
+}
+
+h5.text-start {
+    font-size: 18px;
+    color: #333;
+    margin-bottom: 20px;
+    font-weight: bold;
 }
 </style>
