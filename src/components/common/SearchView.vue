@@ -21,7 +21,7 @@
                 </div>
             </div>
 
-            <nav aria-label="Page navigation" class="mt-4">
+            <!-- <nav aria-label="Page navigation" class="mt-4">
                 <ul class="pagination justify-content-center">
                     <li class="page-item" :class="{ disabled: currentPage === 1 }">
                         <a class="page-link" href="#" @click.prevent="changePage(currentPage - 1)">이전</a>
@@ -34,7 +34,7 @@
                         <a class="page-link" href="#" @click.prevent="changePage(currentPage + 1)">다음</a>
                     </li>
                 </ul>
-            </nav>
+            </nav> -->
         </div>
     </div>
 </template>
@@ -65,24 +65,44 @@ const router = useRouter();
 const fundingList = ref([]);
 const loading = ref(true);
 const error = ref(null);
-const currentPage = ref(parseInt(route.query.page) || 1);
-const totalPages = ref(1);
+// const currentPage = ref(parseInt(route.query.page) || 1);
+// const totalPages = ref(1);
 
 const title = ref(route.query.q || '');
-const size = 20; // 페이지 당 항목 수
+// const size = 20; // 페이지 당 항목 수
 
+// const fetchSearchResults = async () => {
+//     loading.value = true;
+//     error.value = null;
+
+//     try {
+//         const response = await apiWrapper.getSearchResult(title.value);
+//         console.log('API Response:', response);
+
+//         if (response && response.data) {
+//             fundingList.value = response.data.content || [];
+//             // totalPages.value = response.data.totalPages || 1;
+//             // currentPage.value = (response.data.number || 0) + 1;
+//         } else {
+//             throw new Error('Invalid API response');
+//         }
+//     } catch (err) {
+//         console.error('API Error:', err);
+//         error.value = '검색 결과를 불러오는 데 실패했습니다: ' + err.message;
+//     } finally {
+//         loading.value = false;
+//     }
+// };
 const fetchSearchResults = async () => {
     loading.value = true;
     error.value = null;
 
     try {
-        const response = await apiWrapper.getSearchResult(title.value, currentPage.value - 1, size);
+        const response = await apiWrapper.getSearchResult(title.value);
         console.log('API Response:', response);
 
         if (response && response.data) {
-            fundingList.value = response.data.content || [];
-            totalPages.value = response.data.totalPages || 1;
-            currentPage.value = (response.data.number || 0) + 1;
+            fundingList.value = response.data || [];
         } else {
             throw new Error('Invalid API response');
         }
@@ -94,22 +114,22 @@ const fetchSearchResults = async () => {
     }
 };
 
-const changePage = (page) => {
-    if (page >= 1 && page <= totalPages.value) {
-        router.push({ query: { ...route.query, page } });
-    }
-};
+// const changePage = (page) => {
+//     if (page >= 1 && page <= totalPages.value) {
+//         router.push({ query: { ...route.query, page } });
+//     }
+// };
 
-const displayedPages = computed(() => {
-    const delta = 2;
-    const range = [];
-    for (let i = Math.max(1, currentPage.value - delta);
-        i <= Math.min(totalPages.value, currentPage.value + delta);
-        i++) {
-        range.push(i);
-    }
-    return range;
-});
+// const displayedPages = computed(() => {
+//     const delta = 2;
+//     const range = [];
+//     for (let i = Math.max(1, currentPage.value - delta);
+//         i <= Math.min(totalPages.value, currentPage.value + delta);
+//         i++) {
+//         range.push(i);
+//     }
+//     return range;
+// });
 
 // const redirectToFundingDetail = (id) => {
 //     router.push({ name: 'FundingDetail', params: { id } });
@@ -129,7 +149,7 @@ onMounted(() => {
 });
 
 watch(() => route.query, () => {
-    currentPage.value = parseInt(route.query.page) || 1;
+    // currentPage.value = parseInt(route.query.page) || 1;
     title.value = route.query.q || '';
     fetchSearchResults();
 }, { deep: true });

@@ -315,18 +315,18 @@ const apiWrapper = {
 
     // MainCategoryId별 펀딩 목록 조회(페이징 처리)
     fetchFundingsByMainCategoryId: async (
-        id,
-        page = 0,
-        size = Const.DEFAULT_PAGE_SIZE
+        id
+        // page = 0,
+        // size = Const.DEFAULT_PAGE_SIZE
     ) => {
         try {
             const response = await apiClient.get(
                 `api/funding/fundinglist/main/${id}`,
                 {
                     params: {
-                        page: page,
-                        size: size,
-                        sort: "supportCnt,DESC",
+                        // page: page,
+                        // size: size,
+                        // sort: "supportCnt,DESC",
                     },
                 }
             );
@@ -346,18 +346,18 @@ const apiWrapper = {
 
     // SubCategoryId별 펀딩 목록 조회(페이징 처리)
     fetchFundingsBySubCategoryId: async (
-        id,
-        page = 0,
-        size = Const.DEFAULT_PAGE_SIZE
+        id
+        // page = 0,
+        // size = Const.DEFAULT_PAGE_SIZE
     ) => {
         try {
             const response = await apiClient.get(
                 `api/funding/fundinglist/sub/${id}`,
                 {
                     params: {
-                        page: page,
-                        size: size,
-                        sort: "supportCnt,DESC",
+                        // page: page,
+                        // size: size,
+                        // sort: "supportCnt,DESC",
                     },
                 }
             );
@@ -438,13 +438,11 @@ const apiWrapper = {
         }
     },
 
-    getSearchResult: async (title, page, size) => {
+    getSearchResult: async (title) => {
         try {
             const response = await apiClient.get("/api/funding/search", {
                 params: {
                     title: title,
-                    page: page - 1, // Spring Boot는 0-based 페이징을 사용
-                    size: size, // 페이지 당 항목 수
                 },
             });
             console.log("제목 검색 성공: " + response);
@@ -457,12 +455,7 @@ const apiWrapper = {
 
     getNoticeList: async (id, page, size) => {
         try {
-            const response = await apiClient.get(`/api/funding/${id}/notice`, {
-                params: {
-                    page: page,
-                    size: size,
-                },
-            });
+            const response = await apiClient.get(`/api/funding/${id}/notice`);
             console.log("펀딩 공지사항 불러오기 성공:", response);
             return response.data;
         } catch (error) {
@@ -566,5 +559,20 @@ const apiWrapper = {
     //         throw error;
     //     }
     // },
+
+    getSelectedRewardList: async (rewards) => {
+        try {
+            const response = await apiClient.post(`/api/reward-list`, rewards, {
+                headers: {
+                    "Content-Type": "application/json",
+                },
+            });
+            console.log("선택된 리워드 목록 조회 성공:", response);
+            return response.data;
+        } catch (error) {
+            console.error(`getSelectedRewardList 중 오류 발생`, error);
+            throw error;
+        }
+    },
 };
 export default apiWrapper;

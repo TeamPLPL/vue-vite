@@ -119,6 +119,7 @@ const handleCategorySelected = (category) => {
 }
 
 .app-container {
+  overflow: visible;
   padding-top: 38px;
 }
 

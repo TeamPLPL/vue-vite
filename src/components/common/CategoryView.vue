@@ -6,7 +6,7 @@
         </div>
         <div v-else>
             <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 row-cols-xl-5 g-4">
-                <div class="col" v-for="(funding, index) in categoryFundings.content" :key="index">
+                <div class="col" v-for="(funding, index) in categoryFundings" :key="index">
                     <div class="card h-100" @click="redirectToFundingDetail(funding.id)">
                         <img :src="getThumbnailUrl(funding.thumbnailImgUrl)" class="card-img-top"
                             :alt="funding.fundingTitle" @error="handleImageError">
@@ -20,7 +20,7 @@
                     </div>
                 </div>
             </div>
-            <nav aria-label="Page navigation" class="mt-4">
+            <!-- <nav aria-label="Page navigation" class="mt-4">
                 <ul class="pagination justify-content-center">
                     <li class="page-item" :class="{ disabled: categoryFundings.first }">
                         <a class="page-link" href="#" @click.prevent="changePage(categoryFundings.number - 1)">이전</a>
@@ -33,7 +33,7 @@
                         <a class="page-link" href="#" @click.prevent="changePage(categoryFundings.number + 1)">다음</a>
                     </li>
                 </ul>
-            </nav>
+            </nav> -->
         </div>
     </div>
 </template>
@@ -46,31 +46,55 @@ import defaultThumbnail from '../../assets/default_thumbnail.jpeg'
 
 const route = useRoute();
 const router = useRouter();
-const categoryFundings = ref({ content: [], number: 0, totalPages: 0, first: true, last: true });
+const categoryFundings = ref({});
 const noContentMessage = ref('');
 const defaultImageUrl = ref(defaultThumbnail);
 const pageSize = ref(20); // 페이지당 아이템 수
 
-const loadCategoryFundings = async (page = 0) => {
+// const loadCategoryFundings = async (page = 0) => {
+//     const { type, id } = route.params;
+//     const categoryName = route.query.name;
+//     try {
+//         let response;
+//         if (type === 'main') {
+//             response = await apiWrapper.fetchFundingsByMainCategoryId(id, page, pageSize.value);
+//         } else if (type === 'sub') {
+//             response = await apiWrapper.fetchFundingsBySubCategoryId(id, page, pageSize.value);
+//         }
+//         if (response && response.content && response.content.length > 0) {
+//             categoryFundings.value = response;
+//             noContentMessage.value = '';
+//         } else {
+//             categoryFundings.value = { content: [], number: 0, totalPages: 0, first: true, last: true };
+//             noContentMessage.value = `${categoryName} 카테고리의 펀딩 프로젝트가 존재하지 않습니다.`;
+//         }
+//     } catch (error) {
+//         console.error('카테고리별 펀딩 조회 중 오류 발생:', error);
+//         categoryFundings.value = { content: [], number: 0, totalPages: 0, first: true, last: true };
+//         noContentMessage.value = '펀딩 프로젝트를 불러오는 중 오류가 발생했습니다.';
+//     }
+// };
+
+const loadCategoryFundings = async () => {
     const { type, id } = route.params;
     const categoryName = route.query.name;
     try {
         let response;
         if (type === 'main') {
-            response = await apiWrapper.fetchFundingsByMainCategoryId(id, page, pageSize.value);
+            response = await apiWrapper.fetchFundingsByMainCategoryId(id);
         } else if (type === 'sub') {
-            response = await apiWrapper.fetchFundingsBySubCategoryId(id, page, pageSize.value);
+            response = await apiWrapper.fetchFundingsBySubCategoryId(id);
         }
-        if (response && response.content && response.content.length > 0) {
+        if (response && response.length > 0) {
             categoryFundings.value = response;
             noContentMessage.value = '';
         } else {
-            categoryFundings.value = { content: [], number: 0, totalPages: 0, first: true, last: true };
+            categoryFundings.value = [];
             noContentMessage.value = `${categoryName} 카테고리의 펀딩 프로젝트가 존재하지 않습니다.`;
         }
     } catch (error) {
         console.error('카테고리별 펀딩 조회 중 오류 발생:', error);
-        categoryFundings.value = { content: [], number: 0, totalPages: 0, first: true, last: true };
+        categoryFundings.value = [];
         noContentMessage.value = '펀딩 프로젝트를 불러오는 중 오류가 발생했습니다.';
     }
 };
@@ -81,30 +105,30 @@ onMounted(() => {
 
 watch(() => route.fullPath, () => loadCategoryFundings());
 
-const changePage = (newPage) => {
-    if (newPage >= 0 && newPage < categoryFundings.value.totalPages) {
-        loadCategoryFundings(newPage);
-    }
-};
+// const changePage = (newPage) => {
+//     if (newPage >= 0 && newPage < categoryFundings.value.totalPages) {
+//         loadCategoryFundings(newPage);
+//     }
+// };
 
-const displayedPages = computed(() => {
-    const currentPage = categoryFundings.value.number + 1;
-    const totalPages = categoryFundings.value.totalPages;
-    const range = 2; // 현재 페이지 양쪽에 표시할 페이지 수
+// const displayedPages = computed(() => {
+//     const currentPage = categoryFundings.value.number + 1;
+//     const totalPages = categoryFundings.value.totalPages;
+//     const range = 2; // 현재 페이지 양쪽에 표시할 페이지 수
 
-    let start = Math.max(currentPage - range, 1);
-    let end = Math.min(currentPage + range, totalPages);
+//     let start = Math.max(currentPage - range, 1);
+//     let end = Math.min(currentPage + range, totalPages);
 
-    if (end - start + 1 < range * 2 + 1) {
-        if (currentPage < totalPages / 2) {
-            end = Math.min(start + range * 2, totalPages);
-        } else {
-            start = Math.max(end - range * 2, 1);
-        }
-    }
+//     if (end - start + 1 < range * 2 + 1) {
+//         if (currentPage < totalPages / 2) {
+//             end = Math.min(start + range * 2, totalPages);
+//         } else {
+//             start = Math.max(end - range * 2, 1);
+//         }
+//     }
 
-    return Array.from({ length: end - start + 1 }, (_, i) => start + i);
-});
+//     return Array.from({ length: end - start + 1 }, (_, i) => start + i);
+// });
 
 
 // import { ref, onMounted, watch, computed } from 'vue'
