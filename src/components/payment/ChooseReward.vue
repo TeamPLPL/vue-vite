@@ -1,5 +1,5 @@
 <template>
-    <div>
+    <div class="mb-4">
         <div class="progress-steps my-5">
             <div v-for="(step, index) in steps" :key="index" class="step-container">
                 <div :class="['step-circle', { 'step-completed': index === 0, 'step-pending': index > 0 }]">
@@ -15,7 +15,8 @@
                 <div class="reward-header">
                     <h6>{{ reward.rewardName }}</h6>
                 </div>
-                <p>가격: {{ reward.price.toLocaleString() }}원</p>
+                <!-- <p>가격: {{ reward.price.toLocaleString() }}원</p> -->
+                <p v-if="reward.price">가격: {{ reward.price.toLocaleString() }}원</p>
                 <p>발송 시작일: {{ formatToKoreanDate(reward.deliveryStartDate) }}</p>
                 <div class="quantity-input">
                     <label :for="'quantity-' + reward.rewardId">수량:</label>
@@ -51,6 +52,10 @@ import { useRoute, useRouter } from 'vue-router';
 import { usePurchaseStore } from '../../util/store/purchaseStore';
 import apiWrapper from '../../util/axios/axios';
 import { useAuthStore } from '../../util/store/authStore';
+import { useRewardStore } from '../../util/store/rewardStore';
+
+const rewardStore = useRewardStore();
+const storedSelectedRewards = computed(() => rewardStore.selectedRewards);
 
 const props = defineProps(['id']); // props로 id 값을 받음
 
@@ -104,8 +109,18 @@ onMounted(async () => {
         router.push('/login');
     }
 
-    selectedRewards.value = selectedRewardsFromQuery.value;
+    // selectedRewards.value = selectedRewardsFromQuery.value;
+
+    const initialRewards = storedSelectedRewards.value.map((reward) => ({
+        rewardId: reward.rewardId,
+        quantity: reward.quantity || 1, // 기본값 설정
+    }));
+
+    // selectedRewards.value = storedSelectedRewards.value;
+    selectedRewards.value = [...storedSelectedRewards.value]; // 기존 값 복사
+    console.log("selectedRewards 배열:", selectedRewards);
     console.log("selectedRewards.value:", selectedRewards.value);
+    console.log("RewardStore에서 가져온 selectedRewards:", rewardStore.selectedRewards);
     try {
         const rewardsForApi = selectedRewards.value.map(reward => ({
             rewardId: reward.rewardId,
@@ -118,8 +133,53 @@ onMounted(async () => {
         console.log("리워드 목록:", response.rewardDTOList);
         console.log("배송비:", response.deliveryFee);
 
-        rewards.value = response.rewardDTOList;
-        totalDeliveryFee.value = response.deliveryFee;
+        // 서버 응답 데이터 병합
+        if (response.rewardDTOList && response.rewardDTOList.length > 0) {
+            selectedRewards.value = response.rewardDTOList.map((apiReward) => {
+                // initialRewards에서 매칭되는 데이터를 찾음
+                const matchingReward = initialRewards.find(
+                    (reward) => reward.rewardId === apiReward.rewardId
+                );
+
+                // matchingReward가 존재하면 quantity 값을 유지
+                return {
+                    rewardId: apiReward.rewardId,
+                    rewardName: apiReward.rewardName || "",
+                    price: apiReward.price || 0,
+                    deliveryStartDate: apiReward.deliveryStartDate,
+                    quantity: matchingReward ? matchingReward.quantity : apiReward.quantity || 1, // 기존 값 유지 또는 API의 quantity 사용
+                    checked: true,
+                };
+            });
+        } else {
+            console.warn("서버 응답에서 rewardDTOList가 비어 있습니다.");
+        }
+
+        console.log("최종 selectedRewards 데이터:", selectedRewards.value);
+
+        // 배송비 설정
+        totalDeliveryFee.value = response.deliveryFee || 0;
+
+        // rewards.value = response.rewardDTOList;
+        // totalDeliveryFee.value = response.deliveryFee;
+
+        // // selectedRewards를 API 응답과 병합
+        // selectedRewards.value = response.rewardDTOList.map(apiReward => {
+        //     const matchingReward = initialRewards.find(
+        //         reward => reward.rewardId === rewardsForApi.rewardId
+        //     );
+        //     return {
+        //         rewardId: apiReward.rewardId,
+        //         rewardName: apiReward.rewardName || '',
+        //         price: apiReward.price || 0,
+        //         deliveryStartDate: apiReward.deliveryStartDate,
+        //         quantity: matchingReward ? matchingReward.quantity : 1, // 초기 값 유지
+        //         checked: true,
+        //     };
+        // });
+
+        // console.log("최종 selectedRewards.value:", selectedRewards.value);
+
         // selectedRewards.value = response.data;
 
         // 초기 selectedRewards 배열 설정
@@ -134,14 +194,14 @@ onMounted(async () => {
         //     return acc;
         // }, {});
         // 초기 selectedRewards 배열 설정 
-        selectedRewards.value = response.rewardDTOList.map(reward => ({
-            rewardId: reward.rewardId,
-            rewardName: reward.rewardName,
-            price: reward.price,
-            deliveryStartDate: reward.deliveryStartDate,
-            quantity: reward.count || 1,
-            checked: true
-        }));
+        // selectedRewards.value = response.rewardDTOList.map(reward => ({
+        //     rewardId: reward.rewardId,
+        //     rewardName: reward.rewardName || '',
+        //     price: reward.price || 0,
+        //     deliveryStartDate: reward.deliveryStartDate,
+        //     quantity: reward.count || 1,
+        //     checked: true
+        // }));
     } catch (error) {
         console.error('리워드 목록 조회 실패:', error);
     } finally {
@@ -325,8 +385,8 @@ function saveToStore() {
 }
 
 .step-circle {
-    width: 60px;
-    height: 60px;
+    width: 80px;
+    height: 80px;
     border-radius: 50%;
     display: flex;
     align-items: center;

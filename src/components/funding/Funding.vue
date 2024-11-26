@@ -149,6 +149,8 @@ import defaultProfile from '../../assets/default_profile.png'
 
 import { throttle } from 'lodash';
 
+import { useRewardStore } from '../../util/store/rewardStore';
+
 const route = useRoute();
 const router = useRouter();
 const fundingId = ref(route.params.id);
@@ -159,6 +161,7 @@ const wishlistStore = useWishlistStore();
 
 
 //////// 사이드바고정
+const rewardContainerWidth = ref(0); // 초기 너비 저장 변수
 
 const sideContainer = ref(null);
 const rewardContainer = ref(null);
@@ -177,30 +180,41 @@ const handleScroll = throttle(() => {
     const windowHeight = window.innerHeight;
     const footer = document.querySelector('footer');
     const footerTop = footer ? footer.getBoundingClientRect().top : Infinity;
-
     const headersTotalHeight = TOPBAR_HEIGHT + FUNDING_DETAIL_HEADER_HEIGHT;
 
-    if (window.innerWidth >= 1200) {
-        if (window.scrollY > headersTotalHeight) {
-            const topPosition = Math.max(20, headersTotalHeight - window.scrollY);
-            sideContainer.value.style.position = 'fixed';
-            sideContainer.value.style.top = `${topPosition}px`;
-            sideContainer.value.style.width = `${sideContainer.value.offsetWidth}px`;
+    if (window.scrollY > headersTotalHeight) {
+        const topPosition = Math.max(20, headersTotalHeight - window.scrollY);
+        sideContainer.value.style.position = 'absolute';
+        sideContainer.value.style.top = `${topPosition}px`;
+        // sideContainer.value.style.width = `${sideContainer.value.offsetWidth}px`;
 
-            if (rewardRect.bottom + topPosition > footerTop) {
-                const newTop = footerTop - rewardRect.height - topPosition;
-                rewardContainer.value.style.position = 'absolute';
-                rewardContainer.value.style.top = `${newTop}px`;
-            } else {
-                rewardContainer.value.style.position = 'static';
-            }
+        // reward-container 위치 조정
+        if (rewardRect.height + topPosition + 20 > footerTop) {
+            rewardContainer.value.style.position = 'fixed';
+            rewardContainer.value.style.top = `${footerTop - rewardRect.height - 20}px`;
+            // rewardContainer.value.style.height = 'auto'; // 높이 복원
         } else {
-            resetStyles();
+            rewardContainer.value.style.position = 'fixed';
+            // rewardContainer.value.style.top = `${Math.min(windowHeight - rewardRect.height, topPosition)}px`;
+            // rewardContainer.value.style.top = `${Math.min(windowHeight - rewardRect.height, topPosition)}px`;
+            rewardContainer.value.style.top = `${footerTop - rewardRect.height - 20}px`;
+            // rewardContainer.value.style.height = `calc(${windowHeight}px - ${topPosition + 20}px)`; // 스크롤 시 높이 조정
+            // rewardContainer.value.style.height = 'auto'; // 높이 복원
+            rewardContainer.value.style.overflowY = 'auto'; // 스크롤 가능 유지
         }
+
+        // 너비 고정
+        rewardContainer.value.style.width = `${rewardContainerWidth.value}px`;
     } else {
         resetStyles();
     }
 }, 100);
+
+const handleResize = () => {
+    // 창 크기 변경 시 rewardContainer 초기 너비를 재설정
+    rewardContainerWidth.value = rewardContainer.value.offsetWidth;
+    rewardContainer.value.style.width = `${rewardContainerWidth.value}px`;
+};
 
 const resetStyles = () => {
     if (sideContainer.value) {
@@ -208,8 +222,11 @@ const resetStyles = () => {
         sideContainer.value.style.width = 'auto';
     }
     if (rewardContainer.value) {
-        rewardContainer.value.style.position = 'static';
+        rewardContainer.value.style.position = 'fixed';
         rewardContainer.value.style.top = 'auto';
+        rewardContainer.value.style.height = 'auto'; // 높이 원상 복구
+        rewardContainer.value.style.overflowY = 'visible'; // 스크롤 비활성화
+        rewardContainer.value.style.width = `${rewardContainerWidth.value}px`; // 너비 유지
     }
 };
 
@@ -406,7 +423,8 @@ provide('fundingTitle', fundingTitle)
 
 onUnmounted(() => {
     window.removeEventListener('scroll', handleScroll);
-    window.removeEventListener('resize', handleScroll);
+    // window.removeEventListener('resize', handleScroll);
+    window.removeEventListener('resize', handleResize);
 });
 
 onMounted(async () => {
@@ -443,9 +461,14 @@ onMounted(async () => {
     await checkWishlistStatus();
     await checkFollowStatus();
 
+    // handleScroll();
+    
+    // rewardContainer의 초기 너비 저장
+    rewardContainerWidth.value = rewardContainer.value.offsetWidth;
+
     window.addEventListener('scroll', handleScroll, { passive: true });
-    window.addEventListener('resize', handleScroll, { passive: true });
-    handleScroll();
+    // window.addEventListener('resize', handleScroll, { passive: true });
+    window.addEventListener('resize', handleResize, { passive: true });
 },
 )
 
@@ -609,6 +632,8 @@ const isRewardSelected = (rewardId) => {
 
 /////// 구매하기
 
+const rewardStore = useRewardStore()
+
 const handleSupportPurchase = () => {
     if (!isAuthenticated.value) {
         alert('로그인이 필요한 기능입니다.')
@@ -625,17 +650,25 @@ const handleSupportPurchase = () => {
     // selectedRewards에서 rewardId와 count만 추출
     const simplifiedRewards = selectedRewards.value.map(reward => ({
         rewardId: reward.rewardId,
-        count: reward.quantity
+        quantity: reward.quantity
     }));
 
     console.log('simplifiedRewards:', simplifiedRewards);
 
+    // Pinia 스토어에 상태 저장
+    rewardStore.setSelectedRewards(simplifiedRewards)
+
     router.push({
         name: 'ChooseReward',
-        params: { id: fundingId.value },
-        // state: { selectedRewards: simplifiedRewards }
-        query: { selectedRewards: JSON.stringify(simplifiedRewards) }
+        params: { id: fundingId.value }
     });
+
+    // router.push({
+    //     name: 'ChooseReward',
+    //     params: { id: fundingId.value },
+    //     state: { selectedRewards: simplifiedRewards }
+    //     // query: { selectedRewards: JSON.stringify(simplifiedRewards) }
+    // });
 };
 
 ////////
@@ -717,6 +750,7 @@ const handleSupportPurchase = () => {
     padding: 20px;
     border: 1px solid #e7e7e7;
     border-radius: 8px;
+    margin-bottom: 40px; /* 추가 마진 */
 }
 
 .reward-header {
