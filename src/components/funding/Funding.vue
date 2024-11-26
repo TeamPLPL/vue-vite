@@ -1,3 +1,5 @@
+Funding.vue
+
 <template>
     <div id="funding" class="container-xxl">
         <div class="row">
@@ -74,63 +76,60 @@
                         </div>
                     </div>
 
-                    <div id="reward-container" class="border border-light rounded-3 p-3" ref="rewardContainer">
+                    <div id="reward-container" class="border border-light boarder-1 rounded-3 p-3"
+                        ref="rewardContainer">
                         <div class="reward-header">
                             <h3 class="reward-title">리워드 선택</h3>
                             <p class="funding-period">{{ fundingStartDate }} ~ {{ fundingEndDate }}</p>
                         </div>
                         <div class="reward-items-wrapper">
-                            <!-- 스크롤 가능한 영역 -->
-                            <div class="scrollable-rewards">
-                                <div v-for="reward in rewardList" :key="reward.rewardId"
-                                    class="reward-item text-start mb-3 w-100" @click="selectReward(reward)"
-                                    :class="{ 'selected': isRewardSelected(reward.rewardId) }">
-                                    <div v-for="reward in rewardList" :key="reward.rewardId"
-                                        class="reward-item text-start mb-3 w-100" @click="selectReward(reward)"
-                                        :class="{ 'selected': isRewardSelected(reward.rewardId) }">
-                                        <div class="reward-price">{{ reward.price.toLocaleString() }}원 펀딩</div>
-                                        <h4 class="reward-name">{{ reward.rewardName }}</h4>
-                                        <div class="reward-description">{{ reward.explanation }}</div>
-                                        <div class="reward-quantity">
-                                            <span class="quantity-left">
-                                                {{ (reward.quantityLimit > 0 ? reward.quantityLimit -
-                                                    reward.supportedCnt : 999)
-                                                }}개 남음
-                                            </span>
-                                        </div>
-                                        <div class="reward-delivery">배송비: {{ reward.deliveryFee }}원</div>
-                                    </div>
+                            <div v-for="reward in rewardList" :key="reward.rewardId"
+                                class="reward-item text-start mb-3 w-100" @click="selectReward(reward)"
+                                :class="{ 'selected': isRewardSelected(reward.rewardId) }">
+                                <div class="reward-price">{{ reward.price.toLocaleString() }}원</div>
+                                <h4 class="reward-name">{{ reward.rewardName }}</h4>
+                                <div>{{ reward.explanation }}</div>
+                                <div class="reward-quantity">
+                                    <span class="quantity-left">
+                                        {{ (reward.quantityLimit > 0 ? reward.quantityLimit - reward.supportedCnt :
+                                            999)
+                                        }}개
+                                        남음
+                                    </span>
                                 </div>
-                                <div v-if="selectedRewards.length > 0" class="selected-rewards-container mt-3">
-                                    <div v-for="selectedReward in selectedRewards" :key="selectedReward.rewardId"
-                                        class="selected-reward-item p-3 mb-2 w-100">
-                                        <div class="d-flex justify-content-between align-items-center">
-                                            <h5 class="mb-0">{{ selectedReward.rewardName }}</h5>
-                                            <button class="btn-close"
-                                                @click.stop="removeSelectedReward(selectedReward)"></button>
-                                        </div>
-                                        <div class="quantity-selector mt-2 d-flex align-items-center">
-                                            <button class="btn btn-outline-secondary btn-sm"
-                                                @click.stop="decreaseQuantity(selectedReward)"
-                                                :disabled="selectedReward.quantity <= 1">-</button>
-                                            <input type="text" class="form-control form-control-sm mx-2 text-center"
-                                                style="width: 60px;" v-model="selectedReward.quantity" readonly>
-                                            <button class="btn btn-outline-secondary btn-sm"
-                                                @click.stop="increaseQuantity(selectedReward)"
-                                                :disabled="!canIncreaseQuantity(selectedReward)">+</button>
-                                            <span class="ms-3">
-                                                {{ (selectedReward.price * selectedReward.quantity).toLocaleString() }}원
-                                            </span>
-                                        </div>
-                                    </div>
+                                <div>배송비: {{ reward.deliveryFee }}</div>
+                            </div>
+                        </div>
+
+                        <div v-if="selectedRewards.length > 0" class="selected-rewards-container mt-3">
+                            <div v-for="selectedReward in selectedRewards" :key="selectedReward.id"
+                                class="selected-reward-item p-3 mb-2 w-100">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <h5 class="mb-0">{{ selectedReward.rewardName }}</h5>
+                                    <button class="btn-close"
+                                        @click.stop="removeSelectedReward(selectedReward)"></button>
                                 </div>
-                                <div class="mt-3 mx-2">
-                                    <button id="support-button" class="btn btn-primary btn-lg w-100"
-                                        @click="handleSupportPurchase">
-                                        펀딩하기
-                                    </button>
+                                <div class="quantity-selector mt-2 d-flex align-items-center">
+                                    <button class="btn btn-outline-secondary btn-sm"
+                                        @click.stop="decreaseQuantity(selectedReward)"
+                                        :disabled="selectedReward.quantity <= 1">-</button>
+                                    <input type="text" class="form-control form-control-sm mx-2 text-center"
+                                        style="width: 60px;" v-model="selectedReward.quantity" readonly>
+                                    <button class="btn btn-outline-secondary btn-sm"
+                                        @click.stop="increaseQuantity(selectedReward)"
+                                        :disabled="!canIncreaseQuantity(selectedReward)">+</button>
+                                    <span class="ms-3">
+                                        {{ (selectedReward.price * selectedReward.quantity).toLocaleString() }}원
+                                    </span>
                                 </div>
                             </div>
+                        </div>
+                        <!-- 후원하기 버튼 -->
+                        <div class="mt-3 mx-2">
+                            <button id="support-button" class="btn btn-primary btn-lg w-100"
+                                @click="handleSupportPurchase">
+                                후원하기
+                            </button>
                         </div>
                     </div>
                 </div>
@@ -613,8 +612,6 @@ const handleSupportPurchase = () => {
     #reward-container {
         max-height: calc(100vh - 40px);
         overflow-y: auto;
-        background-color: #fff;
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
     }
 }
 
@@ -684,7 +681,7 @@ const handleSupportPurchase = () => {
 }
 
 .funding-period {
-    font-size: 14px;
+    font-size: 13px;
     color: #90949c;
     margin: 0;
 }
@@ -705,21 +702,14 @@ const handleSupportPurchase = () => {
     cursor: pointer;
 }
 
-.selected-reward-item {
-    background-color: #f8f9fa;
-    border: 1px solid #00c4c4;
-    border-radius: 8px;
-}
-
 .reward-item:hover {
     background-color: #f8f9fa;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.08);
 }
 
 .reward-item.selected {
     border: 2px solid #00c4c4;
     background-color: #f0ffff;
-    border-color: #00c4c4;
 }
 
 .selected-reward-item {
@@ -737,15 +727,14 @@ const handleSupportPurchase = () => {
 .reward-name {
     font-size: 16px;
     font-weight: bold;
-    /* margin-bottom: 10px; */
-    margin: 10px 0;
+    margin-bottom: 10px;
     color: #333;
 }
 
 .reward-description {
     font-size: 14px;
     color: #666;
-    margin-bottom: 10px;
+    margin-bottom: 15px;
 }
 
 .reward-quantity {
@@ -756,15 +745,8 @@ const handleSupportPurchase = () => {
 .quantity-left {
     font-weight: bold;
     color: #00c4c4;
-    /* margin-right: 10px; */
+    margin-right: 10px;
 }
-
-.reward-delivery {
-    font-size: 13px;
-    color: #90949c;
-    margin-top: 5px;
-}
-
 
 .quantity-selector {
     display: flex;
