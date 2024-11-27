@@ -13,19 +13,20 @@
         >
           <div class="text-start">
             <h6 class="mb-1">프로필 정보 설정</h6>
-            <small class="text-muted">프로필 사진 이름, 이메일, 휴대폰, SNS연동 등</small>
+            <small class="text-muted">프로필 사진 이름, 이메일, SNS연동 등</small>
           </div>
           <span class="text-muted align-middle">&gt;</span>
         </a>
       </div>
       <div class="col-6 mb-3" @click="updatedpwd">
-        <a
+      <a
             href="#"
             class="list-group-item list-group-item-action d-flex justify-content-between align-items-center"
         >
           <div class="text-start">
             <h6 class="mb-1">비밀번호 설정</h6>
-            <small class="text-muted">비밀번호 재설정</small>
+            <small v-if="!userInfo.provider"  class="text-muted">비밀번호 재설정 </small>
+            <small v-else class="text-muted"><span v-if="userInfo.provider" style="color: red">* </span>SNS 가입자는 비밀번호를 변경할 수 없어요.</small>
           </div>
           <span class="text-muted align-middle">&gt;</span>
         </a>
@@ -53,10 +54,15 @@
 
 <script>
 import {useRouter} from "vue-router";
+import {onMounted, reactive} from "vue";
+import apiWrapper from "../../../util/axios/axios.js";
 
 export default {
   setup() {
     const router = useRouter();
+    const userInfo = reactive({
+      provider: ''
+    });
 
     // 프로필 정보 설정 이동
     const modifyprofile = () => {
@@ -65,7 +71,12 @@ export default {
 
     // 비밀 번호 설정 이동
     const updatedpwd = () => {
-      router.push('/mywadiz/info/updatepwd');
+      // userInfo.provider가 존재하면 SNS 가입자임
+      if (userInfo.provider) {
+        alert('SNS 가입자는 비밀번호를 변경할 수 없어요.');
+      } else {
+        router.push('/mywadiz/info/updatepwd');
+      }
     };
 
     // 배송지 설정 이동
@@ -78,11 +89,29 @@ export default {
       router.push('/mywadiz/info/dropoutuser');
     };
 
+    const fetchInitialUserInfo = async () => {
+      try {
+        const response = await apiWrapper.getData(`/api/get/user`);
+        const data = response;
+        console.log(data);
+
+        // reactive 상태 업데이트
+        userInfo.provider = data.provider;
+      } catch (error) {
+        console.error("사용자 정보 가져오기 실패", error);
+      }
+    }
+
+    onMounted(() => {
+      fetchInitialUserInfo();
+    });
+
     return {
       modifyprofile,
       updatedpwd,
       setDeliveryAddress,
-      dropoutuser
+      dropoutuser,
+      userInfo
     }
   }
 }

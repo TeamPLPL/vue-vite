@@ -169,7 +169,7 @@ export default {
     const googleSignup = async () => {
       try {
         // 구글 OAuth 인증 URL로 리디렉션
-        window.location.href = "http://localhost:8080/oauth2/authorization/google?prompt=consent";
+        window.location.href = "http://localhost:8080/oauth2/authorization/google";
       } catch (error) {
         console.error('Google signup error:', error);
       }
@@ -178,7 +178,7 @@ export default {
     const naverSignup = async () => {
       try {
         // 동의창을 강제 표시하도록 `prompt` 파라미터 추가
-        window.location.href = "http://localhost:8080/oauth2/authorization/naver?prompt=consent";
+        window.location.href = "http://localhost:8080/oauth2/authorization/naver";
       } catch (error) {
         console.error('Naver signup error:', error);
       }
