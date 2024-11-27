@@ -78,7 +78,7 @@ function handleCancellationError(error) {
 
 async function confirmCancellation() {
     try {
-        const orderId = `prod_1127_${props.paymentId}`; // orderId 생성, ReservePayment의 orderId 양식과 똑같아야 한다.
+        const orderId = `prod_1127_03_${props.paymentId}`; // orderId 생성, ReservePayment의 orderId 양식과 똑같아야 한다.
         console.log('Generated Order ID:', orderId);
 
         // 1. 세부 거래 조회
