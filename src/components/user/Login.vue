@@ -39,7 +39,7 @@
                 <hr class="mt-4 mb-4 border-secondary-subtle">
                 <div class="d-flex gap-2 gap-md-4 flex-column flex-md-row justify-content-md-end">
                   <a href="#!" class="link-secondary text-decoration-none" @click="emailSignup">이메일 회원가입</a>
-                  <a href="#!" class="link-secondary text-decoration-none">Forgot password</a>
+                  <a href="#!" class="link-secondary text-decoration-none">아이디,비밀번호 찾기</a>
                 </div>
               </div>
             </div>
