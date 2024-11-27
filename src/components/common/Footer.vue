@@ -33,16 +33,16 @@
                 <li class="mt-2"><strong>- 데이터베이스 : </strong>
                   <img class="p-1" src="https://img.shields.io/badge/MariaDB-003545?style=for-the-badge&logo=mariadb&logoColor=white)" alt="">
                 </li>
-                <li class="mt-2"><strong>- Server 및 CI/CD : </strong>
-                  <img class="p-1" src="https://img.shields.io/badge/nginx-%23009639.svg?style=for-the-badge&logo=nginx&logoColor=white" alt="">
-                  <img class="ms-2 p-1" src="https://img.shields.io/badge/github%20actions-%232671E5.svg?style=for-the-badge&logo=githubactions&logoColor=white" alt="">
-                  <img class="ms-2 p-1" src="https://img.shields.io/badge/docker-%230db7ed.svg?style=for-the-badge&logo=docker&logoColor=white" alt="">
-                  <img class="ms-2 p-1" src="https://img.shields.io/badge/AWS-%23FF9900.svg?style=for-the-badge&logo=amazon-aws&logoColor=white" alt="">
-                </li>
-                <li class="mt-2"><strong>- 형상 관리 : </strong>
-                  <img class="p-1" src="https://img.shields.io/badge/git-%23F05033.svg?style=for-the-badge&logo=git&logoColor=white" alt="">
-                  <img class="ms-2 p-1" src="https://img.shields.io/badge/github-%23121011.svg?style=for-the-badge&logo=github&logoColor=white" alt="">
-                </li>
+<!--                <li class="mt-2"><strong>- Server 및 CI/CD : </strong>-->
+<!--                  <img class="p-1" src="https://img.shields.io/badge/nginx-%23009639.svg?style=for-the-badge&logo=nginx&logoColor=white" alt="">-->
+<!--                  <img class="ms-2 p-1" src="https://img.shields.io/badge/github%20actions-%232671E5.svg?style=for-the-badge&logo=githubactions&logoColor=white" alt="">-->
+<!--                  <img class="ms-2 p-1" src="https://img.shields.io/badge/docker-%230db7ed.svg?style=for-the-badge&logo=docker&logoColor=white" alt="">-->
+<!--                  <img class="ms-2 p-1" src="https://img.shields.io/badge/AWS-%23FF9900.svg?style=for-the-badge&logo=amazon-aws&logoColor=white" alt="">-->
+<!--                </li>-->
+<!--                <li class="mt-2"><strong>- 형상 관리 : </strong>-->
+<!--                  <img class="p-1" src="https://img.shields.io/badge/git-%23F05033.svg?style=for-the-badge&logo=git&logoColor=white" alt="">-->
+<!--                  <img class="ms-2 p-1" src="https://img.shields.io/badge/github-%23121011.svg?style=for-the-badge&logo=github&logoColor=white" alt="">-->
+<!--                </li>-->
               </ul>
 
             </p>
