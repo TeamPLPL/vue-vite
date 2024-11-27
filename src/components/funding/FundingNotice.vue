@@ -15,7 +15,7 @@
         <div v-else-if="error" class="error">{{ error }}</div>
         <div v-else-if="noticeList.length > 0">
             <div v-for="notice in noticeList" :key="notice.noticeId" class="notice-item">
-                <div @click="showNoticeDetail(notice)">
+                <div class="cursor-pointer" @click="showNoticeDetail(notice)">
                     <h3 class="notice-title">{{ notice.noticeTitle }}</h3>
                     <p class="notice-date">{{ formatDate(notice.noticeDate) }}</p>
                 </div>
@@ -304,6 +304,10 @@ const showNoticeDetail = (notice) => {
 .form-control:focus {
     border-color: #00c4c4;
     box-shadow: none;
+}
+
+.cursor-pointer {
+  cursor: pointer;
 }
 
 @media (max-width: 768px) {
