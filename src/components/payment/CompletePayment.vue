@@ -1,10 +1,8 @@
 <template>
-
-
-    <div class="top-bar">
-        <RouterLink :to="`/funding/${id}/detail`">
+    <div class="top-bar d-flex justify-content-start">
+        <RouterLink :to="`/funding/${id}/detail`" class="me-auto">
             < 스토리로 돌아가기 </RouterLink>
-                <h6>Looper 공항에서 여권을 찾느라 가방을 뒤집는 당신을 위해</h6>
+                <h6>{{ fundingTitle }}</h6>
     </div>
 
     <div class="progress-steps my-5">
@@ -19,13 +17,13 @@
         <!-- 참여 완료 메시지 -->
         <h2 class="text-start">참여 완료 🎉</h2>
         <div class="completion-message text-center my-5">
-            <h5 class="delivery-info text-start">- 배송 예정일 2024.11 중순 (11~20일)</h5>
+            <!-- <h5 class="delivery-info text-start">- 배송 예정일 2024.11 중순 (11~20일)</h5> -->
 
             <!-- 프로젝트 소개 섹션 -->
-            <div class="project-info">
+            <!-- <div class="project-info">
                 <p class="fw-bold">나만 알고 있기 아까운 프로젝트라면?</p>
                 <p>친구에게 소개하고 | 포인트를 받아보세요</p>
-            </div>
+            </div> -->
             <RouterLink to="/mywadiz/info/participation">
                 <button class="next-button">다음</button>
             </RouterLink>
@@ -81,6 +79,7 @@
 import { onMounted, ref } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
 import { usePaymentStore } from '../../util/store/paymentStore';
+import apiWrapper from '../../util/axios/axios';
 
 defineProps(['id']); // id를 명시적으로 props로 정의
 
@@ -94,6 +93,8 @@ const steps = ref(["리워드 선택", "결제 화면", "결제 완료"]);
 const paymentStatus = route.query.status;  // success or failed
 const paymentId = route.params.id;  // 결제 ID
 
+const fundingTitle = ref(''); // fundingTitle 값을 저장할 ref 변수
+
 console.log("결제 상태:", paymentStatus);
 console.log("결제 ID:", paymentId);
 
@@ -103,11 +104,21 @@ if (paymentStatus === 'success') {
     alert('결제가 실패하였습니다. 다시 시도해주세요.');
 }
 
-onMounted(() => {
+onMounted(async () => {
     // 결제 성공 상태 확인
     if (paymentStore.isPaymentSuccessful) {
         // 상태 초기화
         paymentStore.resetPaymentStatus();
+    }
+
+    try {
+        const fundingData = await apiWrapper.fetchFundingData(paymentId); // props로 전달된 id 사용
+        console.log("펀딩 데이터:", fundingData);
+
+        // fundingTitle 값을 저장
+        fundingTitle.value = fundingData.fundingTitle || '프로젝트 제목 없음';
+    } catch (error) {
+        console.error("펀딩 데이터 조회 실패:", error);
     }
 });
 </script>
