@@ -37,7 +37,8 @@ export default {
           axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
 
           // JWT 저장 후 "/"로 리디렉션
-          router.push('/');
+          // router.push('/');
+          window.location.href = "http://localhost:3000/";
         } else {
           console.error("Authorization 헤더에서 토큰이 없습니다.");
         }
