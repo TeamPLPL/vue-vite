@@ -10,9 +10,9 @@
           <h4 class="fw-bold text-start">서포터 홈</h4>
           <div class="col-md-4 mt-3" @click="setCoupon">
             <div class="border rounded p-3 bg-light">
-              <div class="d-flex align-items-start" style="min-height: 57px;">
+              <div class="d-flex align-items-start" style="min-height: 57px; cursor: pointer">
                 <img src="https://via.placeholder.com/24" alt="쿠폰 아이콘" class="me-2">
-                <span style="cursor: pointer">쿠폰</span>
+                <span>쿠폰</span>
                 <span class="ms-auto fw-bold">{{ count }}장</span>
               </div>
 
