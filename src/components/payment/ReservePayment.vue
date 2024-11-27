@@ -340,7 +340,7 @@ async function clientAuth() {
             clientId: import.meta.env.VITE_NICEPAY_KEY,
             method: paymentMethod.value,
             // ModalConfirm.vue에 있는 orderId의 양식과 똑같아야 한다.
-            orderId: `prod_1127_${registerResponse.data.id}`, // 서버에서 결제 내역 확인용 ID, 최종 시연할 때 test_xxxx_를 제거할 예정
+            orderId: `prod_1127_02_${registerResponse.data.id}`, // 서버에서 결제 내역 확인용 ID, 최종 시연할 때 test_xxxx_를 제거할 예정
             amount: wholePrice.value,
             goodsName: fundingData.value.fundingTitle,
             returnUrl: `http://localhost:8080/api/payment/complete?id=${props.id}`,
