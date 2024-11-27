@@ -45,14 +45,14 @@
                       }}&nbsp;&nbsp;</span>
                   </div>
                   <div class="row mt-3">
-                    <div class="col">{{ fundingData.supportCnt }}명 참여</div>
-                    <div class="col">{{ leftDate }}일 남음</div>
+                    <div class="col">{{ fundingData.supportCnt.toLocaleString() }}명 참여</div>
+                    <div class="col">{{ leftDate.toLocaleString()  }}일 남음</div>
                   </div>
                   <div class="row">
-                    <div class="col">{{ fundingData.currentAmount }}원 달성</div>
+                    <div class="col">{{ fundingData.currentAmount.toLocaleString()  }}원 달성</div>
                     <div class="col">{{ fundingData.achievementRate }}% 달성</div>
                   </div>
-                  <div>펀딩 목표금액: {{ fundingData.targetAmount }}</div>
+                  <div>펀딩 목표금액: {{ fundingData.targetAmount.toLocaleString()  }}</div>
                 </div>
               </div>
 
