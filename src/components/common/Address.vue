@@ -60,7 +60,7 @@
         <!-- 취소 및 주소 저장 버튼 -->
         <div class="d-flex justify-content-between button-width">
             <button v-if="showCancelButton" class="btn btn-secondary w-100 me-2">취소</button>
-            <button @click="saveAddr" class="btn btn-primary w-100" style="background-color: #00c4c4;">주소 저장</button>
+            <button @click="saveAddr" class="btn btn-primary w-100" style="background-color: #00c4c4;">신규 주소 저장</button>
         </div>
     </div>
 
