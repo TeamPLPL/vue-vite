@@ -77,7 +77,9 @@
             <Address @selectedAddress="handleAddressSelection" />
         </div>
 
-        <button @click="saveAddressToPayment">선택한 주소 확인 및 저장</button>
+        <div class="container">
+            <button class="w-100 btn btn-primary mb-5" @click="saveAddressToPayment">현재 주소로 배송지 등록</button>
+        </div>
 
         <div class="mb-3">
             <h5 for="deliveryRequest" class="form-label w-50 text-start">배송 시 요청사항 (선택)</h5>
@@ -108,10 +110,10 @@
         </div>
 
         <RouterLink :to="`/purchase/choose/${id}`">
-            <button type="button" class="btn prev-btn w-100 my-1">이전 단계</button>
+            <button type="button" class="btn prev-btn w-100 my-1 mb-3 mt-3">이전 단계</button>
         </RouterLink>
         <RouterLink :to="`/purchase/reserve/${id}`">
-            <button @click="clientAuth" class="btn pay-btn w-100 my-1">결제하기</button>
+            <button @click="clientAuth" class="btn pay-btn w-100 my-1 mb-5">결제하기</button>
         </RouterLink>
     </div>
 </template>
