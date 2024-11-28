@@ -39,7 +39,7 @@
           <h2 class="mb-0 ms-0 fs-5"><span class="badge text-bg-primary w-100" >이름</span></h2>
         </div>
         <div class="col-9">
-          <input type="text" class="form-control custom-input" v-model="userInfo.userName" placeholder="이름을 입력하세요" :disabled="userInfo.userName"/>
+          <input type="text" class="form-control custom-input" v-model="userInfo.userName" placeholder="이름을 입력하세요" :disabled="isNameDisabled"/>
         </div>
       </div>
     </div>
@@ -142,7 +142,7 @@
 </template>
 
 <script>
-import {onMounted, reactive, ref} from "vue";
+import {onMounted, reactive, ref, watch } from "vue";
 import apiWrapper from "../../util/axios/axios.js";
 import router from "../../util/router/router.js";
 
@@ -165,6 +165,7 @@ export default {
       password: '',
       userContent: '',
     });
+    const isNameDisabled = ref(false);
 
     const state = reactive({
       email: '',
@@ -192,7 +193,8 @@ export default {
           userNick: userInfo.userNick
         });
         alert("유저 정보가 저장되었습니다.");
-        router.push("/mywadiz/supporter"); // 경로 이동
+        // router.push("/mywadiz/supporter"); // 경로 이동
+        window.location.href = "http://localhost:3000/mywadiz/supporter";
       } catch (error) {
         console.error(error);
         alert("유저 정보를 저장하는 중 오류가 발생했습니다.");
@@ -351,9 +353,19 @@ export default {
       }
     };
 
-    onMounted(() => {
-      fetchInitialProfileImage(); // 컴포넌트 초기화 시 썸네일 데이터 가져오기
-      fetchInitialUserInfo();
+    // 이름 플래그
+    const initializeInput = () => {
+      if (userInfo.userName) {
+
+        isNameDisabled.value = true; // 이름이 있으면 비활성화
+        console.log("플래그 값" + isNameDisabled.value);
+      }
+    };
+
+    onMounted(async () => {
+      await fetchInitialUserInfo(); // 유저 정보 가져오기 완료 후
+      initializeInput(); // 이름 값 확인 및 플래그 설정
+      fetchInitialProfileImage(); // 프로필 이미지는 병렬로 처리
     });
 
     return {
@@ -368,7 +380,8 @@ export default {
       verifyPassowrd,
       updateUserInfo,
       sendEmail,
-      verifyKey
+      verifyKey,
+      isNameDisabled
     }
   }
 };
