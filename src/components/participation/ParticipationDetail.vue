@@ -42,7 +42,7 @@
             <button v-if="(paymentDetails.paymentStatus !== 'refund' && paymentDetails.paymentStatus !== 'failed')
                 && isRefundEligible(paymentDetails.fundingEndDate)" class="change-button"
                 @click="openCancelModal(paymentDetails.paymentId)">
-                결제 예약 취소
+                결제 취소
             </button>
 
             <!-- 모달 컴포넌트 -->
