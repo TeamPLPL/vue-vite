@@ -3,16 +3,16 @@
         <div id="detailHeaderNav" class="container-sm d-flex justify-content-center">
             <ul class="nav nav-underline">
                 <li class="nav-item nav-link">
-                    <router-link :to="`/funding/${route.params.id}/detail`">Funding Detail</router-link>
+                    <router-link :to="`/funding/${route.params.id}/detail`">펀딩정보</router-link>
                 </li>
                 <li class="nav-item nav-link">
-                    <router-link :to="`/funding/${route.params.id}/notice`">Funding Notice</router-link>
+                    <router-link :to="`/funding/${route.params.id}/notice`">공지사항</router-link>
                 </li>
                 <li class="nav-item nav-link">
-                    <router-link :to="`/funding/${route.params.id}/board`">Funding Board</router-link>
+                    <router-link :to="`/funding/${route.params.id}/board`">후원자게시판</router-link>
                 </li>
                 <li class="nav-item nav-link">
-                    <router-link :to="`/funding/${route.params.id}/info`">Funding Info</router-link>
+                    <router-link :to="`/funding/${route.params.id}/info`">리워드·환불</router-link>
                 </li>
             </ul>
         </div>
