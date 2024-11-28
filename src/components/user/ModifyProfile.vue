@@ -356,14 +356,16 @@ export default {
     // 이름 플래그
     const initializeInput = () => {
       if (userInfo.userName) {
+
         isNameDisabled.value = true; // 이름이 있으면 비활성화
+        console.log("플래그 값" + isNameDisabled.value);
       }
     };
 
-    onMounted(() => {
-      fetchInitialProfileImage(); // 컴포넌트 초기화 시 썸네일 데이터 가져오기
-      fetchInitialUserInfo();
-      initializeInput()
+    onMounted(async () => {
+      await fetchInitialUserInfo(); // 유저 정보 가져오기 완료 후
+      initializeInput(); // 이름 값 확인 및 플래그 설정
+      fetchInitialProfileImage(); // 프로필 이미지는 병렬로 처리
     });
 
     return {
