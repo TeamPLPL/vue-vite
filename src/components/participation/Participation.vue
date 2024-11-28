@@ -29,7 +29,7 @@
                         결제 예약 취소
                     </button> -->
                     <!-- <router-link :to="`/mywadiz/info/participation/${item.id}`" class="details-link">상세보기 &gt;</router-link> -->
-                    <p v-if="item.status !== 'failed' && item.status !== 'refund'">{{ item.fundingEndDate }} 결제 예정</p>
+                    <p v-if="item.status !== 'failed' && item.status !== 'refund'">{{ item.fundingEndDate }} 까지 취소 가능</p>
                     <p v-if="item.status === 'refund'">결제 예약취소</p>
                     <router-link
                         :to="{ name: 'ParticipationDetail', params: { id: item.id }, query: { status: getStatus(item) } }"
