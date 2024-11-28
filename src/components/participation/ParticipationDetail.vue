@@ -198,7 +198,7 @@ function cancelReservation({ paymentId, cancelResponse, response }) {
     console.log("결제 예약 취소됨");
     console.log('취소할 Payment ID:', collectedPaymentId.value);
     showCancelModal.value = false; // 모달 닫기
-    router.push('/mywadiz/supporter/participation');   // '/participate'로 라우팅
+    router.push('/mywadiz/info/participation');   // '/participate'로 라우팅
 }
 
 function formatDate(dateString) {
